@@ -1,6 +1,7 @@
 # Enhanced Gyroflow spin-off
 
-Working name: **ExtraFlow**. This is a development plan, not a released product
+Working name: **Gyroflow Plus**, identified as a community fork. **ExtraFlow**
+was the initial alternative. This is a development plan, not a released product
 or a final public name. Ryan requested a separately maintained spin-off on
 2026-10-07, with more color tools and an import-to-sharing workflow.
 
