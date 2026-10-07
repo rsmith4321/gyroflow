@@ -1,9 +1,14 @@
 # LUT preview and export colors
 
-This prototype adds a user-selected 3D `.cube` LUT to Gyroflow's normal export.
+This development fork adds a user-selected 3D `.cube` LUT to Gyroflow's normal export.
 In **Color settings**, select **Choose LUT…**, pick a LUT, then export as usual.
-**Clear** disables the LUT. Brightness and contrast run from −50% to +50%; zero
-is neutral. Double-click either slider to reset it; **Reset adjustments** restores both to zero.
+**Clear** disables the LUT. Exposure runs from −2 to +2 display stops;
+temperature, tint and saturation run from −100% to +100%; brightness and
+contrast run from −50% to +50%. Highlights and shadows run from −50% to +50%.
+Zero is neutral. Double-click any slider to reset it; **Reset adjustments**
+restores all eight values to zero and retains the LUT. Temperature and tint
+are relative balance controls, not Kelvin or RAW white balance. Exposure is
+display-referred after the LUT. See [processing order and tested limits](BASIC-GRADING-PLAN.md).
 Color settings has its own collapsible section above Export settings.
 **Recent LUTs** remembers up to eight successfully selected local files across
 app restarts, with the last-used LUT first. Select an entry to apply it. Clearing
@@ -11,7 +16,7 @@ a LUT retains its history; history alone does not apply a LUT to a new clip.
 If a recent file was moved or deleted, its selection shows the normal LUT error;
 use Clear or select another file to continue.
 Presets and Apply to all also group the LUT and adjustments under Color settings;
-the saved `output` fields are unchanged.
+existing saved `output` fields retain their meanings; new fields default to zero in older projects.
 
 The LUT is applied after stabilization and before encoding, in the same export.
 The preview shows the selected LUT and color adjustments. **Preview colors**
@@ -27,7 +32,12 @@ already has the LUT applied, so avoid applying the same conversion again.
 - `output.brightness` and `output.contrast` are normalized values from −0.5 to +0.5.
   Old projects default to zero. Projects, queues, presets and Apply to all retain
   these controls. The preview comparison toggle is only a view setting.
-- After the LUT, both preview and export calculate
+- `output.exposure`, `output.saturation`, `output.warmth`, and `output.tint`
+  store the new controls; `output.highlights` and `output.shadows` retain the
+  existing tone controls. All eight values persist through projects, presets
+  and render jobs. Old projects default absent controls to zero; partial presets
+  leave fields they do not select unchanged.
+- After LUT and exposure/balance, both preview and export calculate
   `clamp((RGB - 0.5) * (1 + contrast) + 0.5 + brightness, 0, 1)`.
   These are simple brightness and contrast controls, not exposure in stops.
 - A Qt Quick GPU layer colors the existing stabilized preview. The tetrahedral

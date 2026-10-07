@@ -86,3 +86,23 @@ production computes channel gains once and applies a multiply per sample.
 Native UI acceptance, installation and final timing are recorded in the
 [basic grading report](BASIC-GRADING-PLAN.md). Portable distribution and Windows
 runtime validation remain open until tested on those environments.
+
+### Native preview issue found and fixed
+
+The native visual check found the player rendering a 32×32 placeholder even
+with grading bypassed and Full/1080p selected. The surface-size setter updated
+its requested dimensions but did not request a scene-graph node update.
+Controller now explicitly schedules `QQuickItem::update()` after changing the
+preview surface. In the rebuilt candidate a 1920×1080 player texture was confirmed;
+restoring Full preview visibly processes 3840×2160 and the native footage is sharp. Export processing is unchanged.
+
+Opening the first project also returned macOS `Operation not permitted` for
+its externally referenced recording. Selecting the original through the normal
+file picker provided access; the GUI-saved project reopened on the next build.
+No macOS security protections or internal permission databases were changed.
+
+The expanded acceptance passed actual GUI save/restart, comparison, reset and
+queue export. The queue's 481 decoded frame hashes and timestamps exactly
+match the CLI export. The installed executable matches the staged signed
+binary. No unresolved defect was found in the reviewed expanded path; the
+listed platform, color-management and portable packaging limits remain open.

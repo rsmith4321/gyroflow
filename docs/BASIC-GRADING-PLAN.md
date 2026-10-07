@@ -1,14 +1,14 @@
 # Basic drone grading
 
-Expanded implementation candidate, 2026-10-07. Native acceptance and local
-installation will be recorded below after testing. Public portable binaries
-and Windows runtime acceptance remain separate release gates.
+Expanded implementation accepted on the local Mac, 2026-10-07. Public portable
+binaries and Windows runtime acceptance remain separate release gates.
 
 ## Controls and reversible workflow
 
 Color settings contains manual `.cube` LUT selection, exposure (−2 to +2
 display stops), relative temperature and tint (−100% to +100%), brightness,
-contrast, highlights, shadows, and saturation (−100% to +100%). Temperature
+contrast, highlights and shadows (−50% to +50%), and saturation
+(−100% to +100%). Temperature
 provides warmer/cooler RGB balance, not measured Kelvin or RAW white balance.
 All controls default to zero, support double-click reset, and are included in
 project, preset and queue data. Reset adjustments retains the selected LUT.
@@ -90,3 +90,28 @@ The additional four controls were within run-to-run variation of the existing
 color path in this short sample. LUT/color conversion still costs time compared
 with the ungraded fast path. This is not a full-flight performance guarantee or
 proof that the hardware encoder itself applies the color grade.
+
+## Native Mac acceptance and installation
+
+Source implementation `31158acfaa124bc1f6e3fa5c7249e0858355b95b`, with native
+preview refresh fix `434cebc3aeca542bb28bcfb4476c63ed82b17ef2`. The actual
+Mac UI loaded the original DJI recording and detected embedded motion data.
+Four new double-click reset gestures and reset-all were checked; reset-all
+retained the LUT. All eight nonzero values survived GUI saving and app restart.
+Preview comparison and playback worked. Full preview visibly processed
+3840×2160; the initial 32×32 placeholder issue was fixed by explicitly
+synchronizing the scene-graph texture after a surface-size change.
+
+A native queue job completed the same eight-second section at 720p ten-bit
+HEVC. All 481 fully decoded frame hashes and timestamps exactly match the
+command-line export with the same saved settings. The export comment records
+the selected LUT and all eight values. This is actual native queue acceptance,
+not only a filter or shader test.
+
+Installed separately at `/Applications/Gyroflow Plus.app`. The previous local
+Plus app was preserved before replacement. The signed executable SHA-256 is
+`d7e1a366a98bb44a1e41a9c4ae1c2374a96c82d3be6323fad2d95b537c1e8982`;
+the staged and installed executable match and deep/strict signature validation
+passes. This uses the Mac's Homebrew development libraries and is not a
+portable public package. Original recordings, official Gyroflow, and private
+verification inputs are not part of the published source.

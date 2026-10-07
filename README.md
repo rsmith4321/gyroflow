@@ -4,18 +4,20 @@
 
 This is Ryan Smith's community development fork of [Gyroflow](https://github.com/gyroflow/gyroflow).
 It keeps Gyroflow's existing stabilization workflow and adds user-selected `.cube`
-LUT preview/export, brightness/contrast and a post-LUT Highlights/Shadows
-prototype, plus supporting compatibility fixes. The controls are in a separate **Color settings** section.
+LUT preview/export and eight basic grading controls: exposure, temperature,
+tint, brightness, contrast, highlights, shadows and saturation, plus supporting
+compatibility fixes. The controls are in a separate **Color settings** section.
 **Recent LUTs** remembers up to eight files across restarts, with the last-used
 LUT first. Source footage and embedded motion data are preserved.
 
 Gyroflow Plus brings together **Gyroflow stabilization and color tools based on
 [OpenColorIO](https://opencolorio.org/)** to help you finish drone videos in one
 place: stabilize, choose a LUT, make basic color corrections, and export. The
-Highlights/Shadows controls use sampled curves derived from OpenColorIO; the
-full OpenColorIO runtime and configurable color-management workflow are not
-integrated. See the measured approximation and processing order in the
-[tone prototype report](docs/COLOR-TONE-PROTOTYPE.md).
+Highlights/Shadows controls use sampled curves derived from OpenColorIO;
+exposure, relative color balance and saturation use small native math tested
+against OpenColorIO. The full OpenColorIO runtime and configurable color-management
+workflow are not integrated. See the processing order, native Mac acceptance
+and measured limits in the [basic grading report](docs/BASIC-GRADING-PLAN.md).
 
 Edits are nondestructive: original recordings and embedded motion data are
 untouched, while projects retain the selected LUT and adjustment values for
