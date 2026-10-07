@@ -40,16 +40,24 @@ These fixes do not change the compiled color/rendering paths or their timing.
   settings and update identities prevent the fork from updating official
   Gyroflow or using its Store/WinGet release automation.
 
-## Remaining acceptance gates
+3. **Pre-signing hash mistaken for packaged executable hash.** The old build
+   manifest used `binary_sha256` for its input executable. Ad-hoc Mac signing
+   changes those bytes. It now calls this `input_binary_sha256` and writes the
+   final `packaged_binary_sha256` in `PACKAGE.json` outside the signed bundle,
+   avoiding a circular resource hash. Actual Mac development staging verifies
+   that final receipt matches the executable and deep/strict signature passes.
 
-Native video loading in the separately staged development bundle stalls in the
-operating system's file-open call. The cause is unconfirmed; a normal macOS
-access prompt is possible. Computer use refused access to the protected system
-prompt. Resolve this through normal OS handling before claiming playback,
-slider gestures, GUI save/restart, queue acceptance or installation readiness.
-The earlier LUT Preview app remains intact.
+## Native acceptance and remaining release gates
 
-Windows runtime validation of the new controls and portable public releases
-remain open. Dependency closure, licensing, clean-machine tests and signing
-gates are in [the distribution plan](PLUS-DISTRIBUTION.md). Do not label the
-development bundle a portable or publicly released installer.
+The initial file-open stall cleared; the cause remains unconfirmed. Resumed
+native testing verified playback, embedded motion detection, four double-click
+reset gestures, reset-all, preview comparison, GUI project saving and reopening
+after restart. The separately installed local development app completed a native
+queue export with all 481 frames decoded and the selected LUT/tone values in
+its output metadata. See [the acceptance report](COLOR-TONE-PROTOTYPE.md).
+
+The installed build is a machine-specific development app, not a portable
+public release. Windows runtime validation of the new controls and portable
+package licensing, dependency closure, clean-machine and signing checks remain
+open. The next requested broader basic grading controls are not implemented
+by this acceptance milestone.

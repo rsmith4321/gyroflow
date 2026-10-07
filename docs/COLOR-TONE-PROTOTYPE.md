@@ -75,23 +75,34 @@ through the full app CLI preserves the previous LUT/brightness/contrast and
 saves/reimports the new tone fields successfully. This verifies CLI project and
 preset persistence, not native queue editing or restart acceptance.
 
-## Native staging and remaining gate
+## Native Mac acceptance (2026-10-07)
 
-Technical prototype commit `48231d21faa13d3b6a7cf6e173423b421dc44e48` was built
-on Mac and staged separately as `Gyroflow Plus.app`, with own bundle/settings/
-update identities and an ad-hoc signature that passes deep/strict verification.
-The prepared development runtime has recorded Homebrew/Qt dependencies and is
-not a portable release. The official app and currently running LUT Preview
-app were preserved. No replacement was installed in Applications.
+The initial OS file-open stall cleared during resumed testing; its cause remains
+unconfirmed. No security or permission bypass was used. Native playback of the
+DJI O4 Pro moving recording now works, with embedded motion data detected.
+Double-click resets each of the four sliders, Reset adjustments leaves the LUT
+selected, and the preview comparison switch changes the displayed colors.
+The GUI saves the LUT and normalized tone fields; reopening the saved project
+after restarting preserves Highlights −25% and Shadows +25%.
 
-The new app visibly opens with the community-fork title and color section, but
-native video loading stalls in the OS `open` call before metadata/frames arrive.
-The sampled stack is MDK PacketIO → MediaIO → FFmpeg → kernel `open`. The
-computer-use tool refuses access to macOS UserNotificationCenter for safety
-reasons, so a possible normal system access prompt cannot be inspected by the
-agent. No permission/security bypass was attempted. Normal macOS access and
-native playback/slider/save/restart/queue acceptance remain a gate; it is not
-established that the stall is caused by a permission prompt.
+A separate local development app is installed at `/Applications/Gyroflow Plus.app`.
+Its compiled UI source is `2ddd7dbb5271f9faa6438ab917f5800e6a35f695`, including
+Plus beneath the original logo and the Community fork label. The input build
+hash is `48216f2cf9fdf9b1f236b992c3e06c96920021821f9fc4b3af5e882a75af6ec3`;
+the installed, ad-hoc signed binary hash is
+`3f7e0e33c7659833faa0c34967accbe7591424626b11a888bf510fb4ee4cf848`.
+Signing changes the binary bytes. The official app and earlier LUT Preview app
+remain separate and intact. The runtime has Homebrew dependencies and is not a
+portable public release.
 
-Latest Windows full-app validation and portable public releases remain open;
-see [distribution gates](PLUS-DISTRIBUTION.md).
+The native render queue completed an eight-second 1280×720 HEVC export to a new
+filename, preserving the earlier test outputs. ffprobe fully decoded all **481**
+frames, reporting `yuv420p10le`, BT.709 and limited range. The comment identifies
+the selected DJI LUT, Shadows +25% and Highlights −25%. The displayed queue
+counter was 480/480; decoded file count is authoritative. This native acceptance
+extends the earlier independent reference evidence; it does not imply every
+codec/recording or a new Windows runtime has been tested. Private screenshots,
+project copies, queue probe and logs remain under `_dev/color-tone-prototype`.
+
+Windows runtime and portable public-release gates remain in
+[the distribution plan](PLUS-DISTRIBUTION.md).
