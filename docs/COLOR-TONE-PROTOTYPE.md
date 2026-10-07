@@ -53,8 +53,8 @@ and therefore cannot be expected to reproduce nonzero tone settings.
   maximum float error `1.4901161193847656e-6`. Odd-width/padded shared input,
   alpha, dimensions and timestamps are preserved across repeated filtering.
 - Production Qt QSB rendered on Metal matches independent OCIO reference
-  exactly in four RGB8 display cases (including tone extremes and fractional
-  settings). QSB includes GLSL, HLSL SM5 and Metal outputs, serialization v6.
+  within one RGB8 code in eight display cases (with and without the
+  DJI LUT, including tone extremes and fractional settings). QSB includes GLSL, HLSL SM5 and Metal outputs, serialization v6.
   Baking HLSL is not Windows runtime proof.
 - Newly rendered stabilized eight-second 720p moving-flight exports: all 481
   frames fully decode, timestamps and stream/color properties agree. Against
@@ -68,7 +68,30 @@ and therefore cannot be expected to reproduce nonzero tone settings.
 
 Private source footage, LUTs, generated exports and logs are outside Git under
 `_dev/color-tone-prototype/`. Test harnesses and table generator are public.
-Native installed UI/persistence, combined LUT/tone GPU comparison, old neutral
-project equivalence and original hash recheck are recorded separately as they
-are completed. Windows full-app validation and portable public releases remain
-open; see [distribution gates](PLUS-DISTRIBUTION.md).
+The neutral old project renders identically to the earlier saved neutral export
+for all 481 decoded frames/timestamps. Fresh SHA256 checks confirm the original
+recording and official Gyroflow binary are unchanged. A tone-only preset applied
+through the full app CLI preserves the previous LUT/brightness/contrast and
+saves/reimports the new tone fields successfully. This verifies CLI project and
+preset persistence, not native queue editing or restart acceptance.
+
+## Native staging and remaining gate
+
+Technical prototype commit `48231d21faa13d3b6a7cf6e173423b421dc44e48` was built
+on Mac and staged separately as `Gyroflow Plus.app`, with own bundle/settings/
+update identities and an ad-hoc signature that passes deep/strict verification.
+The prepared development runtime has recorded Homebrew/Qt dependencies and is
+not a portable release. The official app and currently running LUT Preview
+app were preserved. No replacement was installed in Applications.
+
+The new app visibly opens with the community-fork title and color section, but
+native video loading stalls in the OS `open` call before metadata/frames arrive.
+The sampled stack is MDK PacketIO → MediaIO → FFmpeg → kernel `open`. The
+computer-use tool refuses access to macOS UserNotificationCenter for safety
+reasons, so a possible normal system access prompt cannot be inspected by the
+agent. No permission/security bypass was attempted. Normal macOS access and
+native playback/slider/save/restart/queue acceptance remain a gate; it is not
+established that the stall is caused by a permission prompt.
+
+Latest Windows full-app validation and portable public releases remain open;
+see [distribution gates](PLUS-DISTRIBUTION.md).

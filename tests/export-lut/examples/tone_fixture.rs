@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //! Production float-frame / preview-texture fixture, for independent OCIO checks.
 use ffmpeg_next::{format::Pixel, frame::Video};
-use gyroflow_export_lut_tests::{export_lut::ExportLut, tone_curve::ToneCurve};
+use gyroflow_export_lut_tests::{cube_lut::CubeLut, export_lut::ExportLut, tone_curve::ToneCurve};
 use std::{error::Error, fs};
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -28,13 +28,22 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
     let original: Vec<Vec<u8>> = (0..4).map(|p| frame.data(p).to_vec()).collect();
     let lut = args.get(11).map(fs::read).transpose()?;
+    if let Some(lut) = lut.as_ref() {
+        let cube = CubeLut::parse(lut)?;
+        let (width, height, data) = cube.atlas();
+        let folder = std::path::Path::new(&args[3]).parent().unwrap();
+        fs::write(folder.join("atlas.rgb"), data)?;
+        fs::write(folder.join("atlas-size.txt"), format!("{width} {height} {}", cube.size))?;
+    }
     let mut filter = ExportLut::with_color(lut.as_deref(), b, c, s, hi)?;
     let mut pixels = Vec::with_capacity(input.len());
     for _ in 0..args[10].parse::<usize>()? {
         let output = filter.apply(&frame)?;
         assert_eq!(output.pts(), Some(987654));
         assert_eq!(output.format(), Pixel::GBRAPF32LE);
-        for p in 0..4 { assert!(frame.data(p) == original[p], "Input plane {p} was mutated"); }
+        for (p, saved) in original.iter().enumerate() {
+            assert!(frame.data(p) == saved, "Input plane {p} was mutated");
+        }
         pixels.clear();
         for y in 0..h {
             for x in 0..w {

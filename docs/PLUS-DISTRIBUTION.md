@@ -38,8 +38,12 @@ FFmpeg, OpenCV and MDK versions, source revisions and dependency license texts
 with each packaged artifact. Source/build reproducibility is the goal; bitwise
 reproducible binaries across arbitrary compilers are not established.
 
-Use `just deploy` to prepare a desktop runtime with all required Qt, QML,
-FFmpeg, OpenCV, MDK and codec dependencies. Then stage it under the fork identity:
+The inherited desktop dependency/deploy recipes are a starting point for
+preparing a runtime with Qt, QML, FFmpeg, OpenCV, MDK and codecs. On Mac the
+recipe needs an explicit target (`just deploy local` or `just deploy universal`);
+on Windows it is `just deploy`. Do not use upstream Store/bundle signing recipes
+or credentials. These portable recipe paths have not been accepted for this
+prototype. Once a runtime is prepared and audited, stage it under the fork identity:
 
 ```sh
 python3 _scripts/package_plus.py mac path/to/prepared/Gyroflow.app path/to/new-stage \

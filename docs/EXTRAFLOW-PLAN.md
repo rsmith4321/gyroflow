@@ -28,9 +28,9 @@ native export adjustment optimization is now installed and tested on Mac:
 see [COLOR-PERFORMANCE.md](COLOR-PERFORMANCE.md). Easy Eject already recognizes
 the explicit exported-LUT marker to avoid applying that conversion twice.
 
-## Next color prototype
+## Color prototype
 
-Evaluate [OpenColorIO's GradingToneTransform](https://opencolorio.readthedocs.io/en/v2.4.2/api/grading_transforms.html)
+The implemented prototype evaluates [OpenColorIO's GradingToneTransform](https://opencolorio.readthedocs.io/en/v2.4.2/api/grading_transforms.html)
 for post-LUT shadows/highlights. It offers tonal ranges and video/linear/log
 styles; [primary grading and exposure transforms](https://opencolorio.readthedocs.io/en/stable/api/transforms.html)
 also provide exposure and pivoted contrast. This is a better functional match
@@ -45,14 +45,15 @@ Retain the verified fast build until the prototype meets those checks.
 
 ## Release work still open
 
-- Final name/application branding, icon and independent update destinations.
+- Final name/application branding, icon and public release acceptance.
 - Independent app/settings/updater identities and safe staging are implemented;
   portable packaging, Windows installation and final branding remain open.
   See [PLUS-DISTRIBUTION.md](PLUS-DISTRIBUTION.md).
 - Windows runtime validation of the latest native export optimization.
 - Portable dependency packaging, signing/notarization as appropriate, reproducible
   release builds and actual install/export checks on both platforms.
-- Richer color controls and further import/sharing integration. A cached OpenColorIO-derived video-tone prototype and Highlights/Shadows
+- Native acceptance of the richer color controls and further import/sharing
+  integration. A cached OpenColorIO-derived video-tone prototype and Highlights/Shadows
   controls are implemented; see [COLOR-TONE-PROTOTYPE.md](COLOR-TONE-PROTOTYPE.md).
   The native OCIO runtime is not integrated.
 
