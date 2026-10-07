@@ -1,3 +1,38 @@
+## Gyroflow LUT and color fork
+
+This is Ryan Smith's focused development fork of [Gyroflow](https://github.com/gyroflow/gyroflow).
+It keeps Gyroflow's existing stabilization workflow and adds user-selected `.cube`
+LUT preview/export, simple brightness and contrast controls, and the supporting
+compatibility fixes. The controls are in a separate **Color settings** section.
+**Recent LUTs** remembers up to eight files across restarts, with the last-used
+LUT first. Source footage and embedded motion data are preserved.
+
+The latest upstream stable release is [v1.6.3, published September 4, 2025](https://github.com/gyroflow/gyroflow/releases/tag/v1.6.3).
+As of October 7, 2026, that is over a year without a new stable release; upstream
+development is still active. I made this fork so I could use the LUT feature now.
+The feature has also been submitted upstream in [PR #1249](https://github.com/gyroflow/gyroflow/pull/1249).
+
+See [LUT usage and supported formats](docs/EXPORT-LUT.md),
+[build instructions](https://docs.gyroflow.xyz/app/technical-details/building-from-source),
+and [Windows testing and build notes](docs/WINDOWS-LUT-TESTING.md).
+This repository currently provides the feature source; it does not yet have a
+public packaged binary release. The official Download link below points to
+upstream Gyroflow, which does not include this unmerged feature.
+
+### Related workflows
+
+These are my companion projects for importing footage and sharing finished work:
+
+- [Easy Eject](https://github.com/rsmith4321/Ejector): import and organize camera
+  media, then open the imported footage in Gyroflow for stabilization and color.
+- [ShootCal](https://shootcal.com/): share finished videos through ShootCal Galleries.
+
+A typical workflow is **Easy Eject import → Gyroflow stabilize and apply LUT →
+ShootCal sharing**. Select the LUT that matches your recording profile and avoid
+applying the same conversion again to an already color-corrected export.
+
+---
+
 <p align="center">
   <h1 align="center">
     <a href="https://github.com/gyroflow/gyroflow#gh-light-mode-only">
