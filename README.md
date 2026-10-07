@@ -9,6 +9,14 @@ prototype, plus supporting compatibility fixes. The controls are in a separate *
 **Recent LUTs** remembers up to eight files across restarts, with the last-used
 LUT first. Source footage and embedded motion data are preserved.
 
+Gyroflow Plus brings together **Gyroflow stabilization and color tools based on
+[OpenColorIO](https://opencolorio.org/)** to help you finish drone videos in one
+place: stabilize, choose a LUT, make basic color corrections, and export. The
+Highlights/Shadows controls use sampled curves derived from OpenColorIO; the
+full OpenColorIO runtime and configurable color-management workflow are not
+integrated. See the measured approximation and processing order in the
+[tone prototype report](docs/COLOR-TONE-PROTOTYPE.md).
+
 The latest upstream stable release is [v1.6.3, published September 4, 2025](https://github.com/gyroflow/gyroflow/releases/tag/v1.6.3).
 As of October 7, 2026, that is over a year without a new stable release; upstream
 development is still active. I made this fork so I could use the LUT feature now.
