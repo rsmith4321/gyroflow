@@ -1020,6 +1020,9 @@ impl Controller {
                 self.chart_data_changed();
 
                 vid.setSurfaceSize(new_w, new_h);
+                // Surface changes must synchronize the scene-graph texture,
+                // not only redraw the existing (possibly 32x32 placeholder) one.
+                (vid as &dyn qmetaobject::qtdeclarative::QQuickItem).update();
                 vid.setRotation(vid.getRotation());
                 // vid.setCurrentFrame(vid.currentFrame);
             }
