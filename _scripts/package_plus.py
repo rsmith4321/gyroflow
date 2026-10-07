@@ -3,8 +3,8 @@
 """Stage the community fork from an explicitly prepared desktop runtime.
 
 Does not install, publish, register file associations, or use upstream Store
-identities. Portable staging requires supplied dependency notices and a clean
-source checkout. --development-runtime permits local dependency paths and
+identities. All staging requires a clean source checkout; portable staging also
+requires supplied dependency notices. --development-runtime permits local dependency paths and
 records that the result is not a redistributable release.
 """
 import argparse
@@ -12,6 +12,7 @@ import hashlib
 import json
 from pathlib import Path
 import plistlib
+import re
 import shutil
 import subprocess
 import tomllib
@@ -29,8 +30,13 @@ def check_mac_dependencies(app):
         if not path.is_file() or path.is_symlink(): continue
         result = subprocess.run(['otool', '-L', str(path)],capture_output=True,text=True)
         if result.returncode: continue
-        for line in result.stdout.splitlines()[1:]:
-            dependency = line.strip().split(' (compatibility')[0]
+        for line in result.stdout.splitlines():
+            # Universal binaries print a filename/architecture header for each
+            # slice. Only indented versioned records are dependency entries.
+            record = re.match(r'^\s+(.+?)\s+\((?:compatibility|current) version\b', line)
+            if not record:
+                continue
+            dependency = record.group(1)
             if dependency.startswith('/') and not dependency.startswith(('/usr/lib/', '/System/Library/')):
                 external.add(dependency)
     return sorted(external)
@@ -49,7 +55,7 @@ def main():
     output=args.output.resolve()
     if output.exists(): parser.error('Output already exists; use a fresh staging directory')
     dirty=bool(git('status','--porcelain').strip())
-    if not args.development_runtime and dirty: parser.error('Portable staging requires committed source')
+    if dirty: parser.error('All staging requires committed source, including newly added files')
     if not args.development_runtime and not args.licenses: parser.error('Supply dependency notices/provenance with --licenses')
     version=tomllib.loads((ROOT/'Cargo.toml').read_text())['package']['version']
     commit=git('rev-parse','HEAD').decode().strip()
@@ -105,12 +111,10 @@ def main():
         source=f'https://github.com/rsmith4321/gyroflow/tree/{commit}',external_mac_dependencies=external,
         public_release_approved=False)
     (notices/'BUILD.json').write_text(json.dumps(manifest,indent=2)+'\n')
-    # Source archive for this commit accompanies every stage. Development dirty
-    # builds also carry their exact source patch; they remain local prototypes.
+    # A complete committed source archive accompanies every stage. Refusing
+    # dirty builds avoids omitting untracked source or collecting private files.
     with (output/f'Gyroflow-Plus-source-{commit[:12]}.tar').open('wb') as f:
         subprocess.run(['git','archive','--format=tar',commit],cwd=ROOT,stdout=f,check=True)
-    if dirty:
-        (output/'development-source.patch').write_bytes(git('diff','HEAD','--binary'))
     if args.platform=='mac':
         subprocess.run(['codesign','--force','--deep','--sign','-',str(app)],check=True)
         subprocess.run(['codesign','--verify','--deep','--strict',str(app)],check=True)

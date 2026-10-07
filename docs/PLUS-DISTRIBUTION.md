@@ -56,7 +56,7 @@ python _scripts/package_plus.py windows _deployment/_binaries/win64 path/to/new-
   --licenses path/to/dependency-notices
 ```
 
-The stager requires a clean source checkout for portable candidates, preserves
+The stager requires a clean source checkout for every candidate, preserves
 the runtime's dependency notices, adds GPL/OCIO/fork notices, corresponding app
 source archive, source URL, binary SHA256 and commit manifest, and refuses an
 existing output. Mac auditing rejects absolute non-system dependencies. It
@@ -69,6 +69,9 @@ For a local development build, `--development-runtime` explicitly permits the
 prepared runtime's machine dependencies and records them. Such builds may rely
 on Homebrew and are not advertised as portable downloads. Staging does not
 install, publish, register Windows project associations or create a GitHub release.
+Commit newly added files and other source changes before staging development
+builds too. This keeps the accompanying source archive complete without copying
+untracked private files into a package.
 
 ## Public-release gates
 
