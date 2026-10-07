@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+#[path = "../../../src/rendering/basic_grade.rs"]
+pub mod basic_grade;
 #[path = "../../../src/rendering/cube_lut.rs"]
 pub mod cube_lut;
 #[path = "../../../src/rendering/export_lut.rs"]
@@ -487,9 +489,118 @@ mod tests {
             let reference = geq_reference(&frame, 0.1, 0.2);
             let output = filter.apply(&frame).unwrap();
             assert_active_pixels_equal(&reference, &output);
+            let mut graded = ExportLut::with_grading(
+                None,
+                0.1,
+                0.2,
+                0.3,
+                -0.4,
+                super::basic_grade::BasicGradeSettings {
+                    exposure: 0.37,
+                    saturation: 0.23,
+                    warmth: 0.41,
+                    tint: -0.27,
+                },
+            )
+            .unwrap();
+            let graded_output = graded.apply(&frame).unwrap();
+            assert_eq!(graded_output.format(), pixel);
+            assert_eq!(
+                (
+                    graded_output.width(),
+                    graded_output.height(),
+                    graded_output.pts()
+                ),
+                (w, h, frame.pts())
+            );
+            assert_eq!(graded_output.color_space(), space);
+            assert_eq!(graded_output.color_range(), range);
+            assert_eq!(graded_output.aspect_ratio(), frame.aspect_ratio());
             for p in 0..frame.planes() {
                 assert_eq!(frame.data(p), saved[p]);
             }
+        }
+    }
+    #[test]
+    fn neutral_added_controls_preserve_old_float_and_ten_bit_paths() {
+        use super::basic_grade::BasicGradeSettings;
+        for frame in [
+            floats(Pixel::GBRAPF32LE, 17, 5),
+            Video::new(Pixel::YUV420P10LE, 18, 10),
+        ] {
+            for lut in [None, Some(cube(false))] {
+                for (b, c, sh, hi) in [(0.0, 0.0, 0.0, 0.0), (0.12, 0.18, 0.3, -0.4)] {
+                    let old = ExportLut::with_color(lut.as_deref(), b, c, sh, hi)
+                        .unwrap()
+                        .apply(&frame)
+                        .unwrap();
+                    let new = ExportLut::with_grading(
+                        lut.as_deref(),
+                        b,
+                        c,
+                        sh,
+                        hi,
+                        BasicGradeSettings::default(),
+                    )
+                    .unwrap()
+                    .apply(&frame)
+                    .unwrap();
+                    assert_active_pixels_equal(&old, &new);
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn saturation_combines_rgb_without_mutating_shared_alpha_or_padding() {
+        use super::basic_grade::BasicGradeSettings;
+        let mut frame = floats(Pixel::GBRAPF32LE, 17, 5);
+        for p in 0..4 {
+            let stride = frame.stride(p);
+            frame.data_mut(p).fill(0xa5);
+            for y in 0..5 {
+                for x in 0..17 {
+                    let value: f32 = if p == 2 {
+                        1.0
+                    } else if p == 3 {
+                        0.375
+                    } else {
+                        0.0
+                    };
+                    frame.data_mut(p)[y * stride + x * 4..][..4]
+                        .copy_from_slice(&value.to_le_bytes());
+                }
+            }
+        }
+        let saved: Vec<_> = (0..4).map(|p| frame.data(p).to_vec()).collect();
+        let mut filter = ExportLut::with_grading(
+            None,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            BasicGradeSettings {
+                saturation: -1.0,
+                ..Default::default()
+            },
+        )
+        .unwrap();
+        for _ in 0..3 {
+            let output = filter.apply(&frame).unwrap();
+            for p in 0..4 {
+                assert_eq!(frame.data(p), saved[p]);
+                for y in 0..5 {
+                    for x in 0..17 {
+                        let actual = f32::from_le_bytes(
+                            output.data(p)[y * output.stride(p) + x * 4..][..4]
+                                .try_into()
+                                .unwrap(),
+                        );
+                        assert_eq!(actual, if p == 3 { 0.375 } else { 0.2126 });
+                    }
+                }
+            }
+            assert_eq!(output.pts(), frame.pts());
         }
     }
 }

@@ -13,6 +13,7 @@ pub struct ExportLut {
     brightness: f64,
     contrast: f64,
     tone: Option<super::tone_curve::ToneCurve>,
+    grade: super::basic_grade::BasicGrade,
     graph: Option<filter::Graph>,
     output_graph: Option<filter::Graph>,
     input: Option<(Pixel, u32, u32, i32, i32, i32, i32)>,
@@ -39,8 +40,32 @@ impl ExportLut {
         Self::with_color(bytes, brightness, contrast, 0.0, 0.0)
     }
 
-    pub fn with_color(bytes: Option<&[u8]>, brightness: f64, contrast: f64,
-                      shadows: f64, highlights: f64) -> Result<Self, String> {
+    pub fn with_color(
+        bytes: Option<&[u8]>,
+        brightness: f64,
+        contrast: f64,
+        shadows: f64,
+        highlights: f64,
+    ) -> Result<Self, String> {
+        Self::with_grading(
+            bytes,
+            brightness,
+            contrast,
+            shadows,
+            highlights,
+            Default::default(),
+        )
+    }
+
+    pub fn with_grading(
+        bytes: Option<&[u8]>,
+        brightness: f64,
+        contrast: f64,
+        shadows: f64,
+        highlights: f64,
+        settings: super::basic_grade::BasicGradeSettings,
+    ) -> Result<Self, String> {
+        let grade = super::basic_grade::BasicGrade::new(settings)?;
         let tone = super::tone_curve::ToneCurve::new(shadows, highlights)?;
         if !brightness.is_finite()
             || !contrast.is_finite()
@@ -67,6 +92,7 @@ impl ExportLut {
             brightness,
             contrast,
             tone,
+            grade,
             graph: None,
             output_graph: None,
             input: None,
@@ -233,7 +259,10 @@ impl ExportLut {
                 frame.aspect_ratio().denominator(),
             )
         };
-        let needs_adjustment = self.brightness != 0.0 || self.contrast != 0.0 || self.tone.is_some();
+        let needs_adjustment = self.brightness != 0.0
+            || self.contrast != 0.0
+            || self.tone.is_some()
+            || self.grade.is_active();
         if self.input != Some(signature) {
             let output_pixel = if needs_adjustment {
                 let descriptor = unsafe { ffi::av_pix_fmt_desc_get(frame.format().into()) };
@@ -286,6 +315,7 @@ impl ExportLut {
         let gain = 1.0 + self.contrast;
         let offset = 0.5 + self.brightness;
         for plane in 0..3 {
+            let color_gain = self.grade.gains[[1, 2, 0][plane]];
             let stride = frame.stride(plane);
             if stride < width * 4 || stride % 4 != 0 {
                 return Err("Invalid float RGB row stride".into());
@@ -298,12 +328,84 @@ impl ExportLut {
                     // reassociation/FMA or per-pixel expression interpretation.
                     // The graph uses explicit little-endian float formats.
                     let input = f32::from_bits(u32::from_le(sample.to_bits()));
-                    let output = (((input as f64 - 0.5) * gain + offset).clamp(0.0, 1.0)) as f32;
+                    let output = (((input as f64 * color_gain - 0.5) * gain + offset)
+                        .clamp(0.0, 1.0)) as f32;
                     let output = self.tone.as_ref().map_or(output, |tone| tone.apply(output));
                     *sample = f32::from_bits(output.to_bits().to_le());
                 }
             });
         }
+        if self.grade.saturation != 1.0 {
+            self.saturate_rgb(frame)?;
+        }
+        Ok(())
+    }
+
+    fn saturate_rgb(&self, frame: &mut Video) -> Result<(), String> {
+        let width = frame.width() as usize;
+        let height = frame.height() as usize;
+        let strides = [frame.stride(0), frame.stride(1), frame.stride(2)];
+        let lengths = [
+            frame.data(0).len(),
+            frame.data(1).len(),
+            frame.data(2).len(),
+        ];
+        let pointers = [
+            frame.data_mut(0).as_mut_ptr(),
+            frame.data_mut(1).as_mut_ptr(),
+            frame.data_mut(2).as_mut_ptr(),
+        ];
+        let mut regions = Vec::new();
+        for p in 0..3 {
+            if strides[p] < width.checked_mul(4).ok_or("RGB width overflow")?
+                || strides[p] % 4 != 0
+                || lengths[p]
+                    < strides[p]
+                        .checked_mul(height)
+                        .ok_or("RGB height overflow")?
+            {
+                return Err("Invalid saturation RGB plane dimensions".into());
+            }
+            let begin = pointers[p] as usize;
+            let end = begin.checked_add(lengths[p]).ok_or("RGB plane overflow")?;
+            regions.push((begin, end));
+        }
+        regions.sort_unstable();
+        if regions.windows(2).any(|r| r[0].1 > r[1].0) {
+            return Err("Saturation RGB planes overlap".into());
+        }
+        // av_frame_make_writable ran before this stage. Each pointer/length is
+        // from a live FFmpeg-owned plane; verified nonoverlap permits three
+        // simultaneous mutable slices. Row zipping excludes padding/alpha.
+        let [g, b, r] = unsafe {
+            pointers
+                .into_iter()
+                .zip(lengths)
+                .map(|(ptr, len)| {
+                    bytemuck::try_cast_slice_mut::<u8, f32>(std::slice::from_raw_parts_mut(
+                        ptr, len,
+                    ))
+                    .map_err(|_| "Invalid saturation RGB alignment")
+                })
+                .collect::<Result<Vec<_>, _>>()?
+                .try_into()
+                .map_err(|_| "Missing RGB plane")?
+        };
+        g.par_chunks_exact_mut(strides[0] / 4)
+            .zip(b.par_chunks_exact_mut(strides[1] / 4))
+            .zip(r.par_chunks_exact_mut(strides[2] / 4))
+            .for_each(|((g, b), r)| {
+                for x in 0..width {
+                    let rgb = [r[x], g[x], b[x]].map(|v| f32::from_bits(u32::from_le(v.to_bits())));
+                    let [rr, gg, bb] = self
+                        .grade
+                        .saturate(rgb)
+                        .map(|v| f32::from_bits(v.to_bits().to_le()));
+                    r[x] = rr;
+                    g[x] = gg;
+                    b[x] = bb;
+                }
+            });
         Ok(())
     }
 

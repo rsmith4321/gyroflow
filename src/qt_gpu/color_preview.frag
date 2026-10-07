@@ -9,6 +9,10 @@ layout(std140, binding = 0) uniform buf {
     float contrast;
     float lutSize;
     float toneEnabled;
+    float gradeRed;
+    float gradeGreen;
+    float gradeBlue;
+    float gradeSaturation;
 };
 layout(binding = 1) uniform sampler2D source;
 layout(binding = 2) uniform sampler2D lutTexture;
@@ -71,7 +75,12 @@ void main() {
     vec4 pixel = texture(source, qt_TexCoord0);
     vec3 rgb = pixel.a > 0.0 ? pixel.rgb / pixel.a : vec3(0.0);
     if (lutSize >= 2.0) rgb = applyLut(rgb);
+    rgb *= vec3(gradeRed, gradeGreen, gradeBlue);
     rgb = clamp((rgb - 0.5) * (1.0 + contrast) + 0.5 + brightness, 0.0, 1.0);
     if (toneEnabled > 0.5) rgb = vec3(applyTone(rgb.r), applyTone(rgb.g), applyTone(rgb.b));
+    if (gradeSaturation != 1.0) {
+        float y = dot(rgb, vec3(0.2126, 0.7152, 0.0722));
+        rgb = clamp(vec3(y) + gradeSaturation * (rgb - vec3(y)), 0.0, 1.0);
+    }
     fragColor = vec4(rgb * pixel.a, pixel.a) * qt_Opacity;
 }

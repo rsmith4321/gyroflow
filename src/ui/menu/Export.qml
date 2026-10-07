@@ -116,6 +116,21 @@ MenuItem {
     property real contrast: 0;
     property real shadows: 0;
     property real highlights: 0;
+    property real exposure: 0;
+    property real saturation: 0;
+    property real warmth: 0;
+    property real tint: 0;
+    property string gradePreviewError: "";
+    property var gradePreviewParameters: ({ gains: [1, 1, 1], saturation: 1, active: false });
+    function updateGradePreview(): void {
+        const data = JSON.parse(controller.prepare_preview_grade(exposure, saturation / 100, warmth / 100, tint / 100));
+        gradePreviewError = data.error || "";
+        gradePreviewParameters = data.error ? ({ gains: [1, 1, 1], saturation: 1, active: false }) : data;
+    }
+    onExposureChanged: Qt.callLater(updateGradePreview);
+    onSaturationChanged: Qt.callLater(updateGradePreview);
+    onWarmthChanged: Qt.callLater(updateGradePreview);
+    onTintChanged: Qt.callLater(updateGradePreview);
     property string tonePreviewSource: "";
     property string tonePreviewError: "";
     function updateTonePreview(): void {
@@ -143,7 +158,7 @@ MenuItem {
     property real originalWidth: outWidth;
     property real originalHeight: outHeight;
 
-    property bool canExport: !resolutionWarning.visible && !resolutionWarning2.visible && !lutPreviewError && !tonePreviewError;
+    property bool canExport: !resolutionWarning.visible && !resolutionWarning2.visible && !lutPreviewError && !tonePreviewError && !gradePreviewError;
 
     function getExportOptions(): var {
         let encoderOpts = encoderOptions.text.replace("-qscale:v", "-qscale")
@@ -164,6 +179,10 @@ MenuItem {
             contrast:       root.contrast / 100,
             shadows:        root.shadows / 100,
             highlights:     root.highlights / 100,
+            exposure:       root.exposure,
+            saturation:     root.saturation / 100,
+            warmth:         root.warmth / 100,
+            tint:           root.tint / 100,
 
             // Advanced
             encoder_options:       encoderOpts,
@@ -276,6 +295,10 @@ MenuItem {
             if (output.hasOwnProperty("contrast") || obj.videofile) root.contrast = (output.contrast || 0) * 100;
             if (output.hasOwnProperty("shadows") || obj.videofile) root.shadows = (output.shadows || 0) * 100;
             if (output.hasOwnProperty("highlights") || obj.videofile) root.highlights = (output.highlights || 0) * 100;
+            if (output.hasOwnProperty("tint") || obj.videofile) root.tint = (output.tint || 0) * 100;
+            if (output.hasOwnProperty("warmth") || obj.videofile) root.warmth = (output.warmth || 0) * 100;
+            if (output.hasOwnProperty("saturation") || obj.videofile) root.saturation = (output.saturation || 0) * 100;
+            if (output.hasOwnProperty("exposure") || obj.videofile) root.exposure = (output.exposure || 0);
 
             // Advanced
             if (output.hasOwnProperty("encoder_options"))       encoderOptions.text         = output.encoder_options;

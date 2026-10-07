@@ -60,6 +60,9 @@ Modal {
         },
         "Color settings|output": {
             "LUT": ["lut_url"],
+            "Exposure": ["exposure"],
+            "Color balance": ["warmth", "tint"],
+            "Saturation": ["saturation"],
             "Brightness and contrast": ["brightness", "contrast"],
             "Highlights and shadows": ["highlights", "shadows"],
         },
@@ -139,6 +142,9 @@ Modal {
             QT_TR_NOOP("LUT");
             QT_TR_NOOP("Brightness and contrast");
             QT_TR_NOOP("Highlights and shadows");
+            QT_TR_NOOP("Exposure");
+            QT_TR_NOOP("Color balance");
+            QT_TR_NOOP("Saturation");
         QT_TR_NOOP("Export settings");
             QT_TR_NOOP("Codec");
             QT_TR_NOOP("Audio");

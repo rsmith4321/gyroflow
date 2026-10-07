@@ -1,45 +1,92 @@
-# Basic drone grading expansion
+# Basic drone grading
 
-Status: requested and planned 2026-10-07. Not yet implemented by the four-slider
-Mac acceptance milestone. See COLOR-TONE-PROTOTYPE.md for that working build.
+Expanded implementation candidate, 2026-10-07. Native acceptance and local
+installation will be recorded below after testing. Public portable binaries
+and Windows runtime acceptance remain separate release gates.
 
-## Intended controls
+## Controls and reversible workflow
 
-- Keep existing brightness/contrast, highlights/shadows and their saved fields.
-- Add exposure, saturation, warmth/temperature and tint for a simple grade.
-- Keep manual LUT choice, preview comparison, double-click reset and reset-all.
-- Avoid importing the full OCIO runtime or exposing a professional color-space
-  configuration workflow for this basic version.
+Color settings contains manual `.cube` LUT selection, exposure (−2 to +2
+display stops), relative temperature and tint (−100% to +100%), brightness,
+contrast, highlights, shadows, and saturation (−100% to +100%). Temperature
+provides warmer/cooler RGB balance, not measured Kelvin or RAW white balance.
+All controls default to zero, support double-click reset, and are included in
+project, preset and queue data. Reset adjustments retains the selected LUT.
 
-## Processing design gates
+The original recording and its embedded gyro data remain untouched. The
+project saves instructions, so reopening it lets you refine the grade and
+export again from the original. DJI O4 Pro D-Log M is 10-bit log video, not
+camera RAW. Reversible project editing does not promise Lightroom RAW recovery,
+unclipped HDR processing, or recovery of values the camera or LUT discarded.
 
-Use pinned OpenColorIO as an independent development reference for controls it
-provides. Evaluate cached sampled channel curves and simple matrices to avoid
-per-pixel expression parsing, shader recompilation and new runtime dependencies.
-Temperature/tint must be documented as relative video color balance, not RAW
-sensor white balance or measured Kelvin. Exposure must have a defined working
-transfer function and processing order; do not label arbitrary multiplication
-of log code values as physical exposure in stops. Do not assume a selected LUT
-contains a reversible camera transform or identify the camera profile by filename.
+## Defined processing order
 
-Preserve old project rendering with neutral added controls. Keep floating point
-working samples and avoid needless intermediate quantization. Verify any
-headroom-preserving change separately from the old bounded video curve. Changes
-to curve domain/clipping cannot silently alter existing saved projects. A LUT
-may already clip/mix input values; original-file preservation does not establish
-that no information was lost inside the working processing chain.
+1. Stabilization using the existing Gyroflow pipeline.
+2. User-selected viewing LUT, with existing tetrahedral interpolation.
+3. Relative RGB balance and exposure in **gamma-2.4 display-linear light**.
+4. Existing brightness/contrast and its [0,1] clip, unchanged.
+5. Cached sampled OpenColorIO video Highlights/Shadows curve.
+6. OpenColorIO-equivalent video saturation and [0,1] clip.
+7. Conversion back to the encoder's original pixel format, matrix and range.
 
-## Required evidence
+Exposure is display-referred after the LUT, not multiplication of camera log
+codes or an assumed DJI scene-linear transform. For encoded gamma-2.4 RGB,
+decode → channel exposure → encode reduces to a constant multiplier. Powers
+are computed once when parameters change; there is no per-pixel power,
+expression parser, full OCIO interpreter, or extra encode pass.
 
-Independent CPU references, production shader comparisons, moving stabilized
-footage, neutral equivalence, alpha/stride/ten-bit input safety, finite parameter
-validation, project/preset/queue save/reload, native Mac UI, and matched 4K timing.
-Retain the accepted four-slider app while testing the expanded candidate. Record
-exact source/build identities and push reviewed changes to GitHub.
+Relative balance uses linear channel-stop offsets
+`[0.75*warmth+0.25*tint, -0.5*tint, -0.75*warmth+0.25*tint]`, normalized so
+neutral white's Rec.709 linear luminance is unchanged. Exposure multiplies
+linear display light by `2^stops`. Saturation mixes each channel around video
+luminance using `[0.2126, 0.7152, 0.0722]`. It is a simple video grade rather
+than a configurable color-management system.
 
-## Product claims
+Floating-point RGB stays in use between stages, avoiding needless intermediate
+8-bit quantization. Bounded processing and LUT mapping may still clip working
+values. Reducing exposure after a LUT cannot restore detail already clipped by
+that LUT. Neutral new controls preserve the older rendering paths; the original
+ungraded fast path also remains available.
 
-Describe source preservation and reversible project adjustments. DJI O4 Pro
-D-Log M is 10-bit log video, not camera RAW. Do not promise Lightroom-style RAW
-recovery, unclipped HDR grading, lossless color export or acceleration that has
-not been measured. Only list expanded controls as available after acceptance.
+## Reference and frame evidence
+
+- 21 production parser/frame/curve/grade tests passed. Checks include parameter
+  bounds, repeated shared odd-width frames, unchanged input padding and alpha,
+  ten-bit formats, timestamps, color properties, and neutral compatibility.
+- **40** synthetic float-frame cases, with and without the DJI viewing LUT,
+  matched independent **OpenColorIO 2.4.2** CPU transforms within
+  **4.77e−7**. Exposure reference uses separate exponent/linear GradingPrimary/
+  inverse-exponent transforms with `OPTIMIZATION_NONE` to avoid OCIO fast-power
+  approximation; saturation uses GRADING_VIDEO GradingPrimary.
+- **12** production QSB shader cases on **Metal**, including combined/extreme
+  controls and LUT/no-LUT, stayed within **one RGB8 code** of that independent
+  reference. QSB contains GLSL 330 / ES 300, HLSL SM5 and MSL 1.2 variants,
+  baked in the Qt 6.4-compatible container format. This is not Windows execution.
+- Real stabilized eight-second 720p, ten-bit lossless export: all **481 frames**
+  fully decoded; timestamps and stream properties equal to the neutral export;
+  independent FFmpeg LUT plus OCIO grading reference differs by at most
+  **one ten-bit code**. This checks stabilization/color composition for this
+  clip, not every codec, camera profile or color space.
+- A partial basic-grade preset through the full application CLI saves all four
+  new fields while retaining the older brightness/contrast/tone fields.
+
+The full OCIO runtime is only a pinned development reference. Production uses
+small native math and the existing sampled tone asset; no new runtime library
+or automatic camera/color-space detection is added.
+
+## Matched 4K timing
+
+Three repeats of the same 1-second section (62 frames), 3840×2160 ten-bit HEVC
+using VideoToolbox encoding. Wall time includes app startup and pipeline setup;
+no other test renderer/reference process ran during this set:
+
+| Case | Median wall time | Range |
+| --- | ---: | ---: |
+| No LUT or grade | 2.124 s | 1.980–2.127 s |
+| DJI LUT + brightness/contrast + highlights/shadows | 3.616 s | 3.504–3.662 s |
+| Same plus exposure, temperature, tint, saturation | 3.581 s | 3.492–3.722 s |
+
+The additional four controls were within run-to-run variation of the existing
+color path in this short sample. LUT/color conversion still costs time compared
+with the ungraded fast path. This is not a full-flight performance guarantee or
+proof that the hardware encoder itself applies the color grade.

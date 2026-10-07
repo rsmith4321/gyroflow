@@ -55,6 +55,10 @@ MenuItem {
         contrastSlider.value = exportOptions.contrast;
         shadowsSlider.value = exportOptions.shadows;
         highlightsSlider.value = exportOptions.highlights;
+        exposureSlider.value = exportOptions.exposure;
+        saturationSlider.value = exportOptions.saturation;
+        warmthSlider.value = exportOptions.warmth;
+        tintSlider.value = exportOptions.tint;
         syncing = false;
     }
     Component.onCompleted: {
@@ -71,6 +75,10 @@ MenuItem {
         function onBrightnessChanged(): void { root.syncSliders(); }
         function onContrastChanged(): void { root.syncSliders(); }
         function onShadowsChanged(): void { root.syncSliders(); }
+        function onExposureChanged(): void { root.syncSliders(); }
+        function onSaturationChanged(): void { root.syncSliders(); }
+        function onWarmthChanged(): void { root.syncSliders(); }
+        function onTintChanged(): void { root.syncSliders(); }
         function onHighlightsChanged(): void { root.syncSliders(); }
     }
 
@@ -154,6 +162,36 @@ MenuItem {
     }
 
     Label {
+        text: qsTr("Exposure");
+        SliderWithField {
+            id: exposureSlider;
+            onValueChanged: if (!root.syncing) root.exportOptions.exposure = value;
+            doubleClickResetEnabled: true;
+            width: parent.width;
+            from: -2; to: 2; field.from: -2; field.to: 2; defaultValue: 0; precision: 2; unit: " stops";
+        }
+    }
+    Label {
+        text: qsTr("Temperature");
+        SliderWithField {
+            id: warmthSlider;
+            onValueChanged: if (!root.syncing) root.exportOptions.warmth = value;
+            doubleClickResetEnabled: true;
+            width: parent.width;
+            from: -100; to: 100; field.from: -100; field.to: 100; defaultValue: 0; precision: 0; unit: "%";
+        }
+    }
+    Label {
+        text: qsTr("Tint");
+        SliderWithField {
+            id: tintSlider;
+            onValueChanged: if (!root.syncing) root.exportOptions.tint = value;
+            doubleClickResetEnabled: true;
+            width: parent.width;
+            from: -100; to: 100; field.from: -100; field.to: 100; defaultValue: 0; precision: 0; unit: "%";
+        }
+    }
+    Label {
         text: qsTr("Brightness");
         SliderWithField {
             id: brightnessSlider;
@@ -193,6 +231,21 @@ MenuItem {
             from: -50; to: 50; field.from: -50; field.to: 50; defaultValue: 0; precision: 0; unit: "%";
         }
     }
+    Label {
+        text: qsTr("Saturation");
+        SliderWithField {
+            id: saturationSlider;
+            onValueChanged: if (!root.syncing) root.exportOptions.saturation = value;
+            doubleClickResetEnabled: true;
+            width: parent.width;
+            from: -100; to: 100; field.from: -100; field.to: 100; defaultValue: 0; precision: 0; unit: "%";
+        }
+    }
+    InfoMessageSmall {
+        show: !!root.exportOptions.gradePreviewError;
+        type: InfoMessage.Error;
+        text: root.exportOptions.gradePreviewError;
+    }
     InfoMessageSmall {
         show: !!root.exportOptions.tonePreviewError;
         type: InfoMessage.Error;
@@ -208,8 +261,9 @@ MenuItem {
         Button {
             text: qsTr("Reset adjustments");
             enabled: root.exportOptions.brightness !== 0 || root.exportOptions.contrast !== 0
-                || root.exportOptions.shadows !== 0 || root.exportOptions.highlights !== 0;
-            onClicked: { root.exportOptions.brightness = 0; root.exportOptions.contrast = 0; root.exportOptions.shadows = 0; root.exportOptions.highlights = 0; }
+                || root.exportOptions.shadows !== 0 || root.exportOptions.highlights !== 0
+                || root.exportOptions.exposure !== 0 || root.exportOptions.saturation !== 0 || root.exportOptions.warmth !== 0 || root.exportOptions.tint !== 0;
+            onClicked: { root.exportOptions.brightness = 0; root.exportOptions.contrast = 0; root.exportOptions.shadows = 0; root.exportOptions.highlights = 0; root.exportOptions.exposure = 0; root.exportOptions.saturation = 0; root.exportOptions.warmth = 0; root.exportOptions.tint = 0; }
         }
     }
     BasicText {
@@ -217,7 +271,7 @@ MenuItem {
         wrapMode: Text.WordWrap;
         font.pixelSize: 11 * dpiScale;
         opacity: 0.7;
-        text: qsTr("Adjustments follow the LUT and are included in export. Highlights and shadows use a video tone curve; choose a LUT that converts your footage for viewing. Double-click a slider to reset it.");
+        text: qsTr("Choose a viewing LUT for log footage. Adjustments follow the LUT and are included in export. Exposure adjusts display light; temperature and tint provide relative color balance. Originals stay untouched; saved projects keep your settings editable. Double-click a slider to reset it.");
     }
 
 }

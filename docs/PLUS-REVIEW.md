@@ -61,3 +61,28 @@ public release. Windows runtime validation of the new controls and portable
 package licensing, dependency closure, clean-machine and signing checks remain
 open. The next requested broader basic grading controls are not implemented
 by this acceptance milestone.
+
+## Expanded basic grade review (2026-10-07)
+
+The expanded candidate was reviewed for neutral compatibility, relative versus
+RAW white balance, exposure transfer/order, f64/f32 roundoff, saturation plane
+ownership, alpha/padding, invalid parameters, queue/preset fields, reset and
+comparison behavior, shader bindings and backend variants, and claimed
+processing headroom. The implementation preserves the older bounded stages
+and documents their limits rather than silently changing old projects.
+
+New saturation code obtains live FFmpeg plane pointers only after making the
+frame writable. Before creating simultaneous mutable float slices it checks
+stride, height, overflow, alignment and nonoverlapping memory ranges. Rayon
+zips rows, edits only the active RGB width, and leaves alpha untouched. Repeated
+shared-frame tests and independent float/Metal/moving-footage checks pass.
+
+The independent reference initially used OCIO's default fast-power optimization,
+which differed by 1.37e−5 for fractional exposure. Using OCIO's unoptimized
+exponent/linear-primary/inverse-exponent chain isolates the specified math:
+maximum native deviation is 4.77e−7. This is a reference precision correction;
+production computes channel gains once and applies a multiply per sample.
+
+Native UI acceptance, installation and final timing are recorded in the
+[basic grading report](BASIC-GRADING-PLAN.md). Portable distribution and Windows
+runtime validation remain open until tested on those environments.

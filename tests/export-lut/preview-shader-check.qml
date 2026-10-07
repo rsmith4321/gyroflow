@@ -12,6 +12,10 @@ Window {
         property real brightness: 0.1;
         property real contrast: 0.2;
         property real lutSize: 33;
+        property real gradeRed: 1;
+        property real gradeGreen: 1;
+        property real gradeBlue: 1;
+        property real gradeSaturation: 1;
         property real toneEnabled: 0;
         property var toneTexture: Image { source: "tone.png"; visible: false; smooth: false; }
         fragmentShader: "../../src/qt_gpu/compiled/color_preview.frag.qsb";

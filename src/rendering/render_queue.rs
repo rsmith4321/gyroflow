@@ -83,6 +83,10 @@ pub struct RenderOptions {
     pub contrast: f64,
     pub shadows: f64,
     pub highlights: f64,
+    pub exposure: f64,
+    pub saturation: f64,
+    pub warmth: f64,
+    pub tint: f64,
 
     // Advanced
     pub encoder_options: String,
@@ -134,6 +138,9 @@ impl RenderOptions {
         if self.shadows != 0.0 || self.highlights != 0.0 {
             comment.push_str(&format!("\nGyroflow Plus video tone v1: shadows {:+.2}%, highlights {:+.2}%", self.shadows * 100.0, self.highlights * 100.0));
         }
+        if self.exposure != 0.0 || self.saturation != 0.0 || self.warmth != 0.0 || self.tint != 0.0 {
+            comment.push_str(&format!("\nGyroflow Plus basic grade v1: display exposure {:+.2} stops, saturation {:+.2}%, temperature {:+.2}%, tint {:+.2}%", self.exposure, self.saturation*100.0, self.warmth*100.0, self.tint*100.0));
+        }
         metadata.set("comment", comment.trim());
         metadata
     }
@@ -153,6 +160,11 @@ impl RenderOptions {
             if let Some(v) = obj.get("contrast").and_then(|x| x.as_f64()) { self.contrast = v; }
             if let Some(v) = obj.get("shadows").and_then(|x| x.as_f64()) { self.shadows = v; }
             if let Some(v) = obj.get("highlights").and_then(|x| x.as_f64()) { self.highlights = v; }
+
+            if let Some(v) = obj.get("exposure").and_then(|x| x.as_f64()) { self.exposure = v; }
+            if let Some(v) = obj.get("saturation").and_then(|x| x.as_f64()) { self.saturation = v; }
+            if let Some(v) = obj.get("warmth").and_then(|x| x.as_f64()) { self.warmth = v; }
+            if let Some(v) = obj.get("tint").and_then(|x| x.as_f64()) { self.tint = v; }
 
             // Advanced
             if let Some(v) = obj.get("encoder_options")        .and_then(|x| x.as_str())  { self.encoder_options = v.to_string(); }

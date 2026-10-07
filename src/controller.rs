@@ -258,6 +258,7 @@ pub struct Controller {
     copy_to_clipboard: qt_method!(fn(&self, text: QString)),
 
     image_to_b64: qt_method!(fn(&self, img: QImage) -> QString),
+    prepare_preview_grade: qt_method!(fn(&self, exposure: f64, saturation: f64, warmth: f64, tint: f64) -> QString),
     prepare_preview_tone: qt_method!(fn(&self, shadows: f64, highlights: f64) -> QString),
     prepare_preview_lut: qt_method!(fn(&self, url: QUrl) -> QString),
     export_preset: qt_method!(fn(&self, url: QUrl, data: QJsonObject, save_type: QString, preset_name: QString) -> QString),
@@ -2663,6 +2664,13 @@ impl Controller {
 
     // Utilities
     fn get_username(&self) -> QString { let realname = whoami::realname().unwrap_or_default(); QString::from(if realname.is_empty() { whoami::username().unwrap_or_default() } else { realname }) }
+    fn prepare_preview_grade(&self, exposure: f64, saturation: f64, warmth: f64, tint: f64) -> QString {
+        let result = rendering::basic_grade::BasicGrade::new(rendering::basic_grade::BasicGradeSettings { exposure, saturation, warmth, tint });
+        QString::from(match result {
+            Ok(g) => serde_json::json!({ "gains": g.gains, "saturation": g.saturation, "active": g.is_active() }).to_string(),
+            Err(error) => serde_json::json!({ "error": error }).to_string(),
+        })
+    }
     fn prepare_preview_tone(&self, shadows: f64, highlights: f64) -> QString {
         let result = (|| -> Result<String, String> {
             let tone = rendering::tone_curve::ToneCurve::new(shadows, highlights)?;
