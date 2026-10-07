@@ -17,6 +17,15 @@ full OpenColorIO runtime and configurable color-management workflow are not
 integrated. See the measured approximation and processing order in the
 [tone prototype report](docs/COLOR-TONE-PROTOTYPE.md).
 
+Edits are nondestructive: original recordings and embedded motion data are
+untouched, while projects retain the selected LUT and adjustment values for
+later refinement. Export creates a new video. DJI O4 Pro D-Log M is 10-bit log
+video, not camera RAW; this does not provide Lightroom-style RAW recovery.
+Current adjustments follow the LUT and use a bounded video curve, so a LUT or
+processing clamp may discard values within the working image even though the
+original file remains available. Do not claim unclipped RAW/HDR processing or
+recovery of detail that was never recorded.
+
 The latest upstream stable release is [v1.6.3, published September 4, 2025](https://github.com/gyroflow/gyroflow/releases/tag/v1.6.3).
 As of October 7, 2026, that is over a year without a new stable release; upstream
 development is still active. I made this fork so I could use the LUT feature now.
