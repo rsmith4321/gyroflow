@@ -168,11 +168,16 @@ Rectangle {
                         anchors.centerIn: parent;
                     }
                 }
+                FontLoader {
+                    id: plusWordmarkFont;
+                    source: "qrc:/resources/fonts/Allura-Regular.ttf";
+                }
                 BasicText {
                     width: parent.width;
                     text: "Plus";
                     horizontalAlignment: Text.AlignHCenter;
-                    font.pixelSize: 18 * dpiScale;
+                    font.family: plusWordmarkFont.name;
+                    font.pixelSize: 48 * dpiScale;
                     bottomPadding: 4 * dpiScale;
                 }
                 BasicText {
