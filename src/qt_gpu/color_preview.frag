@@ -8,9 +8,23 @@ layout(std140, binding = 0) uniform buf {
     float brightness;
     float contrast;
     float lutSize;
+    float toneEnabled;
 };
 layout(binding = 1) uniform sampler2D source;
 layout(binding = 2) uniform sampler2D lutTexture;
+layout(binding = 3) uniform sampler2D toneTexture;
+
+float toneEntry(int sampleIndex) {
+    int index = sampleIndex * 2;
+    uvec3 low = uvec3(round(texelFetch(toneTexture, ivec2(index % 256, index / 256), 0).rgb * 255.0));
+    uint high = uint(round(texelFetch(toneTexture, ivec2((index + 1) % 256, (index + 1) / 256), 0).r * 255.0));
+    return uintBitsToFloat(low.r | (low.g << 8) | (low.b << 16) | (high << 24));
+}
+float applyTone(float inputValue) {
+    float p = clamp(inputValue, 0.0, 1.0) * 4096.0;
+    int lo = int(p);
+    return mix(toneEntry(lo), toneEntry(min(lo + 1, 4096)), p - float(lo));
+}
 
 float entryChannel(int index) {
     ivec2 dimensions = textureSize(lutTexture, 0);
@@ -58,5 +72,6 @@ void main() {
     vec3 rgb = pixel.a > 0.0 ? pixel.rgb / pixel.a : vec3(0.0);
     if (lutSize >= 2.0) rgb = applyLut(rgb);
     rgb = clamp((rgb - 0.5) * (1.0 + contrast) + 0.5 + brightness, 0.0, 1.0);
+    if (toneEnabled > 0.5) rgb = vec3(applyTone(rgb.r), applyTone(rgb.g), applyTone(rgb.b));
     fragColor = vec4(rgb * pixel.a, pixel.a) * qt_Opacity;
 }

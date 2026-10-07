@@ -53,6 +53,8 @@ MenuItem {
         syncing = true;
         brightnessSlider.value = exportOptions.brightness;
         contrastSlider.value = exportOptions.contrast;
+        shadowsSlider.value = exportOptions.shadows;
+        highlightsSlider.value = exportOptions.highlights;
         syncing = false;
     }
     Component.onCompleted: {
@@ -68,6 +70,8 @@ MenuItem {
         }
         function onBrightnessChanged(): void { root.syncSliders(); }
         function onContrastChanged(): void { root.syncSliders(); }
+        function onShadowsChanged(): void { root.syncSliders(); }
+        function onHighlightsChanged(): void { root.syncSliders(); }
     }
 
     FileDialog {
@@ -169,6 +173,31 @@ MenuItem {
             from: -50; to: 50; field.from: -50; field.to: 50; defaultValue: 0; precision: 0; unit: "%";
         }
     }
+    Label {
+        text: qsTr("Highlights");
+        SliderWithField {
+            id: highlightsSlider;
+            onValueChanged: if (!root.syncing) root.exportOptions.highlights = value;
+            doubleClickResetEnabled: true;
+            width: parent.width;
+            from: -50; to: 50; field.from: -50; field.to: 50; defaultValue: 0; precision: 0; unit: "%";
+        }
+    }
+    Label {
+        text: qsTr("Shadows");
+        SliderWithField {
+            id: shadowsSlider;
+            onValueChanged: if (!root.syncing) root.exportOptions.shadows = value;
+            doubleClickResetEnabled: true;
+            width: parent.width;
+            from: -50; to: 50; field.from: -50; field.to: 50; defaultValue: 0; precision: 0; unit: "%";
+        }
+    }
+    InfoMessageSmall {
+        show: !!root.exportOptions.tonePreviewError;
+        type: InfoMessage.Error;
+        text: root.exportOptions.tonePreviewError;
+    }
     Row {
         spacing: 8 * dpiScale;
         CheckBox {
@@ -178,8 +207,9 @@ MenuItem {
         }
         Button {
             text: qsTr("Reset adjustments");
-            enabled: root.exportOptions.brightness !== 0 || root.exportOptions.contrast !== 0;
-            onClicked: { root.exportOptions.brightness = 0; root.exportOptions.contrast = 0; }
+            enabled: root.exportOptions.brightness !== 0 || root.exportOptions.contrast !== 0
+                || root.exportOptions.shadows !== 0 || root.exportOptions.highlights !== 0;
+            onClicked: { root.exportOptions.brightness = 0; root.exportOptions.contrast = 0; root.exportOptions.shadows = 0; root.exportOptions.highlights = 0; }
         }
     }
     BasicText {
@@ -187,7 +217,7 @@ MenuItem {
         wrapMode: Text.WordWrap;
         font.pixelSize: 11 * dpiScale;
         opacity: 0.7;
-        text: qsTr("Brightness and contrast are applied after the LUT and included in export. Double-click a slider to reset it.");
+        text: qsTr("Adjustments follow the LUT and are included in export. Highlights and shadows use a video tone curve; choose a LUT that converts your footage for viewing. Double-click a slider to reset it.");
     }
 
 }

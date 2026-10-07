@@ -12,6 +12,7 @@ pub struct ExportLut {
     file: Option<tempfile::NamedTempFile>,
     brightness: f64,
     contrast: f64,
+    tone: Option<super::tone_curve::ToneCurve>,
     graph: Option<filter::Graph>,
     output_graph: Option<filter::Graph>,
     input: Option<(Pixel, u32, u32, i32, i32, i32, i32)>,
@@ -35,6 +36,12 @@ impl ExportLut {
         brightness: f64,
         contrast: f64,
     ) -> Result<Self, String> {
+        Self::with_color(bytes, brightness, contrast, 0.0, 0.0)
+    }
+
+    pub fn with_color(bytes: Option<&[u8]>, brightness: f64, contrast: f64,
+                      shadows: f64, highlights: f64) -> Result<Self, String> {
+        let tone = super::tone_curve::ToneCurve::new(shadows, highlights)?;
         if !brightness.is_finite()
             || !contrast.is_finite()
             || brightness.abs() > 0.5
@@ -59,6 +66,7 @@ impl ExportLut {
             file,
             brightness,
             contrast,
+            tone,
             graph: None,
             output_graph: None,
             input: None,
@@ -225,7 +233,7 @@ impl ExportLut {
                 frame.aspect_ratio().denominator(),
             )
         };
-        let needs_adjustment = self.brightness != 0.0 || self.contrast != 0.0;
+        let needs_adjustment = self.brightness != 0.0 || self.contrast != 0.0 || self.tone.is_some();
         if self.input != Some(signature) {
             let output_pixel = if needs_adjustment {
                 let descriptor = unsafe { ffi::av_pix_fmt_desc_get(frame.format().into()) };
@@ -291,6 +299,7 @@ impl ExportLut {
                     // The graph uses explicit little-endian float formats.
                     let input = f32::from_bits(u32::from_le(sample.to_bits()));
                     let output = (((input as f64 - 0.5) * gain + offset).clamp(0.0, 1.0)) as f32;
+                    let output = self.tone.as_ref().map_or(output, |tone| tone.apply(output));
                     *sample = f32::from_bits(output.to_bits().to_le());
                 }
             });

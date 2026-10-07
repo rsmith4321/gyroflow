@@ -61,6 +61,7 @@ Modal {
         "Color settings|output": {
             "LUT": ["lut_url"],
             "Brightness and contrast": ["brightness", "contrast"],
+            "Highlights and shadows": ["highlights", "shadows"],
         },
         "Export settings|output": {
             "Codec":       ["codec", "codec_options", "bitrate", "use_gpu"],
@@ -137,6 +138,7 @@ Modal {
         QT_TR_NOOP("Color settings");
             QT_TR_NOOP("LUT");
             QT_TR_NOOP("Brightness and contrast");
+            QT_TR_NOOP("Highlights and shadows");
         QT_TR_NOOP("Export settings");
             QT_TR_NOOP("Codec");
             QT_TR_NOOP("Audio");

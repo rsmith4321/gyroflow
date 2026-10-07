@@ -258,6 +258,7 @@ pub struct Controller {
     copy_to_clipboard: qt_method!(fn(&self, text: QString)),
 
     image_to_b64: qt_method!(fn(&self, img: QImage) -> QString),
+    prepare_preview_tone: qt_method!(fn(&self, shadows: f64, highlights: f64) -> QString),
     prepare_preview_lut: qt_method!(fn(&self, url: QUrl) -> QString),
     export_preset: qt_method!(fn(&self, url: QUrl, data: QJsonObject, save_type: QString, preset_name: QString) -> QString),
     export_full_metadata: qt_method!(fn(&self, url: QUrl, gyro_url: QUrl)),
@@ -1725,12 +1726,12 @@ impl Controller {
             this.updates_available(QString::from(version), QString::from(changelog))
         });
         core::run_threaded(move || {
-            if let Ok(Ok(body)) = ureq::get("https://api.github.com/repos/gyroflow/gyroflow/releases").call().map(|x| x.into_body().read_to_string()) {
+            if let Ok(Ok(body)) = ureq::get("https://api.github.com/repos/rsmith4321/gyroflow/releases").call().map(|x| x.into_body().read_to_string()) {
                 if let Ok(v) = serde_json::from_str(&body) as serde_json::Result<serde_json::Value> {
                     if let Some(v) = v.as_array() {
                         for itm in v {
                             if let Some(obj) = itm.as_object() {
-                                let name = obj.get("name").and_then(|x| x.as_str());
+                                let name = obj.get("tag_name").and_then(|x| x.as_str()).filter(|x| x.starts_with("plus-v"));
                                 let body = obj.get("body").and_then(|x| x.as_str());
                                 let is_prerelease = obj.get("prerelease").and_then(|x| x.as_bool()).unwrap_or_default();
                                 if is_prerelease { continue; }
@@ -1738,7 +1739,7 @@ impl Controller {
                                 if let Some(name) = name {
                                     ::log::info!("Latest version: {}, current version: {}", name, util::get_version());
 
-                                    if let Ok(latest_version) = semver::Version::parse(name.trim_start_matches('v')) {
+                                    if let Ok(latest_version) = semver::Version::parse(name.trim_start_matches("plus-v")) {
                                         if let Ok(this_version) = semver::Version::parse(env!("CARGO_PKG_VERSION")) {
                                             if latest_version > this_version {
                                                 update((name.to_owned(), body.unwrap_or_default().to_owned()));
@@ -2662,6 +2663,28 @@ impl Controller {
 
     // Utilities
     fn get_username(&self) -> QString { let realname = whoami::realname().unwrap_or_default(); QString::from(if realname.is_empty() { whoami::username().unwrap_or_default() } else { realname }) }
+    fn prepare_preview_tone(&self, shadows: f64, highlights: f64) -> QString {
+        let result = (|| -> Result<String, String> {
+            let tone = rendering::tone_curve::ToneCurve::new(shadows, highlights)?;
+            let Some(tone) = tone else { return Ok(String::new()); };
+            let data = tone.texture_bytes();
+            let ptr = data.as_ptr();
+            let png = cpp!(unsafe [ptr as "const unsigned char *"] -> QString as "QString" {
+                QImage image(ptr, 256, 33, 256 * 3, QImage::Format_RGB888);
+                QByteArray bytes;
+                QBuffer buffer(&bytes);
+                buffer.open(QIODevice::WriteOnly);
+                if (!image.save(&buffer, "PNG")) return QString();
+                return QStringLiteral("data:image/png;base64,") + QString::fromLatin1(bytes.toBase64());
+            });
+            if png.is_empty() { return Err("Could not prepare the video tone preview.".into()); }
+            Ok(png.to_string())
+        })();
+        QString::from(match result {
+            Ok(source) => serde_json::json!({ "source": source }).to_string(),
+            Err(error) => serde_json::json!({ "error": error }).to_string(),
+        })
+    }
     fn prepare_preview_lut(&self, url: QUrl) -> QString {
         let result = (|| -> Result<serde_json::Value, String> {
             let mut file = filesystem::open_file(&util::qurl_to_encoded(url), false, false).map_err(|e| e.to_string())?;

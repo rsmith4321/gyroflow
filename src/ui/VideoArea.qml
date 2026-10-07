@@ -646,12 +646,18 @@ Item {
                     property bool loaded: false;
 
                     layer.enabled: loaded && window.exportSettings && window.exportSettings.previewColors
-                        && !window.exportSettings.lutPreviewError && (window.exportSettings.lutPreviewSize >= 2
-                            || window.exportSettings.brightness !== 0 || window.exportSettings.contrast !== 0);
+                        && !window.exportSettings.lutPreviewError && !window.exportSettings.tonePreviewError && (window.exportSettings.lutPreviewSize >= 2
+                            || window.exportSettings.brightness !== 0 || window.exportSettings.contrast !== 0
+                            || !!window.exportSettings.tonePreviewSource);
                     layer.effect: ShaderEffect {
                         property var source;
                         property real brightness: window.exportSettings ? window.exportSettings.brightness / 100 : 0;
                         property real contrast: window.exportSettings ? window.exportSettings.contrast / 100 : 0;
+                        property real toneEnabled: window.exportSettings && window.exportSettings.tonePreviewSource ? 1 : 0;
+                        property var toneTexture: Image {
+                            visible: false; smooth: false; mipmap: false; cache: false;
+                            source: window.exportSettings ? window.exportSettings.tonePreviewSource : "";
+                        }
                         property real lutSize: window.exportSettings ? window.exportSettings.lutPreviewSize : 0;
                         property var lutTexture: Image {
                             visible: false;

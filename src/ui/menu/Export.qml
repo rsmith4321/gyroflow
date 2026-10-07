@@ -114,6 +114,20 @@ MenuItem {
     property string lutUrl: "";
     property real brightness: 0;
     property real contrast: 0;
+    property real shadows: 0;
+    property real highlights: 0;
+    property string tonePreviewSource: "";
+    property string tonePreviewError: "";
+    function updateTonePreview(): void {
+        tonePreviewSource = ""; tonePreviewError = "";
+        if (shadows !== 0 || highlights !== 0) {
+            const data = JSON.parse(controller.prepare_preview_tone(shadows / 100, highlights / 100));
+            if (data.error) tonePreviewError = data.error;
+            else tonePreviewSource = data.source;
+        }
+    }
+    onShadowsChanged: Qt.callLater(updateTonePreview);
+    onHighlightsChanged: Qt.callLater(updateTonePreview);
     property bool previewColors: true;
     property string lutPreviewSource: "";
     property real lutPreviewSize: 0;
@@ -129,7 +143,7 @@ MenuItem {
     property real originalWidth: outWidth;
     property real originalHeight: outHeight;
 
-    property bool canExport: !resolutionWarning.visible && !resolutionWarning2.visible && !lutPreviewError;
+    property bool canExport: !resolutionWarning.visible && !resolutionWarning2.visible && !lutPreviewError && !tonePreviewError;
 
     function getExportOptions(): var {
         let encoderOpts = encoderOptions.text.replace("-qscale:v", "-qscale")
@@ -148,6 +162,8 @@ MenuItem {
             lut_url:        root.lutUrl,
             brightness:     root.brightness / 100,
             contrast:       root.contrast / 100,
+            shadows:        root.shadows / 100,
+            highlights:     root.highlights / 100,
 
             // Advanced
             encoder_options:       encoderOpts,
@@ -258,6 +274,8 @@ MenuItem {
             if (output.hasOwnProperty("lut_url") || obj.videofile) root.lutUrl = output.lut_url || "";
             if (output.hasOwnProperty("brightness") || obj.videofile) root.brightness = (output.brightness || 0) * 100;
             if (output.hasOwnProperty("contrast") || obj.videofile) root.contrast = (output.contrast || 0) * 100;
+            if (output.hasOwnProperty("shadows") || obj.videofile) root.shadows = (output.shadows || 0) * 100;
+            if (output.hasOwnProperty("highlights") || obj.videofile) root.highlights = (output.highlights || 0) * 100;
 
             // Advanced
             if (output.hasOwnProperty("encoder_options"))       encoderOptions.text         = output.encoder_options;

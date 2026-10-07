@@ -236,10 +236,10 @@ fn main() {
             }
             let mut res = winres::WindowsResource::new();
             res.set_icon("resources/app_icon.ico");
-            res.set("FileVersion", env!("CARGO_PKG_VERSION"));
-            res.set("ProductVersion", env!("CARGO_PKG_VERSION"));
-            res.set("ProductName", "Gyroflow");
-            res.set("FileDescription", &format!("Gyroflow v{}", env!("CARGO_PKG_VERSION")));
+            res.set("FileVersion", "0.1.0.0");
+            res.set("ProductVersion", "0.1.0.0");
+            res.set("ProductName", "Gyroflow Plus");
+            res.set("FileDescription", &format!("Gyroflow Plus v{} - community fork", env!("CARGO_PKG_VERSION")));
             res.compile().unwrap();
         }
         tos => panic!("unknown target os {:?}!", tos)

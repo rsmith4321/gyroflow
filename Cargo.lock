@@ -1639,7 +1639,7 @@ dependencies = [
 
 [[package]]
 name = "gyroflow"
-version = "1.6.3"
+version = "0.1.0-dev"
 dependencies = [
  "argh",
  "breakpad-sys",

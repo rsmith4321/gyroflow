@@ -68,13 +68,13 @@ fn entry() {
     std::panic::set_hook(Box::new(|info| ::log::error!(target: "panic", "{info}")));
 
     cpp!(unsafe [] {
-        qApp->setOrganizationName("Gyroflow");
-        qApp->setOrganizationDomain("gyroflow.xyz");
-        qApp->setApplicationName("Gyroflow");
+        qApp->setOrganizationName("Ryan Smith");
+        qApp->setOrganizationDomain("github.com/rsmith4321/gyroflow");
+        qApp->setApplicationName("Gyroflow Plus");
 
         QMessageLogger("", 0, "main").debug(QLoggingCategory("gyroflow")) << "Qt version:" << qVersion();
     });
-    ::log::debug!("Gyroflow {}", util::get_version());
+    ::log::debug!("Gyroflow Plus {}", util::get_version());
 
     let mut open_file = String::new();
     let mut open_preset = String::new();

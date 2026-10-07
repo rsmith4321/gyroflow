@@ -81,6 +81,8 @@ pub struct RenderOptions {
     pub lut_url: String,
     pub brightness: f64,
     pub contrast: f64,
+    pub shadows: f64,
+    pub highlights: f64,
 
     // Advanced
     pub encoder_options: String,
@@ -129,6 +131,9 @@ impl RenderOptions {
         if self.brightness != 0.0 || self.contrast != 0.0 {
             comment.push_str(&format!("\nGyroflow color adjustments: brightness {:+.0}%, contrast {:+.0}%", self.brightness * 100.0, self.contrast * 100.0));
         }
+        if self.shadows != 0.0 || self.highlights != 0.0 {
+            comment.push_str(&format!("\nGyroflow Plus video tone v1: shadows {:+.2}%, highlights {:+.2}%", self.shadows * 100.0, self.highlights * 100.0));
+        }
         metadata.set("comment", comment.trim());
         metadata
     }
@@ -146,6 +151,8 @@ impl RenderOptions {
             if let Some(v) = obj.get("lut_url").and_then(|x| x.as_str()) { self.lut_url = v.to_string(); }
             if let Some(v) = obj.get("brightness").and_then(|x| x.as_f64()) { self.brightness = v; }
             if let Some(v) = obj.get("contrast").and_then(|x| x.as_f64()) { self.contrast = v; }
+            if let Some(v) = obj.get("shadows").and_then(|x| x.as_f64()) { self.shadows = v; }
+            if let Some(v) = obj.get("highlights").and_then(|x| x.as_f64()) { self.highlights = v; }
 
             // Advanced
             if let Some(v) = obj.get("encoder_options")        .and_then(|x| x.as_str())  { self.encoder_options = v.to_string(); }

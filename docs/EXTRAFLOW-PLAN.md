@@ -46,13 +46,15 @@ Retain the verified fast build until the prototype meets those checks.
 ## Release work still open
 
 - Final name/application branding, icon and independent update destinations.
-- Separate application/settings identities and safe project association behavior
-  on Windows and Mac, so installing the spin-off preserves official Gyroflow.
+- Independent app/settings/updater identities and safe staging are implemented;
+  portable packaging, Windows installation and final branding remain open.
+  See [PLUS-DISTRIBUTION.md](PLUS-DISTRIBUTION.md).
 - Windows runtime validation of the latest native export optimization.
 - Portable dependency packaging, signing/notarization as appropriate, reproducible
   release builds and actual install/export checks on both platforms.
-- Richer color controls and further import/sharing integration. No OpenColorIO
-  integration or highlights/shadows sliders are implemented yet.
+- Richer color controls and further import/sharing integration. A cached OpenColorIO-derived video-tone prototype and Highlights/Shadows
+  controls are implemented; see [COLOR-TONE-PROTOTYPE.md](COLOR-TONE-PROTOTYPE.md).
+  The native OCIO runtime is not integrated.
 
 Easy Eject and ShootCal remain separate repositories. Their integration can use
 documented links, file/folder handoff and explicit export markers without

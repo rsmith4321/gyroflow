@@ -12,6 +12,8 @@ Window {
         property real brightness: 0.1;
         property real contrast: 0.2;
         property real lutSize: 33;
+        property real toneEnabled: 0;
+        property var toneTexture: Image { source: "tone.png"; visible: false; smooth: false; }
         fragmentShader: "../../src/qt_gpu/compiled/color_preview.frag.qsb";
     }
     Timer {

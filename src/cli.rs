@@ -32,7 +32,7 @@ macro_rules! connect {
     };
 }
 
-/** Gyroflow v1.6.3
+/** Gyroflow Plus community fork
 Video stabilization using gyroscope data
 */
 #[derive(FromArgs)]
@@ -144,7 +144,7 @@ pub fn run(open_file: &mut String, open_preset: &mut String) -> bool {
         let opts: Opts = argh::from_env();
 
         if opts.version {
-            println!("Gyroflow v{}", crate::util::get_version());
+            println!("Gyroflow Plus v{}", crate::util::get_version());
             return true;
         }
 

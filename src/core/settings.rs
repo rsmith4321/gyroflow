@@ -11,7 +11,7 @@ pub fn data_dir() -> PathBuf {
     static PATH: std::sync::OnceLock<PathBuf> = std::sync::OnceLock::new();
 
     PATH.get_or_init(|| {
-        let mut path = app_dirs2::get_app_dir(AppDataType::UserData, &AppInfo { name: "Gyroflow", author: "Gyroflow" }, "").unwrap();
+        let mut path = app_dirs2::get_app_dir(AppDataType::UserData, &AppInfo { name: "Gyroflow Plus", author: "Ryan Smith" }, "").unwrap();
         if path.file_name().unwrap() == path.parent().unwrap().file_name().unwrap() {
             path = path.parent().unwrap().to_path_buf();
         }
@@ -29,7 +29,7 @@ pub fn data_dir() -> PathBuf {
                     path = PathBuf::from(s);
                     path.push("AppData");
                     path.push("Local");
-                    path.push("Gyroflow");
+                    path.push("Gyroflow Plus");
                     windows::Win32::System::Com::CoTaskMemFree(Some(raw_path.as_ptr() as *mut _));
                 }
             }
@@ -55,7 +55,7 @@ pub fn data_dir() -> PathBuf {
                     path = PathBuf::from(pw_dir);
                     path.push("Library");
                     path.push("Application Support");
-                    path.push("Gyroflow");
+                    path.push("Gyroflow Plus");
                 }
                 _ => { },
             }
