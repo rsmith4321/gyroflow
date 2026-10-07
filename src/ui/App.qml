@@ -170,9 +170,16 @@ Rectangle {
                 }
                 BasicText {
                     width: parent.width;
-                    text: "Gyroflow Plus · Community fork";
+                    text: "Plus";
                     horizontalAlignment: Text.AlignHCenter;
-                    font.pixelSize: 11 * dpiScale;
+                    font.pixelSize: 18 * dpiScale;
+                    bottomPadding: 4 * dpiScale;
+                }
+                BasicText {
+                    width: parent.width;
+                    text: "Community fork";
+                    horizontalAlignment: Text.AlignHCenter;
+                    font.pixelSize: 10 * dpiScale;
                     bottomPadding: 8 * dpiScale;
                 }
                 Hr { }
