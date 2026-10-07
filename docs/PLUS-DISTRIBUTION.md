@@ -58,7 +58,7 @@ python _scripts/package_plus.py windows _deployment/_binaries/win64 path/to/new-
 
 The stager requires a clean source checkout for every candidate, preserves
 the runtime's dependency notices, adds GPL/OCIO/fork notices, corresponding app
-source archive, source URL, binary SHA256 and commit manifest, and refuses an
+source archive, source URL, input-build binary SHA256 and commit manifest, and refuses an
 existing output. Mac auditing rejects absolute non-system dependencies. It
 ad-hoc signs local Mac stages; that does not establish Developer ID signing,
 notarization, Windows trust or public-release readiness. Supplying notices does
@@ -87,3 +87,9 @@ untracked private files into a package.
 
 The focused upstream LUT PR remains on `codex/export-lut` and contains neither
 this branding nor these additional tone controls.
+
+`Notices/BUILD.json` records `input_binary_sha256` for the pre-signing build
+input. `PACKAGE.json`, beside the app, records the final
+`packaged_binary_sha256` after signing. These can differ for a Mac Mach-O file;
+the final receipt stays outside the signed bundle to avoid a circular resource
+hash. Older stages used the ambiguous `binary_sha256` field for the input hash.

@@ -107,7 +107,7 @@ def main():
     if args.licenses: shutil.copytree(args.licenses.resolve(strict=True),notices/'Dependencies')
     manifest=dict(name='Gyroflow Plus',community_fork=True,version=version,commit=commit,
         dirty_source=dirty,development_runtime=args.development_runtime,
-        binary_sha256=hashlib.sha256(binary.read_bytes()).hexdigest(),
+        input_binary_sha256=hashlib.sha256(binary.read_bytes()).hexdigest(),
         source=f'https://github.com/rsmith4321/gyroflow/tree/{commit}',external_mac_dependencies=external,
         public_release_approved=False)
     (notices/'BUILD.json').write_text(json.dumps(manifest,indent=2)+'\n')
@@ -118,7 +118,15 @@ def main():
     if args.platform=='mac':
         subprocess.run(['codesign','--force','--deep','--sign','-',str(app)],check=True)
         subprocess.run(['codesign','--verify','--deep','--strict',str(app)],check=True)
-    print(json.dumps(manifest,indent=2))
+    # Signing changes the Mach-O executable bytes. Keep the final hash outside
+    # the signed bundle to avoid a circular manifest/resource-signature hash.
+    packaged_binary = app/'Contents/MacOS/gyroflow' if args.platform=='mac' else app/'GyroflowPlus.exe'
+    receipt = dict(source_commit=commit, platform=args.platform,
+        packaged_binary_sha256=hashlib.sha256(packaged_binary.read_bytes()).hexdigest(),
+        input_binary_sha256=manifest['input_binary_sha256'],
+        development_runtime=args.development_runtime, public_release_approved=False)
+    (output/'PACKAGE.json').write_text(json.dumps(receipt,indent=2)+'\n')
+    print(json.dumps(receipt,indent=2))
 
 
 if __name__=='__main__': main()
