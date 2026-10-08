@@ -110,6 +110,43 @@ patch conclusion is inferred from those version strings.
 
 ## Remaining app and release gates
 
+### Matching Qt 6.7.3 preview compatibility
+
+A separate official Qt 6.7.3 Mac SDK candidate now passes the same **82 actual
+Metal comparisons** and separate software-renderer rejection with this OCIO
+prefix; maximum CPU/GPU difference remains **2.384185791015625e-7**. Production
+source compiled unchanged against the matching Core/Gui/Quick/Qml/ShaderTools
+modules and private headers. This checks the inherited Apple Silicon Qt version;
+Intel's separate Qt 6.4.3 recipe remains untested and unchanged.
+
+The three vendor archives were checked against fresh official checksum sidecars
+and additionally SHA-256 hashed. Matching official source archives and 151
+notice/version files are preserved. All 124 inspected runtime arm64 slices and
+the linked QtQmlBuiltins static members record a macOS 11.0 minimum. The required
+ten-file framework/Cocoa closure totals 67,805,808 bytes and resolves within the
+private Qt SDK or Apple system libraries. The entire SDK also includes unused
+SQL drivers with external iODBC, Postgres.app and unresolved Mimer loads; those
+remain intact and are excluded from this narrow closure claim. Every plugin
+actually shipped by a future app must pass the complete stage audit.
+
+The private dependency inventory originally discarded the first dependency of
+bundle plugins by assuming it was a dylib ID. Independent review caught this;
+the corrected inventory parses explicit Mach-O IDs and all load commands and
+matches independent inspection of all 124 files with zero differences.
+
+On SDK 27, the old Qt CMake OpenGL target adds a direct AGL link requirement
+whose SDK stub is absent. A private configuration omits only that redundant
+consumer link entry for the Metal harness, which calls no AGL API. Official
+QtGui still imports Apple's loadable AGL runtime. SDK binaries and production
+source are unchanged. This workaround is scoped to the fixture and is not yet
+accepted for a complete application build.
+
+Private reproducibility, archive hashes, notices and corrected inventory are
+retained under `_dev/ocio-runtime/portable-qt/`. This is current-host preview
+compatibility and a dependency candidate, not old-OS execution or a portable app.
+
+### Full application
+
 Use this prefix only for a separately staged candidate and preserve the `.2.4`
 library-name symlink and complete notices. A matching Qt distribution including
 ShaderTools, compatible FFmpeg/codecs, OpenCV, MDK/plugins and all other runtime
