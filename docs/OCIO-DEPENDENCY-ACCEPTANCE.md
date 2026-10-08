@@ -176,9 +176,94 @@ and preserve matching source and notices before app staging.
 
 Use this prefix only for a separately staged candidate and preserve the `.2.4`
 library-name symlink and complete notices. A matching Qt distribution including
-ShaderTools, compatible FFmpeg/codecs, OpenCV, MDK/plugins and all other runtime
-components still need their own architecture/minimum-OS and closure checks.
+ShaderTools and SVG, compatible FFmpeg/codecs, OpenCV, MDK/plugins and all other
+runtime components need complete application integration and closure checks.
 Bundle-relative app search paths, full app preview/export acceptance, execution
 on the declared minimum OS, Windows, signing/notarization and clean-machine
 installation remain open. Cargo defaults, public releases and website engine
 claims are unchanged by this dependency acceptance.
+
+### Matching Qt SVG graphics
+
+The matching official Qt SVG 6.7.3 supplement preserves the application's SVG
+graphics. Its two frameworks and two image/icon plugins total 1,534,632 universal
+bytes; all inspected arm64 slices record macOS 11.0. Their declared imports
+resolve within the private matching Qt SDK or Apple libraries. A native synthetic
+probe on the current Mac rendered identical 128x128 images through QSvgRenderer
+and the actual SVG image plugin, with expected red/blue pixels and no observed
+Homebrew runtime loads. The icon plugin and QtSvgWidgets have metadata inspection
+only; the probe does not establish complete app or older-OS behavior.
+
+Independent review found the first notice collector omitted SPDX-named license
+texts. The corrected packet includes the complete upstream `LICENSES` directory;
+all seven license texts and thirteen retained notice files match source bytes.
+Official archives, checksums, source, native load logs and corrected notice
+receipts remain under `_dev/ocio-runtime/portable-qt-supplements/`. A separate
+copy of the accepted Qt SDK combines these modules for future app builds without
+changing either accepted input.
+
+### Matching OpenCV and contrib
+
+The existing vcpkg dependency is OpenCV 4.14.0; its retained core objects record
+macOS 27.0 and its installed headers lack the declared contrib optical-flow
+module. A separate official-source candidate keeps the twelve existing modules
+and adds `optflow` plus its `ximgproc` dependency. OpenCV source is pinned to
+`0654a42e19215ef25b1d367d822f3c630447e7c7`, contrib to
+`a8e9acd62cabd30419dba83007f2ac0d07de5e2c`.
+
+All 431 arm64 objects across fourteen static archives record macOS 11.0. A native
+consumer force-loads every archive object and links successfully using private
+archives and Apple SDK libraries. Synthetic calibration, feature tracking,
+optical flow and parallel-work checks pass on the current Mac. The actual
+application's OpenCV Rust crate 0.99.1 and requested feature set also build and
+execute in a private probe; all eight generated binding objects record 11.0.
+NEON, pthreads/GCD and AVFoundation remain enabled. This is dependency evidence,
+not full stabilization or older-OS app acceptance.
+
+The generated OpenCV pkg-config file has incomplete static framework metadata
+and an invalid SDK zlib library token. Use the verified explicit fourteen-library
+environment retained with this candidate instead. Independent review also found
+omitted embedded TVL1, SLIC/MSLIC and FLANN notices. The corrected packet retains
+319 distinct original legal texts mapped to 1,622 source occurrences, with all
+431 objects and 812 source/header dependencies covered. Ship the **entire**
+`notices/corrected-v2/` packet, including its text files, plus the original project
+notices. Independent reinspection found no remaining gap within that declared
+scope. Source, build, closure and corrected notice receipts remain under
+`_dev/ocio-runtime/portable-opencv/`.
+
+### Existing MDK preview and RAW-format gates
+
+The retained MDK framework and plugins are coherent private build inputs, with
+arm64 slices recording macOS 11.0. They are not an accepted portable runtime
+closure. The already running development app actually loaded Homebrew dav1d
+(minimum macOS 26.0), and the old Qt/MDK wrapper object records macOS 27.0. A new
+candidate must rebuild the wrapper against private Qt and prove bundled dynamic
+resolution. Retained MDK search paths include Homebrew and `/usr/local`.
+
+The pinned `qml-video-rs` wrapper commit is
+`855130d4f423321e60c4bb95b913dc1e22c1eb88`; its default unversioned nightly SDK
+download is separately unpinned. Reusing the identified cached SDK through the
+verified `MDK_SDK` guard avoids a new mutable download during private integration.
+That does not recover the original binary acquisition provenance or establish
+distribution rights/notices for this fork.
+
+BRAW, R3D and NEV processing paths and existing plugins remain intact. Plugin
+loading does not establish RAW decoding: the retained app/target trees lack the
+separate vendor RAW runtimes named in the audit. Exact runtime versions, terms,
+corresponding sources/notices for the shipped MDK components, and fork-specific
+entitlement remain release gates. No vendor agreement was accepted or RAW SDK
+acquired during this audit. Detailed read-only evidence is retained under
+`_dev/ocio-runtime/portable-mdk-audit/`.
+
+### Metal build tool acquisition
+
+The FFmpeg source candidate initially encountered Xcode's missing Metal compiler
+component. The matching official Apple component (Xcode build `27A266a`, compiler
+`32023.921`) was downloaded with an export destination. Xcode also installed and
+activated it in its managed component cache; this was a host toolchain change,
+not a private-only export. Compiler version and Apple signature checks pass.
+The unchanged upstream FFmpeg `yadif` Metal source separately compiles with an
+explicit macOS 11.0 target and Metal 2.3 language version. This is a shader build
+check, not filter/video execution. Original failure logs, exported component
+hashes and activation receipts are retained under
+`_dev/ocio-runtime/portable-metal-toolchain/` and the FFmpeg source candidate.
