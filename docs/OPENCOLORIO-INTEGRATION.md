@@ -536,3 +536,48 @@ Capture receipt SHA-256:
 `2ebffefc727f24bdbc1b712a8a28b83516b15fb8b36dcd5e5df8ba75f17e0bb1`;
 comparison statistics SHA-256:
 `a46633a2527de0746b40a01b22d46f62ec056d3455e83b7b5047099679744efb`.
+
+## Windows retained app evidence reconciliation: 2026-10-08
+
+A later bounded, read-only collection inspects the original logs and receipts;
+no app, export, build or GPU test is rerun. The final `e4db0995` Cargo log records
+**29 tests passed**, zero failed or ignored, with the explicit `ocio-runtime`
+feature. The retained `9fab4b58` complete application build exited zero after
+8 minutes 22 seconds. Both recorded C++ compilation units contain `/EHsc`,
+including the generated `rust_cpp/cpp_closures.cpp`; its retained source includes
+the preview implementation. This closes the earlier missing final test-count
+and full-app exception-flag observations for those source identities.
+
+The dependency probe's raw `modules` field is an array of **81 path strings**,
+not an array of objects with a `Path` property. Projecting that nonexistent
+property explains the earlier null-path summary. Separate actual application
+CLI-export records contain `Images` objects with real paths, hashes and lengths;
+the retained validation reports matching staged bytes for the selected Qt,
+ShaderTools, OCIO, FFmpeg and MDK dependencies in neutral, LUT and combined
+exports. Some native DLL version-resource fields are genuinely absent; that is
+separate from the probe's recorded runtime versions (Qt 6.7.3 and OCIO 2.4.2).
+These retained observations do not establish a complete clean-machine loader
+closure or a new current-head build.
+
+The source/project qualifications remain explicit: the Windows test project
+was a derived copy and was rewritten when saved; the whole pre-save semantic
+identity is not established. The Plus settings file was originally absent,
+then created by the test app. Recorded post-save/export settings differ only
+in `windowWidth`, and the current settings still match the retained post-export
+values. Original settings and source fixtures remain preserved. This is not
+unchanged-existing-Plus-settings proof. The native export still has 242 decoded
+frames against the initial 240-frame progress assumption; the earlier failed
+checks remain retained.
+
+The metadata child exits zero naturally in **13.703 seconds**, within its
+60-second/16-MiB bounds. Its owned job has zero active processes afterward;
+1,395 preservation entries and 943 separately protected Easy Eject pins match.
+The dedicated Windows chat is terminal/idle and its resource slot was returned.
+The evidence packet is `outputs/final-metadata-20261008T232812` in the dedicated
+Windows validation workspace. `handback.json` SHA-256 is
+`e7004f3cec16a2be189396d2497420e26b6d9eccf0ee7d0e30c725bd25df7536`;
+`facts.json` is 891,439 bytes with SHA-256
+`3bd2f39d15316b5cb091339e38dd043691bb4f9e25209e42efd42d918d97fda1`.
+Current-head compilation, numerical native Windows MDK preview/export agreement
+and public packaging remain open. Passing earlier source tests is not a
+current-head application acceptance claim.
