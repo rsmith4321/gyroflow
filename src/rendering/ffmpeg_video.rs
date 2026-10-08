@@ -329,29 +329,14 @@ impl<'a> VideoTranscoder<'a> {
                                     software::scaling::flag::Flags::from_bits_truncate(self.ffmpeg_interpolation),
                                 )?;
 
-                                unsafe {
-                                    use std::os::raw::c_int;
-                                    // let mut dummy: [c_int; 4] = [0; 4];
-                                    let mut src_range: c_int = 0;
-                                    let mut dst_range: c_int = 0;
-                                    // let mut brightness: c_int = 0;
-                                    // let mut contrast: c_int = 0;
-                                    // let mut saturation: c_int = 0;
-                                    // ffi::sws_getColorspaceDetails(conv.as_mut_ptr(), &mut dummy.as_mut_ptr(), &mut src_range, &mut dummy.as_mut_ptr(), &mut dst_range, &mut brightness, &mut contrast, &mut saturation);
-                                    let coefs = ffi::sws_getCoefficients(ffi::SWS_CS_ITU709);
-                                    if final_frame.color_range() == util::color::Range::JPEG {
-                                        src_range |= 1;
-                                    }
-                                    if self.buffers.converted_frame.color_range() == util::color::Range::JPEG {
-                                        dst_range |= 1;
-                                    }
-                                    ffi::sws_setColorspaceDetails(conv.as_mut_ptr(), coefs, src_range, coefs, dst_range, 0, 1 << 16, 1 << 16);
-                                    //self.encoder.as_mut().ok_or(FFmpegError::EncoderNotFound)?.set_color_range(self.buffers.converted_frame.color_range());
-                                }
+                                super::ffmpeg_encoder_color::configure(&mut conv, final_frame, &self.buffers.converted_frame, false)?;
                                 self.encoder_converter = Some(conv);
                             }
                             let conv = self.encoder_converter.as_mut().ok_or(FFmpegError::EncoderConverterEmpty)?;
                             let buff = &mut self.buffers.converted_frame;
+                            if self.export_lut.is_some() {
+                                super::ffmpeg_encoder_color::configure(conv, final_frame, buff, true)?;
+                            }
                             conv.run(final_frame, buff)?;
                             final_frame = buff;
                         }

@@ -4,6 +4,7 @@
 mod ffmpeg_audio;
 mod ffmpeg_video;
 mod ffmpeg_video_converter;
+mod ffmpeg_encoder_color;
 mod export_lut;
 #[cfg(feature = "ocio-runtime")]
 pub mod ocio_runtime;

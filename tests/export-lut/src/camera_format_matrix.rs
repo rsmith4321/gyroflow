@@ -505,9 +505,8 @@ fn limited_range_super_white_and_sub_black_are_clamped_to_the_lut_domain() {
 
 #[test]
 fn rgb_export_targets_apply_the_lut_once_without_a_matrix() {
-    // PNG/EXR exports reach the LUT as RGB after ffmpeg_video.rs converts
-    // with fixed BT.709 coefficients (see the report); the LUT stage itself
-    // must not apply any further matrix.
+    // PNG/EXR exports reach the LUT as RGB after encoder conversion.
+    // The LUT stage itself must not apply any further YCbCr matrix.
     ffmpeg_next::init().unwrap();
     let cube = gray_from_red_cube();
     for (pixel, max, bytes, big_endian) in [
@@ -563,6 +562,249 @@ fn rgb_export_targets_apply_the_lut_once_without_a_matrix() {
             }
         }
         eprintln!("{pixel:?}: worst {worst} codes");
+    }
+}
+
+fn encoder_rgb(frame: &Video, pixel: Pixel, color_active: bool) -> Video {
+    encoder_rgb_with(frame, pixel, |context, rgb| {
+        crate::ffmpeg_encoder_color::configure(context, frame, rgb, color_active).unwrap();
+    })
+}
+
+fn encoder_rgb_with(
+    frame: &Video,
+    pixel: Pixel,
+    configure: impl FnOnce(&mut ffmpeg_next::software::scaling::Context, &Video),
+) -> Video {
+    use ffmpeg_next::{ffi, software::scaling};
+    let mut rgb = Video::new(pixel, frame.width(), frame.height());
+    // Defined synthetic padding, including the float vectors used by lut3d.
+    for plane in 0..rgb.planes() {
+        rgb.data_mut(plane).fill(0);
+    }
+    assert_eq!(
+        unsafe { ffi::av_frame_copy_props(rgb.as_mut_ptr(), frame.as_ptr()) },
+        0
+    );
+    let mut context = scaling::Context::get(
+        frame.format(),
+        frame.width(),
+        frame.height(),
+        pixel,
+        frame.width(),
+        frame.height(),
+        scaling::Flags::BILINEAR,
+    )
+    .unwrap();
+    configure(&mut context, &rgb);
+    context.run(frame, &mut rgb).unwrap();
+    rgb
+}
+
+fn rgb_red(frame: &Video) -> f64 {
+    match frame.format() {
+        Pixel::RGB24 => frame.data(0)[0] as f64 / 255.0,
+        Pixel::RGB48BE => {
+            u16::from_be_bytes(frame.data(0)[..2].try_into().unwrap()) as f64 / 65535.0
+        }
+        Pixel::GBRPF32LE => f32::from_le_bytes(frame.data(2)[..4].try_into().unwrap()) as f64,
+        other => panic!("unexpected RGB fixture {other:?}"),
+    }
+}
+
+#[test]
+fn encoder_rgb_and_yuv_lut_inputs_agree_for_explicit_sdr_tags() {
+    let cube = gray_from_red_cube();
+    let mut problems = Vec::new();
+    for space in [
+        Space::BT709,
+        Space::SMPTE170M,
+        Space::BT470BG,
+        Space::BT2020NCL,
+    ] {
+        for range in [Range::MPEG, Range::JPEG] {
+            for pixel in [
+                Pixel::YUV420P,
+                Pixel::YUV420P10LE,
+                Pixel::P010LE,
+                Pixel::NV12,
+                Pixel::YUVJ420P,
+                Pixel::YUV422P10LE,
+            ] {
+                let f = format(pixel);
+                let full = full_range(pixel, range);
+                let codes = source_codes(&f, full);
+                let frame = uniform(pixel, space, range, codes, 0);
+                let expected = OFFSET
+                    + GAIN
+                        * decode_red(f.bits, full, codes.map(|x| x as f64), space).clamp(0.0, 1.0);
+                let yuv = ExportLut::new(&cube).unwrap().apply(&frame).unwrap();
+                let yuv_gray = if full {
+                    component_ranges(&yuv)[0].0 as f64 / ((1u32 << f.bits) - 1) as f64
+                } else {
+                    (component_ranges(&yuv)[0].0 as f64 / (1u32 << (f.bits - 8)) as f64 - 16.0)
+                        / 219.0
+                };
+                for target in [Pixel::RGB24, Pixel::RGB48BE, Pixel::GBRPF32LE] {
+                    let rgb = encoder_rgb(&frame, target, true);
+                    assert_eq!(
+                        (rgb.pts(), rgb.aspect_ratio()),
+                        (frame.pts(), frame.aspect_ratio())
+                    );
+                    let output = ExportLut::new(&cube).unwrap().apply(&rgb).unwrap();
+                    let gray = rgb_red(&output);
+                    if (gray - expected).abs() > 2.0 / 255.0
+                        || (gray - yuv_gray).abs() > 2.5 / 219.0
+                    {
+                        problems.push(format!("{pixel:?} {space:?} {range:?} -> {target:?}: gray {gray:.5}, expected {expected:.5}, YUV {yuv_gray:.5}"));
+                    }
+                }
+            }
+        }
+    }
+    report("production encoder RGB LUT input", problems);
+}
+
+#[test]
+fn encoder_neutral_and_unknown_tag_conversion_keep_the_legacy_policy() {
+    let f = format(Pixel::YUV420P);
+    let codes = source_codes(&f, false);
+    for space in [
+        Space::BT709,
+        Space::SMPTE170M,
+        Space::BT2020NCL,
+        Space::Unspecified,
+    ] {
+        let frame = uniform(Pixel::YUV420P, space, Range::MPEG, codes, 0);
+        let rgb = encoder_rgb(&frame, Pixel::RGB24, false);
+        // Frozen pre-fix configuration from ffmpeg_video.rs at71c22db0.
+        // This compares neutral bytes with the existing library invocation;
+        // the colored-path test above uses independent YCbCr equations.
+        let legacy = encoder_rgb_with(&frame, Pixel::RGB24, |context, target| unsafe {
+            let coefficients =
+                ffmpeg_next::ffi::sws_getCoefficients(ffmpeg_next::ffi::SWS_CS_ITU709);
+            assert_eq!(
+                ffmpeg_next::ffi::sws_setColorspaceDetails(
+                    context.as_mut_ptr(),
+                    coefficients,
+                    i32::from(frame.color_range() == Range::JPEG),
+                    coefficients,
+                    i32::from(target.color_range() == Range::JPEG),
+                    0,
+                    1 << 16,
+                    1 << 16,
+                ),
+                0
+            );
+        });
+        for y in 0..rgb.height() as usize {
+            assert_eq!(
+                &rgb.data(0)[y * rgb.stride(0)..][..rgb.width() as usize * 3],
+                &legacy.data(0)[y * legacy.stride(0)..][..legacy.width() as usize * 3]
+            );
+        }
+        if space == Space::Unspecified {
+            let active = encoder_rgb(&frame, Pixel::RGB24, true);
+            for y in 0..rgb.height() as usize {
+                assert_eq!(
+                    &active.data(0)[y * active.stride(0)..][..active.width() as usize * 3],
+                    &rgb.data(0)[y * rgb.stride(0)..][..rgb.width() as usize * 3]
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn active_yuv_encoder_keeps_its_initial_conversion_configuration() {
+    use ffmpeg_next::{ffi, software::scaling};
+    let frame = uniform(Pixel::YUV420P, Space::BT709, Range::MPEG, [100, 90, 180], 0);
+    let target = Video::new(Pixel::YUV420P10LE, frame.width(), frame.height());
+    let mut context = scaling::Context::get(
+        frame.format(),
+        frame.width(),
+        frame.height(),
+        target.format(),
+        target.width(),
+        target.height(),
+        scaling::Flags::BILINEAR,
+    )
+    .unwrap();
+    crate::ffmpeg_encoder_color::configure(&mut context, &frame, &target, false).unwrap();
+    fn configuration(context: &mut scaling::Context) -> ([i32; 4], [i32; 4], [i32; 5]) {
+        let (mut inverse, mut table) = (std::ptr::null_mut(), std::ptr::null_mut());
+        let (mut src, mut dst, mut brightness, mut contrast, mut saturation) = (0, 0, 0, 0, 0);
+        unsafe {
+            assert_eq!(
+                ffi::sws_getColorspaceDetails(
+                    context.as_mut_ptr(),
+                    &mut inverse,
+                    &mut src,
+                    &mut table,
+                    &mut dst,
+                    &mut brightness,
+                    &mut contrast,
+                    &mut saturation
+                ),
+                0
+            );
+            (
+                std::slice::from_raw_parts(inverse, 4).try_into().unwrap(),
+                std::slice::from_raw_parts(table, 4).try_into().unwrap(),
+                [src, dst, brightness, contrast, saturation],
+            )
+        }
+    }
+    let initial = configuration(&mut context);
+    let changed = uniform(
+        Pixel::YUV420P,
+        Space::BT2020NCL,
+        Range::JPEG,
+        [100, 90, 180],
+        0,
+    );
+    crate::ffmpeg_encoder_color::configure(&mut context, &changed, &target, true).unwrap();
+    assert_eq!(configuration(&mut context), initial);
+}
+
+#[test]
+fn reused_rgb_encoder_honors_changed_source_matrix_and_range() {
+    use ffmpeg_next::software::scaling;
+    let first = uniform(
+        Pixel::YUV420P,
+        Space::SMPTE170M,
+        Range::MPEG,
+        [100, 90, 180],
+        0,
+    );
+    let next = uniform(
+        Pixel::YUV420P,
+        Space::BT2020NCL,
+        Range::JPEG,
+        [100, 90, 180],
+        0,
+    );
+    let mut output = Video::new(Pixel::RGB24, first.width(), first.height());
+    let mut context = scaling::Context::get(
+        first.format(),
+        first.width(),
+        first.height(),
+        output.format(),
+        output.width(),
+        output.height(),
+        scaling::Flags::BILINEAR,
+    )
+    .unwrap();
+    for source in [&first, &next, &first] {
+        crate::ffmpeg_encoder_color::configure(&mut context, source, &output, true).unwrap();
+        context.run(source, &mut output).unwrap();
+        let fresh = encoder_rgb(source, Pixel::RGB24, true);
+        for y in 0..output.height() as usize {
+            assert_eq!(
+                &output.data(0)[y * output.stride(0)..][..output.width() as usize * 3],
+                &fresh.data(0)[y * fresh.stride(0)..][..fresh.width() as usize * 3]
+            );
+        }
     }
 }
 

@@ -8,6 +8,8 @@ pub mod ocio_runtime;
 pub mod cube_lut;
 #[path = "../../../src/rendering/export_lut.rs"]
 pub mod export_lut;
+#[path = "../../../src/rendering/ffmpeg_encoder_color.rs"]
+pub mod ffmpeg_encoder_color;
 #[path = "../../../src/rendering/tone_curve.rs"]
 pub mod tone_curve;
 

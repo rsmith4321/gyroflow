@@ -581,3 +581,35 @@ Windows validation workspace. `handback.json` SHA-256 is
 Current-head compilation, numerical native Windows MDK preview/export agreement
 and public packaging remain open. Passing earlier source tests is not a
 current-head application acceptance claim.
+
+## Tagged SDR encoder-target consistency: 2026-10-08
+
+A source review found that the encoder-target converter always selected
+BT.709 coefficients. Explicitly tagged BT.601 or BT.2020 nonconstant-luminance
+footage could therefore reach the color processor differently when exported
+to RGB formats such as PNG/EXR instead of YUV video. The configuration now
+uses FFmpeg's matching coefficients for those color-active RGB targets and
+retains FFmpeg's full-range convention for YUVJ storage formats. Conversion
+math remains in FFmpeg. Neutral exports and ordinary YUV converter setup
+retain their existing policy; unknown/unsupported RGB matrix tags still use
+the previous BT.709 fallback. Untagged YUV/RGB policy remains a separate item.
+
+The regression tests import the actual production configuration helper and
+then run real FFmpeg scaling and LUT processing. Independent YCbCr reference
+values cover **144 tagged-SDR combinations**, including six source formats,
+limited/full ranges and three RGB targets. Additional checks exercise reused
+RGB contexts, unchanged neutral RGB bytes, unchanged unknown-tag behavior and
+unchanged active-YUV converter configuration. The pre-fix mismatches were
+retained; existing reference tolerances were not widened to accept the fix.
+
+On arm64 macOS with FFmpeg 9.0.1, **35 default tests** and **43 OpenColorIO
+2.4.2 feature tests** pass with zero failures or ignored tests. Both full
+application feature configurations pass isolated, locked/offline `cargo check`
+using Qt 6.7.3 and the pinned v41 lens database, without a private FFmpeg crate
+overlay or lockfile change. This checks the Rust call sites and native
+build-script compilation; it does not link/run a new app or prove native
+PNG/EXR exports, Windows acceptance or hardware-export performance. The
+installed/default runtime and release gates remain unchanged.
+
+The retained root evidence is
+`_dev/root-encoder-color-review-20261008/ACCEPTANCE.json`.
