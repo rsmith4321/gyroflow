@@ -299,6 +299,61 @@ full **2,165,305,347-byte** DJI flight, chosen DJI LUT and authored Mac project
 were copied directly over the existing authenticated file share, then copied
 locally on Windows and independently hash-verified. A separate Windows-derived
 project adapts paths and clears the Mac-only `-allow_sw 0` encoder option; the
-authored project and source media stay unchanged. Final native results and
-settings restoration remain pending. This baseline does not retroactively
-establish preservation during the earlier CLI tests.
+authored project and source media stay unchanged. This baseline does not
+retroactively establish preservation during the earlier CLI tests.
+
+After the laptop restart and a fresh supported desktop-helper session, the native
+observer reported reopening the LUT and all eight saved values, then completing
+one GUI export. The retained file is **67,820,243 bytes**, SHA-256
+`2fb159b29cf0f22f4ac29e9b7256b59e6bc7513ef8f53a20968b916cb24f9ac5`.
+Its probe reports **3840×2160 HEVC Main 10**, `yuv420p10le`, limited range and
+BT.709 matrix, transfer and primaries. A full decode exited zero. All **242**
+integer best-effort timestamps equal `ordinal × 1001` in a `1/60000` time base;
+duration is **242242 ticks / 4.037367 seconds**. NVIDIA recorded **11** matching
+H.265 / 3840×2160 rows for the owned app PID, ten with positive FPS. The native
+observer reported a success dialog; the owned app and temporary awake process
+were subsequently reported absent. This establishes a completed native export
+and hardware encoder activity, not numerical native preview/export parity.
+
+Two verification commands remain failed and their receipts are retained. The
+output check expected 240 frames, matching the duration-based progress estimate,
+but the file contains 242. Source review traces the inclusive-start test,
+end-after-submission test and final decoder drain to pre-color commit `77b49409`.
+Both retained Mac reference and candidate exports also have 240 estimated versus
+242 decoded frames. This is agreement with inherited behavior, not acceptance of
+an exact four-second cutoff or proof for other clip/decoder boundary alignments.
+The separate preservation check failed because the private derived project's
+byte hash changed after native saving. Its LUT, eight controls, trim and export
+fields remain present, but the complete semantic delta has not been established.
+The test created the previously absent Plus settings file, and `windowWidth`
+changed between the saved-project and completed-export reads. That file was left
+present; exact settings equality/restoration is not established. Recorded checks
+found no mismatches in 579 stage files, 577 stable files, three original fixtures
+or the old settings file. These are recorded-file checks, not exact directory-set
+or full-runtime-closure checks. The native packet is
+`C:\Users\rsmit\.codex\GyroflowBuildTools\Native9fab-20261008`.
+
+## Complete restored-input diagnostic: 2026-10-08
+
+An isolated LUT-only diagnostic captured all 242 restored P010 inputs from each
+of the retained Homebrew and portable/static dependency families. Both use the
+official OCIO feature path. Each capture contains **6,021,734,400 bytes**; all
+recorded active Y/UV plane identities match the respective retained v3 export.
+The complete comparator verified raw-file and plane hashes before and after
+comparison, zero low P010 bits, fixed LUT/parameter identities and every active
+10-bit sample. Of **2,007,244,800 Y** and **1,003,622,400 UV** codes, **7,120 Y**
+and **5,494 UV** differ, with maximum **one code**. The unchanged one-code gate
+passed; source, original media, LUT and settings snapshots stayed equal.
+
+The conditional replay then submitted the first family's captured inputs to one
+fixed Homebrew HEVC hardware-required encoder. It reproduced the first coded
+picture, but **241 of 242** coded pictures differed from that family's historical
+export. Configuration (`hvcC`), timestamps, durations and keyframe ordinals
+matched. The replay therefore stopped with a failed receipt before the second
+family; protected snapshots remained equal and output bounds passed. The direct
+P010 replay does not independently certify the historical app upload branch.
+It has not established the cause of the compressed-output differences. No repeat,
+grade replay, new decoded comparison, tolerance change or release/default switch
+was performed. The original exact old/new decoded-output hold remains open.
+The private diagnostic is retained under
+`_dev/ocio-runtime/portable-app-build/full-restored-input-capture-v1`.
