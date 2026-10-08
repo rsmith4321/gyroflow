@@ -19,3 +19,5 @@ get_filename_component(REPOSITORY_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../.." ABSOL
 add_test(NAME native-float32-preview COMMAND native-preview "${REPOSITORY_ROOT}"
     "${OCIO_PREVIEW_LUT_FILE}" "${CMAKE_CURRENT_BINARY_DIR}/results.json")
 add_test(NAME software-renderer-rejection COMMAND native-preview --software-check)
+add_test(NAME shader-exception-lock-recovery COMMAND native-preview --exception-check)
+set_tests_properties(shader-exception-lock-recovery PROPERTIES TIMEOUT 30)

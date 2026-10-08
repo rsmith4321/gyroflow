@@ -230,8 +230,28 @@ static double compare(const std::vector<float> & actual, const std::vector<float
 int main(int argc, char ** argv) {
     try {
         const bool softwareCheck = argc > 1 && std::string(argv[1]) == "--software-check";
+        const bool exceptionCheck = argc > 1 && std::string(argv[1]) == "--exception-check";
         QQuickWindow::setGraphicsApi(softwareCheck ? QSGRendererInterface::Software : expectedGraphicsApi);
         QGuiApplication application(argc, argv);
+        if (exceptionCheck) {
+            // This failure occurs inside shader_pack's QMutexLocker scope.
+            // The following valid request must acquire the same mutex again.
+            // CTest bounds this process so broken unwinding fails as a timeout.
+            const auto failed = QJsonDocument::fromJson(gp_ocio_preview::bake(
+                QStringLiteral("#version 440\n#error GP_OCIO_EXCEPTION_TEST\n")).toUtf8()).object();
+            require(failed["error"].toString().contains("OCIO preview shader compilation failed"),
+                "Invalid shader did not exercise the compilation exception");
+            const QString source = QStringLiteral("#version 440\nlayout(location=0)out vec4 fragColor;void main(){fragColor=vec4(1);}");
+            const auto recovered = QJsonDocument::fromJson(gp_ocio_preview::prepare_assets(source, 0, nullptr, 0).toUtf8()).object();
+            require(!recovered.contains("error"), recovered["error"].toString().toStdString());
+            const QString token = recovered["texture_token"].toString();
+            require(!token.isEmpty() && QFile::exists(QUrl(recovered["source"].toString()).toLocalFile()),
+                "Valid shader did not recover after the compilation exception");
+            gp_ocio_preview::release_assets(token);
+            require(gp_ocio_preview::pending().values.isEmpty(), "Recovery request leaked pending assets");
+            std::cout << "shader_exception_lock_recovery=passed\n";
+            return 0;
+        }
         if (softwareCheck) {
             QQuickWindow window;
             QObject target;

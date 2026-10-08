@@ -20,6 +20,11 @@ replacement color evaluator.
   invalidation/reinitialization, without replacing their binding to mask failure.
 - Stale token disposal, invalid edge 129 rejection, live owner reuse after LRU
   eviction, unique filenames after regeneration, and stale/current native errors.
+- A separate `--exception-check` process deliberately fails shader compilation
+  while the cache mutex is owned, then prepares a valid shader in the same process.
+  CTest limits it to 30 seconds, so a mutex left locked by broken C++ unwinding
+  fails rather than waiting indefinitely. This checks recovery through the exact
+  adapter; Cargo's MSVC compiler commands must also show `/EHsc` explicitly.
 - Separate process using the actual software renderer, verifying the factory
   rejects it with the visible hardware-renderer message and releases its token.
   The production QML bypasses the factory for neutral settings and disables the
