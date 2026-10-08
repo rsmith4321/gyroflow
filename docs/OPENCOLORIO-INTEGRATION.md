@@ -139,6 +139,13 @@ is an additional preview dependency when the feature is selected. The existing
 [probe recipe](../tests/ocio-runtime/README.md) records source provenance and
 local dependency limitations. This is not yet a portable release recipe.
 
+Windows MSVC builds explicitly enable `/EHsc` for both the OCIO C ABI bridge
+and the feature's Qt preview adapter, so their caught C++ errors unwind owned
+objects and preview locks. Use a shared OCIO prefix with matching import
+libraries and runtime DLLs. Existing Qt installs need ShaderTools checked
+separately; the inherited default Windows deploy recipe does not enable this
+experimental feature or stage its additional DLLs.
+
 Current CPU acceptance:
 
 - 29 Rust tests cover normal export, negative/malformed planes, allocation

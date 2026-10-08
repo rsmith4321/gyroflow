@@ -107,6 +107,13 @@ fn main() {
         config.flag(f);
     }
 
+    if env::var_os("CARGO_FEATURE_OCIO_RUNTIME").is_some()
+        && env::var("CARGO_CFG_TARGET_ENV").as_deref() == Ok("msvc")
+    {
+        // Preview errors must release RAII locks before reporting failure.
+        config.flag("/EHsc");
+    }
+
     if env::var("CARGO_CFG_TARGET_ARCH").as_deref() == Ok("aarch64") && (target_os == "ios" || target_os == "macos") {
         config.flag("-include").flag("arm_acle.h");
     }

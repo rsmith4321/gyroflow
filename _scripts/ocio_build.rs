@@ -13,12 +13,17 @@ pub fn build_bridge(repository: &std::path::Path) {
     for file in ["grade.hpp", "bridge.h", "bridge.cpp"] {
         println!("cargo:rerun-if-changed={}", source.join(file).display());
     }
-    cc::Build::new()
+    let mut config = cc::Build::new();
+    config
         .cpp(true)
         .std("c++17")
         .include(root.join("include"))
-        .file(source.join("bridge.cpp"))
-        .compile("gyroflow_ocio_bridge");
+        .file(source.join("bridge.cpp"));
+    if env::var("CARGO_CFG_TARGET_ENV").as_deref() == Ok("msvc") {
+        // OCIO errors must unwind C++ objects before the C ABI catches them.
+        config.flag("/EHsc");
+    }
+    config.compile("gyroflow_ocio_bridge");
     println!(
         "cargo:rustc-link-search=native={}",
         root.join("lib").display()
