@@ -333,6 +333,60 @@ or the old settings file. These are recorded-file checks, not exact directory-se
 or full-runtime-closure checks. The native packet is
 `C:\Users\rsmit\.codex\GyroflowBuildTools\Native9fab-20261008`.
 
+## Windows retained-stage static audit: 2026-10-08
+
+A later read-only audit checks the retained `9fab4b58` application stage using
+the corrected audit module from clean, pushed source
+`7b099bfd8d9e557e1890755f02c05b184fe5fc1f`. The module SHA-256 is
+`66ab0afb1e123ec462e2285b7149e1edabbadde61bca7ee45384e60a8ac6f26c`.
+The actual pinned `pefile` parser and native Windows version API inspect all
+**117 x64 PE images**; every parsed/native FileVersion comparison agrees and
+the audit reports **zero errors**. The executable's OCIO and ShaderTools imports
+are present. This checks import metadata and bundled symbol resolution; it does
+not load the application or verify symbols provided by Windows system DLLs.
+
+The original eight-error report remains unchanged. Seven rejections concern
+five exact Windows in-box library names, now separately classified without
+accepting staged system copies or missing VC140 redistributables. The remaining
+failure used `14.51.36260.0` as its declared runtime floor, inferred from the
+compiler's version. Read-only provenance collection establishes instead:
+
+| Selected build input | Observed version |
+| --- | --- |
+| VS toolset directory and default redistributable directory | `14.51.36231` |
+| `cl.exe` FileVersion, matching the retained compiler hash | `19.51.36260.0` |
+| Selected `crtversion.h` version macros | `14.51.36244.0` |
+| Selected official non-debug x64 CRT DLL FileVersions | `14.51.36247.0` |
+
+All six staged CRT DLLs match the corresponding selected Visual Studio
+`Microsoft.VC145.CRT` redistributable **byte for byte**, as well as by native
+version. The new invocation declares `14.51.36247.0` from that selected official
+redistributable evidence. It retains the same full four-component comparison;
+the failed report's floor is not edited or silently waived. This evidence applies
+to the selected recorded build inputs, not arbitrary toolsets or dependencies.
+
+The bounded audit child completes naturally with exit zero in **4.344 seconds**.
+Before/after checks preserve all 581 stage files, 13 OCIO-prefix files, the Plus
+settings file, selected redist provenance and 92 prior evidence files. The owned
+collection, fetch and audit processes are terminal; the separate Easy Eject
+preview process is unchanged. This duration is an audit time, not an export
+benchmark.
+
+The private packet is
+`C:\Users\rsmit\Documents\Codex\2026-10-08\gyroflow-plus-windows-validation\outputs\corrected-audit-7b099bfd-20261008`.
+Its complete `audit-full.json` is 6,345,106 bytes, SHA-256
+`8ecdfc57ad26b721e59e59f47c6a08c1b7cafc5458ec91c5bcb60e561d8ed2cb`;
+`audit-handback.md` has SHA-256
+`a2318989247ce27d5d7d5a435aa636b215957b8afb5bee5d057322a4d59e27c5`.
+
+No application, runtime or settings were replaced. The audited executable
+remains the recorded `9fab4b58` build, not a new build of the audit source commit.
+Color/encoder/stabilization runtime files are unchanged between those source
+commits; two update URLs and a build-time shared-OCIO-prefix check changed.
+Current-head compilation, numerical Windows preview/export agreement, native
+loading on a clean computer, complete package notices/source provenance and
+public distribution remain separate gates. The feature default remains unchanged.
+
 ## Complete restored-input diagnostic: 2026-10-08
 
 An isolated LUT-only diagnostic captured all 242 restored P010 inputs from each
