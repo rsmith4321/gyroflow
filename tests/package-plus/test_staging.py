@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Packaging guards; synthetic fixtures only, no app/video execution."""
 import contextlib
+import hashlib
 import importlib.util
 import io
 import json
@@ -22,6 +23,53 @@ PACKET = 'resources/color/ocio-third-party'
 
 
 class StagingTests(unittest.TestCase):
+    def test_legacy_windows_deploy_receipt_without_platform_passes_preflight(self):
+        with tempfile.TemporaryDirectory(prefix='plus-windows-receipt-') as temporary:
+            root=Path(temporary);runtime=root/'runtime';runtime.mkdir()
+            (root/'Cargo.toml').write_text('[package]\nversion="0.1.0-dev"\n')
+            binary=root/'gyroflow.exe';binary.write_bytes(b'synthetic; never executed')
+            shutil.copy2(binary,runtime/'Gyroflow.exe')
+            receipt=root/'receipt.json';commit='a'*40
+            receipt.write_text(json.dumps(dict(commit=commit,dirty=False,features='ocio-runtime',
+                exe_sha256=hashlib.sha256(binary.read_bytes()).hexdigest(),crt_source='fixture')))
+            command=['package_plus.py','windows',str(runtime),str(root/'stage'),
+                '--binary',str(binary),'--licenses',str(root/'notices'),
+                '--deploy-receipt',str(receipt),'--msvc-redist-floor','14.51.36260.0']
+            with patch.object(stager,'ROOT',root),patch.object(sys,'argv',command), \
+                 patch.object(stager,'git',side_effect=lambda *args: b'' if args[0]=='status' else commit.encode()), \
+                 patch.object(stager.shutil,'copytree',side_effect=RuntimeError('staging reached')), \
+                 self.assertRaisesRegex(RuntimeError,'staging reached'):
+                stager.main()
+            self.assertTrue((root/'stage').exists())
+
+    def test_invalid_binary_source_receipts_are_refused_before_output_creation(self):
+        with tempfile.TemporaryDirectory(prefix='plus-receipt-test-') as temporary:
+            root=Path(temporary)
+            runtime=root/'runtime';runtime.mkdir()
+            (root/'Cargo.toml').write_text('[package]\nversion="0.1.0-dev"\n')
+            binary=root/'gyroflow';binary.write_bytes(b'not executed')
+            commit='a'*40
+            valid=dict(platform='mac',commit=commit,dirty=False,
+                       exe_sha256=hashlib.sha256(binary.read_bytes()).hexdigest())
+            invalid=[None, b'{', b'[]', dict(valid,commit='b'*40),
+                     dict(valid,dirty=True), dict(valid,dirty=0),
+                     dict(valid,exe_sha256='0'*64), dict(valid,platform='windows')]
+            for value in invalid:
+                with self.subTest(receipt=value):
+                    output=root/'stage'
+                    command=['package_plus.py','mac',str(runtime),str(output),
+                             '--binary',str(binary),'--licenses',str(root/'notices')]
+                    if value is not None:
+                        path=root/'receipt.json'
+                        path.write_bytes(value if isinstance(value,bytes) else json.dumps(value).encode())
+                        command+=['--deploy-receipt',str(path)]
+                    with patch.object(stager,'ROOT',root),patch.object(sys,'argv',command), \
+                         patch.object(stager,'git',side_effect=lambda *args: b'' if args[0]=='status' else commit.encode()), \
+                         contextlib.redirect_stderr(io.StringIO()),self.assertRaises(SystemExit) as failure:
+                        stager.main()
+                    self.assertEqual(failure.exception.code,2)
+                    self.assertFalse(output.exists())
+
     def test_dirty_and_untracked_source_is_refused_before_output_creation(self):
         with tempfile.TemporaryDirectory(prefix='plus-stage-test-') as temporary:
             root = Path(temporary)
@@ -135,6 +183,11 @@ class MacDependencyTests(unittest.TestCase):
         command = ['package_plus.py', 'mac', str(self.app), str(output),
                    '--binary', str(self.app / 'Contents/MacOS/gyroflow'), '--licenses', str(notices)]
         if development: command.append('--development-runtime')
+        else:
+            receipt=self.root/'build-receipt.json'
+            receipt.write_text(json.dumps(dict(platform='mac',commit='1234567890abcdef',dirty=False,
+                exe_sha256=hashlib.sha256((self.app/'Contents/MacOS/gyroflow').read_bytes()).hexdigest())))
+            command+=['--deploy-receipt',str(receipt)]
         with patch.object(stager, 'ROOT', repo), patch.object(sys, 'argv', command), \
              patch.object(stager, 'git', side_effect=lambda *args: b'' if args[0] == 'status' else b'1234567890abcdef'), \
              contextlib.redirect_stdout(io.StringIO()):
@@ -291,6 +344,33 @@ class MacDependencyTests(unittest.TestCase):
         self.assertFalse(any(call[0] == 'codesign' for call in self.tool_calls))
         self.assertFalse((self.root / 'stage/PACKAGE.json').exists())
 
+    def test_portable_stage_records_matching_binary_commit_and_input_receipt(self):
+        self.main_binary()
+        output=self.stage()
+        receipt=json.loads((output/'PACKAGE.json').read_text())
+        build=json.loads((self.stage_app/'Contents/Resources/Notices/BUILD.json').read_text())
+        self.assertTrue(receipt['binary_source_verified'])
+        self.assertEqual(receipt['source_commit'],'1234567890abcdef')
+        self.assertEqual(build['commit'],receipt['source_commit'])
+        with (self.stage_app/'Contents/Info.plist').open('rb') as stream:
+            self.assertEqual(plistlib.load(stream)['GyroflowPlusSourceCommit'],receipt['source_commit'])
+        self.assertEqual((self.stage_app/'Contents/Resources/Notices/BUILD-INPUT.json').read_bytes(),
+                         (self.root/'build-receipt.json').read_bytes())
+
+    def test_binary_replaced_during_copy_is_refused_before_signing(self):
+        binary=self.main_binary()
+        copy=shutil.copy2
+        def changed_copy(source,destination,*args,**kwargs):
+            result=copy(source,destination,*args,**kwargs)
+            if Path(source)==binary:
+                with Path(destination).open('ab') as stream: stream.write(b'replaced executable')
+            return result
+        with patch.object(stager.shutil,'copy2',side_effect=changed_copy), \
+             self.assertRaisesRegex(RuntimeError,'Executable changed during staging'):
+            self.stage()
+        self.assertFalse(any(call[0]=='codesign' for call in self.tool_calls))
+        self.assertFalse((self.root/'stage/PACKAGE.json').exists())
+
     def test_portable_stage_rejects_external_rpath_even_with_bundled_ocio(self):
         development = self.root / 'SSD/_dev/ocio-runtime/install/lib'
         development.mkdir(parents=True)
@@ -322,6 +402,15 @@ class MacDependencyTests(unittest.TestCase):
         self.assertIn(str(outside), receipt['mac_runtime_audit']['external_dependencies'])
         self.assertIn('below embedded Mach-O minimum 27.0', '\n'.join(receipt['mac_runtime_audit']['errors']))
         self.assertTrue(receipt['development_runtime'])
+        self.assertFalse(receipt['binary_source_verified'])
+        self.assertIsNone(receipt['source_commit'])
+        self.assertIsNone(build['commit'])
+        self.assertIsNone(build['source'])
+        self.assertEqual(build['checkout_commit'],'1234567890abcdef')
+        with (self.stage_app/'Contents/Info.plist').open('rb') as stream:
+            info=plistlib.load(stream)
+        self.assertNotIn('GyroflowPlusSourceCommit',info)
+        self.assertEqual(info['GyroflowPlusCheckoutCommit'],'1234567890abcdef')
         self.assertFalse(receipt['public_release_approved'])
         check = self.stage_app / 'Contents/Resources/Notices/OpenColorIO-third-party/STAGE-CHECK.json'
         self.assertEqual(json.loads(check.read_text())['errors'], [])

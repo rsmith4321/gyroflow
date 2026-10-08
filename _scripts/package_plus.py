@@ -246,7 +246,7 @@ def main():
     parser.add_argument('--binary',type=Path,required=True,help='built from this source checkout')
     parser.add_argument('--licenses',type=Path,help='dependency copyright/license texts and source/build provenance')
     parser.add_argument('--development-runtime',action='store_true')
-    parser.add_argument('--deploy-receipt',type=Path,help='Windows: win64-deploy.json written by just deploy')
+    parser.add_argument('--deploy-receipt',type=Path,help='Mac: build_plus.py receipt; Windows: win64-deploy.json written by just deploy')
     parser.add_argument('--msvc-redist-floor',type=msvc_version,help='Windows: required C++ redistributable FileVersion for the newest toolset among staged components, e.g. 14.44.35211.0')
     args=parser.parse_args()
     runtime=args.runtime.resolve(strict=True);binary=args.binary.resolve(strict=True)
@@ -258,15 +258,27 @@ def main():
     version=tomllib.loads((ROOT/'Cargo.toml').read_text())['package']['version']
     commit=git('rev-parse','HEAD').decode().strip()
     mac_audit = windows_audit = None
+    receipt_in = receipt_bytes = None
+    binary_hash=hashlib.sha256(binary.read_bytes()).hexdigest()
+    if not args.development_runtime and not args.deploy_receipt:
+        parser.error('Portable stages require --deploy-receipt matching the executable and source commit')
+    if args.deploy_receipt:
+        try:
+            receipt_bytes=args.deploy_receipt.read_bytes()
+            receipt_in=json.loads(receipt_bytes)
+            matches=(isinstance(receipt_in,dict) and receipt_in.get('commit')==commit
+                and receipt_in.get('dirty') is False and receipt_in.get('exe_sha256')==binary_hash
+                and (args.platform!='mac' or receipt_in.get('platform')=='mac'))
+        except (OSError,ValueError) as failure:
+            parser.error(f'Cannot read build receipt: {failure}')
+        if not matches:
+            parser.error('Build receipt and --binary must be one clean build of this commit and platform')
+    binary_commit=commit if receipt_in is not None else None
     if args.platform=='windows' and not args.development_runtime:
-        if not args.deploy_receipt or not args.msvc_redist_floor:
+        if not args.msvc_redist_floor:
             parser.error('Windows stages require --deploy-receipt and --msvc-redist-floor')
-        receipt_in=json.loads(args.deploy_receipt.read_text())
-        binary_hash=hashlib.sha256(binary.read_bytes()).hexdigest()
         runtime_exe=runtime/'Gyroflow.exe'
-        if (receipt_in.get('commit')!=commit or receipt_in.get('dirty') is not False
-                or receipt_in.get('exe_sha256')!=binary_hash
-                or not runtime_exe.is_file() or hashlib.sha256(runtime_exe.read_bytes()).hexdigest()!=binary_hash):
+        if not runtime_exe.is_file() or hashlib.sha256(runtime_exe.read_bytes()).hexdigest()!=binary_hash:
             parser.error('Deploy receipt, --binary and runtime Gyroflow.exe must be one clean build of this commit')
     output.mkdir(parents=True)
     if args.platform=='mac':
@@ -281,10 +293,12 @@ def main():
         info.update(CFBundleDisplayName='Gyroflow Plus',CFBundleName='Gyroflow Plus',
                     CFBundleIdentifier='com.ryansmith.gyroflow-plus',CFBundleExecutable='gyroflow',
                     CFBundleShortVersionString=version.split('-')[0],CFBundleVersion=version.split('-')[0],
-                    GyroflowPlusVersion=version,GyroflowPlusSourceCommit=commit,
+                    GyroflowPlusVersion=version,GyroflowPlusCheckoutCommit=commit,
                     GyroflowPlusDevelopmentRuntime=args.development_runtime,
                     NSHumanReadableCopyright='Gyroflow Plus community fork. Original Gyroflow and third-party copyrights retained.')
         info.pop('GyroflowLUTSourceCommit',None)
+        info.pop('GyroflowPlusSourceCommit',None)
+        if binary_commit: info['GyroflowPlusSourceCommit']=binary_commit
         info.pop('UTExportedTypeDeclarations',None)
         # Be available in Open With, without becoming the owner/default handler.
         info['CFBundleDocumentTypes']=[dict(CFBundleTypeName='Gyroflow Project',CFBundleTypeRole='Editor',
@@ -333,10 +347,16 @@ def main():
     ocio_notices=copy_ocio_notices(app,notices)
     if not args.development_runtime and ocio_notices['errors']:
         raise RuntimeError('OpenColorIO notice check failed: '+'; '.join(ocio_notices['errors']))
-    manifest=dict(name='Gyroflow Plus',community_fork=True,version=version,commit=commit,
+    packaged_binary = app/'Contents/MacOS/gyroflow' if args.platform=='mac' else app/'Gyroflow.exe'
+    if hashlib.sha256(packaged_binary.read_bytes()).hexdigest()!=binary_hash:
+        raise RuntimeError('Executable changed during staging; no completed package receipt written')
+    if receipt_bytes is not None: (notices/'BUILD-INPUT.json').write_bytes(receipt_bytes)
+    manifest=dict(name='Gyroflow Plus',community_fork=True,version=version,commit=binary_commit,
+        checkout_commit=commit,binary_source_verified=receipt_in is not None,
         dirty_source=dirty,development_runtime=args.development_runtime,
-        input_binary_sha256=hashlib.sha256(binary.read_bytes()).hexdigest(),
-        source=f'https://github.com/rsmith4321/gyroflow-plus/tree/{commit}',external_mac_dependencies=external,
+        input_binary_sha256=binary_hash,
+        source=f'https://github.com/rsmith4321/gyroflow-plus/tree/{binary_commit}' if binary_commit else None,
+        checkout_source=f'https://github.com/rsmith4321/gyroflow-plus/tree/{commit}',external_mac_dependencies=external,
         public_release_approved=False)
     if mac_audit is not None: manifest['mac_runtime_audit'] = mac_audit
     if windows_audit is not None: manifest['windows_runtime_audit'] = windows_audit
@@ -350,8 +370,8 @@ def main():
         subprocess.run(['codesign','--verify','--deep','--strict',str(app)],check=True)
     # Signing changes the Mach-O executable bytes. Keep the final hash outside
     # the signed bundle to avoid a circular manifest/resource-signature hash.
-    packaged_binary = app/'Contents/MacOS/gyroflow' if args.platform=='mac' else app/'Gyroflow.exe'
-    receipt = dict(source_commit=commit, platform=args.platform,
+    receipt = dict(source_commit=binary_commit, checkout_commit=commit,
+        binary_source_verified=receipt_in is not None, platform=args.platform,
         packaged_binary_sha256=hashlib.sha256(packaged_binary.read_bytes()).hexdigest(),
         input_binary_sha256=manifest['input_binary_sha256'],
         development_runtime=args.development_runtime, public_release_approved=False)

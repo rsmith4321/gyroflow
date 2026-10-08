@@ -46,9 +46,25 @@ or credentials. These portable recipe paths have not been accepted for this
 prototype. Once a runtime is prepared and audited, stage it under the fork identity:
 
 ```sh
+# After committing source, run in the prepared Mac dependency environment.
+# Cargo reports the exact executable path in _dev/mac-build.json.
+python3 _scripts/build_plus.py --features ocio-runtime --output _dev/mac-build.json
 python3 _scripts/package_plus.py mac path/to/prepared/Gyroflow.app path/to/new-stage \
-  --binary target/release/gyroflow --licenses path/to/dependency-notices
+  --binary _dev/mac-build.json.target/deploy/gyroflow --deploy-receipt _dev/mac-build.json \
+  --licenses path/to/dependency-notices
 ```
+
+The Mac helper runs a locked Cargo build, selects this package's executable from
+Cargo's artifact report and records its SHA256 only if source stays clean at the
+same commit. Each invocation uses a fresh, exclusively owned Cargo target
+directory beside the receipt (`<receipt-name>.target`); it never reuses or
+overwrites another build's target directory. Keep that directory exclusive until
+staging completes. `--target` and `--profile` support explicit single-architecture builds;
+use the reported executable path when it differs from the example. It does not
+prepare or modify the runtime bundle. A combined universal executable needs a
+separate controlled build-and-combine receipt; the single-target helper does not
+attest a later `lipo` output. Build receipts are local provenance, not signatures
+or proof that dependency/toolchain inputs meet the remaining release gates.
 
 ```powershell
 python -m pip install --require-hashes -r _scripts/requirements-package.txt
@@ -66,7 +82,10 @@ Visual Studio developer environment. It copies one runtime set from
 `VCToolsRedistDir` and writes a build receipt only after all required copies and
 archiving succeed. Move prior runtime, receipt and ZIP outputs before deploying.
 
-The stager requires a clean source checkout for every candidate, preserves
+The stager requires a clean source checkout for every candidate and a matching
+build/deploy receipt for portable stages on both platforms. It checks the receipt's
+commit, clean-source flag and executable SHA256 before creating the output and
+retains its bytes as `Notices/BUILD-INPUT.json`. It preserves
 the runtime's dependency notices, adds GPL/OCIO/fork notices, corresponding app
 source archive, source URL, input-build binary SHA256 and commit manifest, and refuses an
 existing output. Mac auditing rejects absolute non-system dependencies. Windows
@@ -85,6 +104,14 @@ install, publish, register Windows project associations or create a GitHub relea
 Commit newly added files and other source changes before staging development
 builds too. This keeps the accompanying source archive complete without copying
 untracked private files into a package.
+
+Development staging may omit the build receipt. In that case `source_commit`
+and the build manifest's `commit`/`source` are null, `binary_source_verified` is
+false, and the Mac bundle has no `GyroflowPlusSourceCommit`. The separately named
+`checkout_commit` and `GyroflowPlusCheckoutCommit` identify the accompanying
+checkout archive, which is not evidence that an unverified binary came from it.
+If a receipt is supplied for a development stage, it must pass the same identity
+checks. This prevents a stale executable from being labeled with a newer commit.
 
 ## Public-release gates
 
