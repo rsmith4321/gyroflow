@@ -208,7 +208,40 @@ hardware-output hold. No production algorithm or conversion workaround is
 justified by the results so far. The captured boundaries establish near
 agreement for one rebuilt frame; they do not establish all-frame equality,
 encoder determinism, or a cause for the retained outputs. A controlled encoder
-comparison with identical input remains the next discriminator.
+comparison with identical input supplies the next bounded result below.
+
+## Identical-input encoder discriminator
+
+Four fresh standalone VideoToolbox sessions use the same captured restored
+P010 frame: previous FFmpeg family, private static family, then one repeat of
+each. The small consumer mirrors the inspected production bitrate, frame rate,
+GOP, color fields and options. All four recorded contexts match, and actual
+`allow_sw=0`/`realtime=0` readbacks require the hardware path. Each submits one
+frame and drains one packet. Actual encoder/mux API addresses resolve to the
+pinned Homebrew libraries in the previous family and the executable in the
+static family. These standalone processes load no MDK, Qt or OCIO.
+
+One pinned software HEVC decoder produces one 4K Main 10 YUV420P10LE frame from
+each output. All 12,441,600 samples are exact across the four decoded pictures,
+with shared SHA-256
+`f39418d09faa8e2777962b2eee57b983fcfaf2321fe6ccaa370fff248b0346f2`.
+The four encoded packet and file hashes differ; those differences alone are
+not decoded-image differences. Independent MP4/NAL byte parsing finds exact
+codec configuration and coded-picture NAL bytes across all four; the differing
+sample bytes are confined to a prefix SEI NAL. Their meaning was not decoded,
+so no timestamp/session explanation is assumed. All fixture/tool/library/source
+preservation checks pass. Matrix and primaries tags are BT.709, range is
+limited, and the transfer tag is unspecified in these isolated outputs.
+
+This shows no decoded variation for the fixed fixture in these four sessions.
+It does not establish general encoder determinism or reproduce the original
+242-frame app lifetime. The probe uses direct software P010 with a device-only
+VT context; the historical app's upload/context branch was not recorded.
+The old dependencies themselves record macOS 26 even though the consumers
+record macOS 11, so this is not older-OS acceptance. The remaining concrete
+questions are sensitivity to the measured small input changes, temporal
+encoding and the actual full-frame sequence/process context. The original
+hardware-output hold remains.
 
 ## Remaining acceptance
 
