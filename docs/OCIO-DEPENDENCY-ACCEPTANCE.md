@@ -172,6 +172,44 @@ hashes, object metadata, link failure and provenance receipts remain under
 retain the required capabilities, verify its entire static closure and OS floor,
 and preserve matching source and notices before app staging.
 
+### Separate official-source FFmpeg candidate
+
+A separate private rebuild now supplies unchanged official FFmpeg baseline
+`ad500d59cb6e0126add4fcb95afb4e2557c4292c`, with pinned x264, x265 4.3,
+FreeType, HarfBuzz and XZ dependencies. Independent review compared all 10,424
+FFmpeg source files and the selected dependency sources with their retained
+official archives. All 482 installed SDK files match the frozen manifest.
+
+The fourteen static archives contain **1,904 arm64 object members**, all recording
+macOS 11.0, including codec assembly. Native static consumers and FFmpeg/ffprobe
+link with Apple-only declared dynamic dependencies and no rpaths. Corrected
+relocatable pkg-config metadata also works from the application checkout and an
+unrelated directory containing spaces. Original generated metadata is retained.
+
+Actual candidate/vendor registrations match: **41 encoders, 90 decoders and 77
+filters**, plus the same VideoToolbox/Vulkan hardware registrations. An initial
+parser counted the CLI legend as a codec; independent review corrected the
+counts while preserving the original receipts. x264 and VideoToolbox pixel
+formats match; x265 retains the eighteen vendor formats and adds two alpha
+formats. Hardware-required H264/HEVC sessions create and prepare on the current
+Mac, but no frames were submitted in that dependency probe.
+
+This is an independently pinned source candidate, not an exact reconstruction
+of the opaque vendor build. Codec versions and vendor software-fallback,
+timestamp, MPEGTS/HLS and atempo patches differ. Registration parity does not
+establish behavioral equivalence. Production app linking, moving-frame and
+hardware encoding, optional Vulkan runtime discovery and complete packaging
+remain gates.
+
+Independent review found missing FreeType license/embedded notice texts in the
+first copied packet. The corrected conservative source/notice packet retains
+8,641 exact files and covers the declared selected compiler dependencies without
+recognized notice-bearing omissions. Its source bytes and all frozen SDK files
+were independently rechecked. This closes that packet omission within its
+declared scope; final distribution obligations and the separate MDK component
+packet remain open. Build recipes, pins, failures and corrected receipts are
+retained under `_dev/ocio-runtime/portable-ffmpeg/source-plan/`.
+
 ### Full application
 
 Use this prefix only for a separately staged candidate and preserve the `.2.4`
