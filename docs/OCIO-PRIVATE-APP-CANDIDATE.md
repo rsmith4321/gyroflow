@@ -273,12 +273,92 @@ encoder. It supplies a concrete first-frame explanation without changing
 production color algorithms or converting tiny float differences into an
 encoder-implementation fault. It does not establish the cause across all 242
 frames, temporal rate-control behavior or the historical app upload branch.
-The full-sequence hardware-output hold remains open. All source, fixture,
-tool, library and settings preservation checks pass.
+This first-frame experiment did not establish full-sequence acceptance; the
+later bounded sequence checks below address that separate scope. All source,
+fixture, tool, library and settings preservation checks pass.
+
+## Late color failures and CLI completion
+
+Full-sequence instrumentation initially imposed an invalid ordering constraint
+on raw AVFrame timestamps. Stabilization reuses its image buffer, and the real
+encoder timestamp is assigned later. The observer now orders captures by the
+serial color-call ordinal, keeps raw metadata for paired checks, and checks
+completed packet timing separately. Production timestamps and stabilization
+were not changed.
+
+That failure exposed two error-path issues: the packet loop could suppress a
+color-processing error after encoding started, and the CLI could print
+completion when its counter reached an estimated total. The failed diagnostic
+retained one captured frame and an incomplete temporary output, then reached
+its log cap amid repeated completion messages. The precise second-call
+timestamp rejection is source-derived; the old error path did not report its
+exception text. That run is retained as a failure.
+
+Two narrow source corrections propagate `ExportLut` errors after encoding has
+started and require the queue's actual finished signal for CLI completion.
+Color operations, decoder-error tolerance and hardware selection are unchanged.
+The earlier staged and installed binaries predate these corrections.
+
+A fresh deliberate failure before the second color call completed naturally
+in **2.189 seconds**. It reported the injected error and `Rendering failed`,
+reported no completion, retained one complete four-stage capture, and produced
+no finalized video. Source, settings, project, LUT, original clip and all
+**666** pinned inputs were preserved. The CLI's existing handled-error contract
+still returns process status **0**; status alone does not establish success.
+
+The diagnostic observes `hevc_videotoolbox`, VideoToolbox/P010, and the actual
+encoder options `allow_sw=0` with `require_sw` absent/default zero. Together
+with the successful first encoder open/send path, this establishes a
+hardware-required session contract. It does not claim a specific AVE encoder
+ID, a session-property readback, or a decoded frame from the unfinished fault
+output. FFmpeg's [VideoToolbox implementation](https://github.com/FFmpeg/FFmpeg/blob/n9.0.1/libavcodec/videotoolboxenc.c)
+requires hardware with these options. Private diagnostic logging is separate
+from the production patch and is not timing evidence.
+
+## Bounded full-sequence pipeline acceptance
+
+Four normal exports completed with the corrected error/completion guards:
+LUT-only and an eight-control grade, each using the old and new dependency
+builds. Every export produced **242 encoded packets and decoded frames** of
+3840x2160 HEVC Main10, `yuv420p10le`, BT.709 space/primaries, limited range and
+60000/1001 fps. A transfer-function field was not reported by the probe.
+The observed encoder options required VideoToolbox hardware, with software
+fallback disabled. Finalized files, normal completion, exact selected OCIO
+providers and preservation checks passed in all four cases.
+
+Across all 242 ordered color calls, every active input plane before color
+conversion and before the CPU processor had an identical paired SHA-256.
+Thus the stabilized frame data entering color processing matched. Every
+post-processor float plane was fully scanned for finite values and the fixed
+min/max/compensated aggregate bounds. Output comparisons used **4,096 pinned
+spatial coordinates per call**, including RGB and corresponding YUV components:
+
+| Sampled comparison | LUT only | Eight-control grade |
+| --- | ---: | ---: |
+| Maximum absolute post-processor float difference | 1.1920928955078125e-7 | 2.384185791015625e-7 |
+| Maximum restored 10-bit YUV difference | 1 code | 1 code |
+| Differing restored components, out of 2,973,696 sampled components | 72 | 102 |
+| Paired output packet PTS/DTS/durations | Exact | Exact |
+
+These pass the preselected **1e-6 float / 1-code restored** bounds. They
+establish the bounded sampled-pipeline contract, not exhaustive output-pixel
+equality or identical lossy encoded/decoded pictures. Capture identity is the
+serial color-call ordinal; raw reusable-frame timestamp metadata is not the
+source clock. Output packet timing is checked separately.
+
+This current-Mac check used rebuilt diagnostics with the same frozen color
+implementation and two exact production guards. Observer/logging overhead is
+not a speed benchmark. The diagnostics can load pinned incidental Homebrew
+libraries through MDK; this does not establish portable dependency closure or
+ownership of every FFmpeg call. The installed development app and earlier
+staged bundle remain unchanged and predate the guards. The retained packet is
+`full-sequence-color-diagnostic-v3/sequence-20261008T090459Z` under the private
+evidence directory below; the deliberate fault packet is `fault-20261008T090440Z`.
 
 ## Remaining acceptance
 
-Full-sequence color-output acceptance, matched candidate timing, current Windows native
+Original decoded color-output release acceptance, matched candidate timing,
+current Windows native
 preview/export, complete notices/provenance, clean-machine installation,
 older-OS execution and public signing/notarization remain open. The private
 bundle must not be offered as a release download on this evidence.

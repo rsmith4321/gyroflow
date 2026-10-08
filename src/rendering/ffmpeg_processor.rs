@@ -458,7 +458,10 @@ impl<'a> FfmpegProcessor<'a> {
                                 }
                             },
                             Err(e) => {
-                                if !any_encoded {
+                                // A color-processing failure must stop the export even
+                                // after earlier frames were encoded. Decoder recovery
+                                // cannot repair a failed LUT/OCIO processor.
+                                if !any_encoded || matches!(&e, FFmpegError::ExportLut(_)) {
                                     return Err(e);
                                 }
                             }

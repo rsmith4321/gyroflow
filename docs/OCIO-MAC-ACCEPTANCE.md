@@ -8,7 +8,8 @@ portable public release or establish Windows execution.
 
 A later separately rebuilt dependency/app candidate is recorded in
 [private app acceptance](OCIO-PRIVATE-APP-CANDIDATE.md). It has current-Mac native
-preview/hardware export checks but remains held for a color-output difference.
+preview/hardware export checks and later bounded full-sequence pipeline acceptance.
+Matched timing, platform and public-package checks remain open.
 It has not replaced the installed development app described here.
 
 ## Matched hardware export timing
