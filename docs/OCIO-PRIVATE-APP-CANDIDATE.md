@@ -532,6 +532,52 @@ original scope. Unqualified end-to-end display/export pixel parity is not
 claimed. Windows resume dispatch still reports an unavailable Codex app server;
 no new Windows execution occurred.
 
+## Current production output bridge
+
+A further bounded, decoder-free comparison connects the guarded production
+stage's grade export to the accepted earlier new-family grade output. All
+242 coded pictures, decoder configuration, complete packet timing and
+keyframe positions match exactly. Inspected container leaves match; only two
+unparsed bytes in the first prefix SEI differ. Independent review confirms
+all eleven fixed inputs were preserved. This is artifact correspondence,
+not a new old/new decoded-equality result. The retained packet is
+`current-stage-byte-bridge-v1`.
+
+## Recovered native UI and preview toggle
+
+A computer-use reset allowed a bounded native window check. It exposed a
+checkbox integration issue: an accessibility action changed the displayed
+check state without updating the model or color layer. The shared checkbox's
+Return handler has the same direct property-assignment behavior. Reviewed
+commit `1b7e832950f82f9db61a62b86754a0118495ee39` changes only the color checkbox
+handler from `onToggled` to `onCheckedChanged`, plus an explanatory comment.
+Color algorithms, export settings and processor defaults are unchanged.
+
+A fresh private production bundle from that commit passed the same bounded
+preparation, build and staging checks. Independent review verifies its signed
+executable SHA-256
+`d29a9d69f86ae39bd8442952c203f2c1db61dadbd6cfd1247501d69eddcec0ea`,
+unchanged nested dependencies and notices, and preserved phase inputs. The
+build retains two existing dead-code warnings.
+
+Root observed the native app at a paused frame inside the existing test
+range. Accessibility toggle, physical mouse click and Return key all made
+the checkbox, LUT status text and visible picture change together between
+original log colors and the selected aggressive grade. Gyroflow+ branding,
+Community fork text and the eight color controls are visible; the exposure
+field has no overflowing stops suffix. The candidate quit naturally with
+exit zero. Source media, LUT and test project stayed unchanged, and only
+three proven launch preferences were conditionally restored to the exact
+original settings bytes and identity.
+
+This is one-frame native UI integration evidence, not numerical display/
+export parity or full-clip stabilization/quality acceptance. The initial
+00:00 view was largely blank with a small triangle; that observation outside
+the selected 45–49 second test range is retained without first-frame visual
+acceptance. Retained packets are `stage-v3-preview-toggle-v1` and
+`native-stage-v3-preview-toggle-v1`. No new export or timing matrix was run
+for this UI-only fix. Current Windows access remains unavailable.
+
 ## Remaining acceptance
 
 Original decoded color-output release acceptance, current Windows native
