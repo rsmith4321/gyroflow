@@ -58,6 +58,12 @@ python3 _scripts/package_plus.py mac path/to/prepared/Gyroflow.app path/to/new-s
 
 Portable builds explicitly select the tracked `src/core/lens_profiles.pin`: official lens-profile release v41, asset SHA256 `5b9136697b75ddf9cda20965f17e786b6c8530e3d59109f87505069602e7f676`. The Mac receipt helper defaults to this pinned mode. For Windows deploy, set `$Env:GYROFLOW_LENS_PROFILES = 'pinned'` before running the recipe. An existing different database is refused without replacement; use a fresh isolated build tree instead of modifying an authored/development database.
 
+Stages include the exact upstream v41 CC0-1.0 license and asset attribution in
+`Notices/lens-profiles-v41/`. Its source commit and hashes are recorded in
+`resources/lens-profiles-v41/README.md`. Review that notice when changing the
+database pin. Development stages can contain another database; their staged
+identity is recorded separately in `Notices/BUILD.json`.
+
 For an offline build, supply the matching file with `--lens-profiles-file path/to/profiles.cbor.gz` to the Mac helper and use `--offline`. Direct Cargo/Windows builds use `GYROFLOW_LENS_PROFILES_FILE` plus `GYROFLOW_BUILD_OFFLINE=1` (or `CARGO_NET_OFFLINE=true`). Cargo's command-line `--offline` alone does not inform the HTTP build script; the helper explicitly forwards it. A missing or digest-mismatched pinned input fails the build.
 
 Fresh publication uses a uniquely owned sibling file, bounded transfer and gzip decoding, then an atomic hard link that cannot replace an existing destination. A concurrent matching pinned file is reused; a different one is preserved and refused. Only this invocation's partial file is removed. Filesystems without hard links fail closed, including common exFAT/ReFS configurations: the supplied-file option also uses this publication path. Use a supported build volume or prepopulate the matching database in a fresh isolated tree. Gzip integrity is checked; CBOR semantics and runtime lens updates are separate.

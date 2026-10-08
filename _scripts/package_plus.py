@@ -380,6 +380,7 @@ def main():
     shutil.copy2(ROOT/'LICENSE',notices/'Gyroflow-GPL-3.0.txt')
     shutil.copy2(ROOT/'resources/color/OCIO-LICENSE.txt',notices/'OpenColorIO-BSD-3-Clause.txt')
     shutil.copy2(ROOT/'docs/PLUS-DISTRIBUTION.md',notices/'COMMUNITY-FORK.md')
+    shutil.copytree(ROOT/'resources/lens-profiles-v41',notices/'lens-profiles-v41')
     if args.licenses: shutil.copytree(args.licenses.resolve(strict=True),notices/'Dependencies')
     ocio_notices=copy_ocio_notices(app,notices)
     if not args.development_runtime and ocio_notices['errors']:

@@ -12,6 +12,9 @@ pub mod export_lut;
 pub mod tone_curve;
 
 #[cfg(test)]
+mod camera_format_matrix;
+
+#[cfg(test)]
 mod tests {
     use super::export_lut::ExportLut;
     use ffmpeg_next::{format::Pixel, frame::Video};

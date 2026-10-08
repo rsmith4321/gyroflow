@@ -172,6 +172,7 @@ class MacDependencyTests(unittest.TestCase):
             path.write_text(value)
         shutil.copytree(ROOT / PACKET, repo / PACKET)
         shutil.copy2(ROOT / 'resources/color/OCIO-LICENSE.txt', repo / 'resources/color')
+        shutil.copytree(ROOT / 'resources/lens-profiles-v41', repo / 'resources/lens-profiles-v41')
         lens = b'\x1f\x8bsynthetic lens database'
         lens_sha = hashlib.sha256(lens).hexdigest()
         (repo / 'src/core').mkdir(parents=True, exist_ok=True)
@@ -367,6 +368,8 @@ class MacDependencyTests(unittest.TestCase):
                          (self.root/'build-receipt.json').read_bytes())
         self.assertEqual(receipt['lens_profiles']['errors'],[])
         self.assertEqual(receipt['lens_profiles']['staged']['sha256'],build['lens_profiles']['pin']['sha256'])
+        self.assertEqual((self.stage_app/'Contents/Resources/Notices/lens-profiles-v41/LICENSE.txt').read_bytes(),
+                         (ROOT/'resources/lens-profiles-v41/LICENSE.txt').read_bytes())
 
     def test_portable_mac_stage_refuses_a_different_lens_database_before_signing(self):
         self.main_binary()
