@@ -355,6 +355,37 @@ staged bundle remain unchanged and predate the guards. The retained packet is
 `full-sequence-color-diagnostic-v3/sequence-20261008T090459Z` under the private
 evidence directory below; the deliberate fault packet is `fault-20261008T090440Z`.
 
+## Real-frame CPU and generated GPU color agreement
+
+Two retained stabilized 3840x2160 first frames now pass a complete-image
+comparison through the production GPU adapter on Metal / Apple M4 Max. The
+unchanged production bridge, fragment wrapper and adapter use the accepted
+private OCIO 2.4.2 and Qt 6.7.3 inputs. The canonical O4 LUT and exact eight
+controls match the capture. References are retained CPU export-stage float
+planes; the test does not regenerate its own expected color values.
+
+| Every full-resolution RGB component | LUT only | Eight-control grade |
+| --- | ---: | ---: |
+| Components compared per case | 24,883,200 | 24,883,200 |
+| Maximum absolute float error | 1.1920928955078125e-7 | 4.172325134277344e-7 |
+| Mean absolute float error | 8.931167941429256e-9 | 3.3321352583186437e-8 |
+| Opaque alpha error | 0 | 0 |
+
+All input, reference and GPU components are finite. Both cases pass the existing
+strict **1e-5** native float tolerance, with exact dimensions and direct top-left
+row order. Independent recomputation covers every RGB and alpha component;
+runtime providers, source/input hashes, build provenance and preservation pass.
+A separate display-scale visual comparison shows matching orientation, framing
+and apparent colors. That illustration samples the image for display only;
+the numerical acceptance uses every full-resolution component.
+
+The retained packet is `real-frame-preview-parity-plan-v1/runs/replay-01` under
+the evidence directory below. It performs two offscreen processor comparisons,
+not native video decoding/display or an interactive frame-time benchmark. It
+does not establish all 242 GPU frames, Windows execution, public packaging, or
+resolve the original b9 lossy decoded-output compatibility hold. The installed
+app, staged bundle, production algorithms and feature default remain unchanged.
+
 ## Remaining acceptance
 
 Original decoded color-output release acceptance, matched candidate timing,
