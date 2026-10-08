@@ -460,6 +460,78 @@ and stabilization, new-frame uploads, presentation/vsync, interaction and
 export. They do not measure app FPS, isolate incremental OCIO cost without a
 neutral baseline, or establish quiet-host or Windows performance.
 
+## Historical sequence bridge
+
+A bounded, decoder-free MP4 comparison now connects the retained historical
+LUT/grade outputs to their respective later instrumented outputs. All four
+mappings have **242/242 byte-exact coded pictures**, identical `hvcC`, packet
+PTS/DTS/durations and keyframe positions. Only two bytes in each first prefix
+SEI differ; SEI semantics were not interpreted. All seventeen inputs were
+preserved, and independent retained-byte review passed.
+
+This ties the accepted full-sequence stabilized input hashes and sampled
+post-color checks to the original coded-picture sequences. It does **not**
+make the old and new decoded outputs equal, expand sampled output checks to
+every pixel, or lift the original exact decoded-preservation hold. The packet
+is `goal-audit-current-v1/coded-picture-bridge-v1`.
+
+## Current-source private bundle and integration
+
+A fresh production candidate was built from clean, pushed source
+`04f19fd42a84fade7cd881d75a83ea1de12b291e`, including the reviewed late color-error
+and actual CLI-completion guards. It uses the accepted production dependency
+recipe and pinned lens asset, without diagnostic hooks or a mutable profile
+download. The independently reviewed bounded preparation, build and staging
+phases completed naturally with source/settings/dependency preservation.
+
+The fresh bundle differs from the earlier accepted bundle only in its main
+executable, top-level CodeResources and twelve exact OCIO notice files.
+Nested payloads remain byte-identical. All 92 Mach-O images retain arm64 and
+macOS 11 minimum-version metadata; all 1,220 hard dependency edges resolve to
+Apple or bundled images. Local ad hoc deep/strict signature verification
+passes. These metadata checks do not prove older-OS execution or distribution
+readiness. The signed executable SHA-256 is
+`9ee723e59266f36e747027fb8838715ce92b846be59f28bb6f9efa4285909ad9`.
+
+One independently accepted CLI integration export uses the existing 45–49
+second O4 clip, canonical DJI LUT and all eight grading controls. It completes
+with the hardware-required `allow_sw=0` contract and no rendering-failure or
+CPU-fallback marker. The bounded probe confirms 242 frames, 3840×2160 HEVC
+Main10 (raw profile enum `2`), `yuv420p10le`, limited range, BT.709 color space
+and 60000/1001 fps. Transfer characteristics were not among its probe fields.
+All eighteen observed non-Apple loaded images are inside the new bundle;
+none comes from Homebrew. The log retains a separate H.264 constant-bit-rate
+capability-probe error before the successfully completed requested HEVC export.
+This is a single integration check, without a new timing or decoded-parity claim.
+
+The installed app, earlier bundle, source media, authored projects, LUT,
+settings and dependency identities are preserved. Retained packets are
+`stage-v2-execution-v2` and `native-stage-v2-smoke-plan-v1/runs/smoke-01`.
+
+## Current visual and preview boundaries
+
+The computer-use tool launched the fresh candidate but failed to read its
+window: an accessibility error followed by a timeout. Root closed only that
+verified test process. Its two settings changes (app path and one-pixel window
+width) were checked against the exact original backup and conditionally
+restored; independent review verifies the original bytes and file identity.
+This attempt supplies **no new GUI visual acceptance**.
+
+Root viewed one 1920×1080 RGB8 derivative of the completed export. Orientation,
+framing and image content are visible, with bright/clipped highlights in this
+aggressive test grade. That is a single display-resampled frame inspection,
+not a full-clip quality, native preview or numerical color comparison. The
+first extraction exceeded its PNG size cap and remains a failed packet; the
+fresh explicit RGB8 extraction passes its bounds and preserves the export.
+
+A focused source audit confirms that native MDK/stabilization preview uses
+RGBA8 and preview-dependent dimensions. It cannot be compared directly to
+full-resolution floating export planes using the processor's `1e-5` limit.
+The accepted same-input CPU/generated-GPU agreement remains valid within its
+original scope. Unqualified end-to-end display/export pixel parity is not
+claimed. Windows resume dispatch still reports an unavailable Codex app server;
+no new Windows execution occurred.
+
 ## Remaining acceptance
 
 Original decoded color-output release acceptance, current Windows native
