@@ -234,5 +234,7 @@ case described in [the preview fixture](../tests/ocio-preview/README.md). The
 case passed separately on the Mac with pinned Qt **6.7.3** and OCIO **2.4.2**:
 after the caught failure while the cache mutex was owned, valid same-process
 shader preparation and pending-token cleanup succeeded. Source and app settings
-identities remained exact. Windows execution of this committed case is pending;
-the passing Mac case does not establish MSVC application unwinding.
+identities remained exact. The same committed case subsequently passed Windows
+CTest in its own 30-second-bounded process. This validates recovery in the
+standalone adapter fixture; application Cargo compiler flags and native app
+acceptance remain separate checks.
