@@ -16,11 +16,12 @@ import pefile
 
 MACHINES = {0x8664: 'x64', 0xAA64: 'arm64', 0x14C: 'x86'}
 # Windows 10+ in-box DLLs that staged images may import. Anything else must be
-# staged beside the executable. Microsoft C++ runtime DLLs are deliberately absent.
+# staged beside the executable. Redistributable C++ runtime DLLs are deliberately
+# absent; msvcrt is Windows' legacy CRT, not the application's vcruntime140 set.
 WINDOWS_SYSTEM_DLLS = frozenset('''
-advapi32 authz avrt bcrypt cfgmgr32 combase comctl32 comdlg32 crypt32 d2d1 d3d9
+advapi32 authz avicap32 avrt bcrypt bcryptprimitives cfgmgr32 combase comctl32 comdlg32 crypt32 d2d1 d3d9
 d3d11 d3d12 d3dcompiler_47 dbghelp dcomp dnsapi dwmapi dwrite dxcore dxgi dxva2
-gdi32 gdiplus hid imm32 iphlpapi kernel32 ksuser mf mfplat mfreadwrite mpr msimg32
+dsound gdi32 gdiplus hid imagehlp imm32 iphlpapi kernel32 ksuser mf mfplat mfreadwrite mpr msimg32 msvcrt
 ncrypt netapi32 normaliz ntdll ole32 oleacc oleaut32 opengl32 glu32 powrprof
 propsys psapi rpcrt4 secur32 setupapi shcore shell32 shlwapi user32 userenv
 usp10 uxtheme version winhttp wininet winmm winspool.drv wintrust wldap32

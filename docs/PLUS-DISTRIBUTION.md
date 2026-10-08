@@ -82,6 +82,22 @@ Visual Studio developer environment. It copies one runtime set from
 `VCToolsRedistDir` and writes a build receipt only after all required copies and
 archiving succeed. Move prior runtime, receipt and ZIP outputs before deploying.
 
+Derive that minimum from the recorded toolset and its corresponding Microsoft
+redistributable, not by changing `19` to `14` in `cl.exe`'s FileVersion: the
+compiler, toolset-directory and redistributable build numbers can differ. Keep
+the explicit full-version comparison; a wrongly supplied minimum must be
+corrected from provenance, rather than silently ignored by the audit. See
+[Microsoft's DLL redistribution guidance](https://learn.microsoft.com/en-us/cpp/windows/determining-which-dlls-to-redistribute).
+
+The import audit distinguishes Windows components from app dependencies. It
+recognizes the in-box AVICAP32, BCryptPrimitives, DirectSound, ImageHlp and legacy
+MSVCRT libraries; staging those system DLLs is rejected. This does not accept
+missing `vcruntime140`/`msvcp140` redistributables or verify the symbols supplied
+by an arbitrary Windows version. Those still need the native runtime gate.
+[BCryptPrimitives requirements](https://learn.microsoft.com/en-us/windows/win32/seccng/processprng),
+[AVICAP32 requirements](https://learn.microsoft.com/en-us/windows/win32/api/vfw/nf-vfw-capgetdriverdescriptiona),
+[ImageHlp requirements](https://learn.microsoft.com/en-us/windows/win32/api/imagehlp/nf-imagehlp-mapfileandchecksuma).
+
 The stager requires a clean source checkout for every candidate and a matching
 build/deploy receipt for portable stages on both platforms. It checks the receipt's
 commit, clean-source flag and executable SHA256 before creating the output and

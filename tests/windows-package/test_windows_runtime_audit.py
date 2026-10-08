@@ -66,6 +66,19 @@ class Rules(unittest.TestCase):
         self.assertTrue(any('system DLL' in e for e in errors(stage(**{'kernel32.dll': image()}))))
         self.assertEqual(errors(stage(**{'d3dcompiler_47.dll': image()})), [])
 
+    def test_inbox_multimedia_crypto_and_legacy_crt_imports_are_system_dependencies(self):
+        for name in ('avicap32.dll','bcryptprimitives.dll','dsound.dll','imagehlp.dll','msvcrt.dll'):
+            with self.subTest(name=name):
+                facts=stage(**{'Gyroflow.exe':image(imports=[(name,False,['f'],[])],dll=False)})
+                self.assertEqual(errors(facts),[])
+                self.assertTrue(any('system DLL' in error for error in errors(stage(**{name:image()}))))
+        # This classification must not accept the separate app C++ runtime or
+        # arbitrary names resembling an in-box dependency.
+        for name in ('vcruntime140.dll','msvcp140.dll','msvcrt140.dll','bcryptprimitives-extra.dll'):
+            with self.subTest(name=name):
+                facts=stage(**{'Gyroflow.exe':image(imports=[(name,False,['f'],[])],dll=False)})
+                self.assertTrue(any(f'required {name}' in error for error in errors(facts)))
+
     def test_case_collision_and_symlink(self):
         facts = stage(**{'Foo.dll': image(), 'foo.dll': image()})
         facts['files'].append(('link.dll', 'symlink'))
