@@ -298,7 +298,7 @@ MenuItem {
             onValueChanged: if (!root.syncing) root.exportOptions.exposure = value;
             doubleClickResetEnabled: true;
             width: parent.width;
-            from: -2; to: 2; field.from: -2; field.to: 2; defaultValue: 0; precision: 2; unit: " stops";
+            from: -2; to: 2; field.from: -2; field.to: 2; defaultValue: 0; precision: 2;
         }
     }
     Label {
