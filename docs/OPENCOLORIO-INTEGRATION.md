@@ -366,3 +366,41 @@ before and after this bounded parser-only check. This distinguishes the matching
 application output from the failed standalone replay and narrows the unresolved
 gap to the consumer/application execution or session contract. It does not
 establish encoder nondeterminism or close the old/new decoded-output hold.
+
+## Actual application downstream sufficiency: 2026-10-08
+
+The next isolated diagnostic used the actual old application consumer, with
+captured pixels injected only after its ordinary color processing. The natural
+old restored pixels and retained frame properties were checked before each
+injection; writability, metadata preservation, exact active-plane hashes and
+explicit completion of all 242 frames were required. Color, stabilization,
+encoder and queue logic remained otherwise unchanged. A failed first build
+(a diagnostic `usize`/`u64` comparison) is retained separately; the repaired
+private build completed successfully before either native case ran.
+
+The old-pixel control reproduced **242/242 historical old VCL payload lists**,
+codec configuration, timing and key positions. Only after that control passed,
+the same binary consumed the captured new pixels and reproduced **242/242
+historical new VCL payload lists**, with the same configuration/timing/key gates.
+Both cases completed the hardware-required HEVC/P010 path, with all protected
+source, settings, project, LUT and input snapshots preserved. Non-VCL differences
+were confined to ordinal zero; no SEI interpretation was made. Native execution
+took 68.58 s for the control and 55.13 s for the new-pixel case; these diagnostic
+runs include validation and injection and are not performance benchmarks.
+
+For this LUT-only clip, the captured new restored pixels alone are sufficient
+to explain the historical new coded-picture family through the old application
+consumer. Together with the full restored-input one-code result above, this
+narrows the changed export to the small input-pixel differences rather than
+requiring a different downstream application or encoder to reproduce it. It
+does not establish general encoder determinism, exact old/new decoded equality,
+native preview agreement, Windows parity or release readiness. The original
+exact decoded-output hold remains open; no acceptance tolerance, default or
+public release was changed.
+
+The private packet is
+`_dev/ocio-runtime/portable-app-build/application-restored-input-replay-v2`.
+Terminal control receipt SHA-256:
+`4e023fc332ce275c18b9f7521486e472685cdc9746c4193c9d1a24394f1b4f20`;
+terminal new-pixel receipt SHA-256:
+`bcfa7d55449f8583b15680349c50375864d00c2876aa804b25c8ff6615d9401a`.
