@@ -357,3 +357,12 @@ grade replay, new decoded comparison, tolerance change or release/default switch
 was performed. The original exact old/new decoded-output hold remains open.
 The private diagnostic is retained under
 `_dev/ocio-runtime/portable-app-build/full-restored-input-capture-v1`.
+
+A subsequent comparison of existing files found that the fresh native old-family
+capture export matches **all 242 historical VCL payload lists**, hvcC, timing and
+key positions. Whole-file hashes differ, with non-VCL differences only at ordinal
+zero; no SEI interpretation was made. All consumed input identities matched
+before and after this bounded parser-only check. This distinguishes the matching
+application output from the failed standalone replay and narrows the unresolved
+gap to the consumer/application execution or session contract. It does not
+establish encoder nondeterminism or close the old/new decoded-output hold.
