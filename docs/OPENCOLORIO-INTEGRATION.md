@@ -207,3 +207,32 @@ now removes the Homebrew Imath dependency and passes the production CPU and Meta
 fixtures. Its compiled arm64 deployment metadata is macOS 11.0. This resolves
 the OCIO dependency check; it does not yet establish a portable app or execution
 on the declared minimum OS.
+
+## Windows standalone runtime checks: 2026-10-08
+
+Isolated laptop fixtures at source `26c5d828` passed with **OCIO 2.4.2** from the
+Windows-owned private prefix and **MSVC 19.51**:
+
+- The production C ABI bridge passed 800 concurrent CPU calls, 400 concurrent
+  first-access GPU resource extractions, unequal-stride/guard/error contracts,
+  and retained-processor checks across failed and repaired LUT reads.
+- The Qt fixture executed on **D3D11 / NVIDIA GeForce RTX 5070 Ti Laptop GPU**.
+  All **80** synthetic float32 comparisons passed; maximum component error was
+  **2.384185791015625e-7**, below the existing `1e-5` gate. Cache swaps, resource
+  recreation, ownership/error tokens and software-renderer rejection passed.
+  The optional two DJI O4 LUT cases were not supplied in this run.
+
+The Windows-owned evidence is under
+`C:\Users\rsmit\.codex\GyroflowBuildTools\OcioWindowsNative-20261008`.
+These standalone compiler commands explicitly use `/EHsc`; they do not establish
+the application Cargo build's effective flags, real-video preview/exports, or a
+portable DLL closure. Those checks remain pending, and the feature default and
+installed/public app are unchanged.
+
+Reviewed source `e4db0995` adds the bounded shader-compilation exception recovery
+case described in [the preview fixture](../tests/ocio-preview/README.md). The
+case passed separately on the Mac with pinned Qt **6.7.3** and OCIO **2.4.2**:
+after the caught failure while the cache mutex was owned, valid same-process
+shader preparation and pending-token cleanup succeeded. Source and app settings
+identities remained exact. Windows execution of this committed case is pending;
+the passing Mac case does not establish MSVC application unwinding.
