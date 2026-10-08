@@ -36,9 +36,11 @@ OPTIONAL_DELAY_IMPORTS = frozenset()
 CRT = re.compile(r'(msvcp140(_\w+)?|vcruntime140(_\w+)?|concrt140|vcomp140|vccorlib140|mfc140\w*)\.dll')
 # Microsoft debug runtimes belong on test machines, not portable release stages.
 # Check known runtime families, not arbitrary application DLLs ending in "d".
-DEBUG_CRT = re.compile(r'(ucrtbased|msvcrtd|(msvcp|msvcr)\d+d'
-                       r'|(msvcp|vcruntime|concrt|vccorlib|vcomp|vcamp)140d(_\w+)?'
-                       r'|(msvcp|vcruntime)140_\w+d|mfcm?140u?d)\.dll')
+# Older toolsets (VC6 to VS 2013) used versioned names such as mfc42ud, msvcm90d,
+# vcomp120d and vcamp120d, which an imported prebuilt DLL can still require.
+DEBUG_CRT = re.compile(r'(ucrtbased|msvcrtd|msvcirtd|(msvcp|msvcr|msvcm)\d+d'
+                       r'|(msvcp|vcruntime|concrt|vccorlib|vcomp|vcamp)\d+d(_\w+)?'
+                       r'|(msvcp|vcruntime)140_\w+d|mfcm?\d+u?d)\.dll')
 FAMILIES = re.compile(r'(avcodec|avdevice|avfilter|avformat|avutil|postproc|swresample|swscale)-\d+\.dll'
                       r'|(opencolorio)_\d+_\d+\.dll|(opencv_[a-z0-9]+?)\d+\.dll')
 

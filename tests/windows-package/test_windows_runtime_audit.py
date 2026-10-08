@@ -154,7 +154,11 @@ class Rules(unittest.TestCase):
                  'msvcp140d.dll', 'msvcp140d_1.dll', 'msvcp140_atomic_waitd.dll',
                  'concrt140d.dll', 'vccorlib140d.dll', 'vcomp140d.dll',
                  'vcamp140d.dll', 'mfc140d.dll', 'mfc140ud.dll',
-                 'mfcm140d.dll', 'mfcm140ud.dll', 'msvcrtd.dll', 'msvcr120d.dll')
+                 'mfcm140d.dll', 'mfcm140ud.dll', 'msvcrtd.dll', 'msvcr120d.dll',
+                 'msvcp140_1d.dll', 'msvcp140_2d.dll', 'msvcp140d_atomic_wait.dll',
+                 'msvcp140d_codecvt_ids.dll', 'vcruntime140_threadsd.dll',
+                 'mfc42d.dll', 'mfc42ud.dll', 'mfc120ud.dll', 'mfcm120ud.dll', 'msvcm90d.dll',
+                 'msvcirtd.dll', 'vcomp120d.dll', 'vccorlib120d.dll', 'vcamp120d.dll')
         for name in names:
             for path in (name, 'plugins/' + name.upper()):
                 with self.subTest(path=path):
@@ -180,7 +184,10 @@ class Rules(unittest.TestCase):
         names = ('vcruntime140.dll', 'vcruntime140_1.dll', 'msvcp140.dll',
                  'msvcp140_1.dll', 'msvcp140_codecvt_ids.dll', 'msvcp140_atomic_wait.dll',
                  'concrt140.dll', 'vccorlib140.dll', 'vcomp140.dll',
-                 'mfc140.dll', 'mfc140u.dll', 'mfcm140u.dll', 'my_debug_tool.dll')
+                 'mfc140.dll', 'mfc140u.dll', 'mfcm140u.dll', 'my_debug_tool.dll',
+                 'mfc42.dll', 'mfc42u.dll', 'mfc120u.dll', 'msvcp120.dll', 'msvcr120.dll',
+                 'msvcm90.dll', 'msvcirt.dll', 'vcomp120.dll', 'vccorlib120.dll', 'vcamp120.dll',
+                 'opencv_world4100d_helper.dll')
         for name in names:
             with self.subTest(name=name):
                 facts = stage(**{'Gyroflow.exe': image(imports=[(name, False, ['f'], [])], dll=False),
