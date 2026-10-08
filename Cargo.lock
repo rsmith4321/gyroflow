@@ -1762,6 +1762,7 @@ dependencies = [
  "rand_xoshiro",
  "rayon",
  "regex",
+ "ring",
  "rs-sync",
  "rustfft",
  "sample-consensus",

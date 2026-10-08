@@ -172,6 +172,14 @@ class MacDependencyTests(unittest.TestCase):
             path.write_text(value)
         shutil.copytree(ROOT / PACKET, repo / PACKET)
         shutil.copy2(ROOT / 'resources/color/OCIO-LICENSE.txt', repo / 'resources/color')
+        lens = b'\x1f\x8bsynthetic lens database'
+        lens_sha = hashlib.sha256(lens).hexdigest()
+        (repo / 'src/core').mkdir(parents=True, exist_ok=True)
+        (repo / 'src/core/lens_profiles.pin').write_text(
+            f'tag=v41\nurl=https://github.com/gyroflow/lens_profiles/releases/download/v41/profiles.cbor.gz\nsha256={lens_sha}\n')
+        presets = self.app / 'Contents/Resources/camera_presets'
+        presets.mkdir(parents=True, exist_ok=True)
+        if not (presets / 'profiles.cbor.gz').exists(): (presets / 'profiles.cbor.gz').write_bytes(lens)
         notices = self.root / 'dependency-notices'
         notices.mkdir()
         (notices / 'NOTICE').write_text('Synthetic; does not establish license acceptance')
@@ -186,7 +194,8 @@ class MacDependencyTests(unittest.TestCase):
         else:
             receipt=self.root/'build-receipt.json'
             receipt.write_text(json.dumps(dict(platform='mac',commit='1234567890abcdef',dirty=False,
-                exe_sha256=hashlib.sha256((self.app/'Contents/MacOS/gyroflow').read_bytes()).hexdigest())))
+                exe_sha256=hashlib.sha256((self.app/'Contents/MacOS/gyroflow').read_bytes()).hexdigest(),
+                lens_profiles=dict(mode='pinned',sha256=lens_sha,bytes=len(lens)))))
             command+=['--deploy-receipt',str(receipt)]
         with patch.object(stager, 'ROOT', repo), patch.object(sys, 'argv', command), \
              patch.object(stager, 'git', side_effect=lambda *args: b'' if args[0] == 'status' else b'1234567890abcdef'), \
@@ -356,6 +365,17 @@ class MacDependencyTests(unittest.TestCase):
             self.assertEqual(plistlib.load(stream)['GyroflowPlusSourceCommit'],receipt['source_commit'])
         self.assertEqual((self.stage_app/'Contents/Resources/Notices/BUILD-INPUT.json').read_bytes(),
                          (self.root/'build-receipt.json').read_bytes())
+        self.assertEqual(receipt['lens_profiles']['errors'],[])
+        self.assertEqual(receipt['lens_profiles']['staged']['sha256'],build['lens_profiles']['pin']['sha256'])
+
+    def test_portable_mac_stage_refuses_a_different_lens_database_before_signing(self):
+        self.main_binary()
+        presets=self.app/'Contents/Resources/camera_presets';presets.mkdir(parents=True)
+        (presets/'profiles.cbor.gz').write_bytes(b'\x1f\x8bnewer upstream db')
+        with self.assertRaisesRegex(RuntimeError,'Staged lens profile SHA-256'):
+            self.stage()
+        self.assertFalse(any(call[0]=='codesign' for call in self.tool_calls))
+        self.assertFalse((self.root/'stage/PACKAGE.json').exists())
 
     def test_binary_replaced_during_copy_is_refused_before_signing(self):
         binary=self.main_binary()
@@ -449,6 +469,65 @@ class OcioNoticeTests(unittest.TestCase):
         errors = '\n'.join(self.check()['errors'])
         self.assertIn('embeds zlib 1.3.1; notices are for 1.2.13', errors)
         self.assertIn('Notice missing or changed: zlib/LICENSE', errors)
+
+
+class LensProfileStagingTests(unittest.TestCase):
+    """The lens database is untracked; portable stages must tie it to the pin."""
+    DB = b'\x1f\x8bsynthetic lens database'
+
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory(prefix='plus-lens-stage-')
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+        self.sha = hashlib.sha256(self.DB).hexdigest()
+        pin = self.root / 'src/core/lens_profiles.pin'
+        pin.parent.mkdir(parents=True)
+        pin.write_text('tag=v41\nurl=https://github.com/gyroflow/lens_profiles/releases/download/v41/profiles.cbor.gz\n'
+                       f'sha256={self.sha}\n')
+
+    def stage(self, platform, data=DB):
+        app = self.root / platform
+        path = app / ('Contents/Resources/camera_presets' if platform == 'mac' else 'camera_presets')
+        path.mkdir(parents=True)
+        if data is not None: (path / 'profiles.cbor.gz').write_bytes(data)
+        return app
+
+    def check(self, app, platform, receipt, development=False):
+        with patch.object(stager, 'ROOT', self.root):
+            return stager.check_lens_profiles(app, platform, receipt, development)
+
+    def receipt(self, **lens):
+        return dict(lens_profiles=dict(dict(mode='pinned', sha256=self.sha, bytes=len(self.DB)), **lens))
+
+    def test_pinned_receipt_and_staged_copy_pass_on_both_platforms(self):
+        for platform in ('mac', 'windows'):
+            with self.subTest(platform=platform):
+                report = self.check(self.stage(platform), platform, self.receipt())
+                self.assertEqual(report['errors'], [])
+                self.assertEqual(report['staged']['sha256'], self.sha)
+                self.assertEqual(report['pin']['tag'], 'v41')
+
+    def test_portable_stage_refuses_missing_unpinned_or_changed_database(self):
+        cases = [('missing', None, self.receipt(), 'Missing regular lens profile database'),
+                 ('legacy', self.DB, dict(commit='a'*40), 'does not record a pinned'),
+                 ('latest', self.DB, self.receipt(mode='latest'), 'does not record a pinned'),
+                 ('receipt', self.DB, self.receipt(sha256='0'*64), 'Receipt lens profile SHA-256'),
+                 ('swapped', b'\x1f\x8bnewer upstream db', self.receipt(), 'Staged lens profile SHA-256')]
+        for name, data, receipt, message in cases:
+            with self.subTest(case=name), self.assertRaisesRegex(RuntimeError, message):
+                self.check(self.stage(name, data), 'windows', receipt)
+
+    def test_symlinked_database_is_not_accepted(self):
+        app = self.stage('mac', None)
+        target = self.root / 'outside.cbor.gz'; target.write_bytes(self.DB)
+        (app / 'Contents/Resources/camera_presets/profiles.cbor.gz').symlink_to(target)
+        with self.assertRaisesRegex(RuntimeError, 'Missing regular'):
+            self.check(app, 'mac', self.receipt())
+
+    def test_development_stage_records_without_requiring_pin(self):
+        report = self.check(self.stage('windows', b'\x1f\x8bdeveloper db'), 'windows', None, development=True)
+        self.assertEqual(report['staged']['sha256'], hashlib.sha256(b'\x1f\x8bdeveloper db').hexdigest())
+        self.assertIn('Build receipt does not record a pinned lens profile database', report['errors'])
 
 
 if __name__ == '__main__':

@@ -54,6 +54,16 @@ python3 _scripts/package_plus.py mac path/to/prepared/Gyroflow.app path/to/new-s
   --licenses path/to/dependency-notices
 ```
 
+## Lens profile build input
+
+Portable builds explicitly select the tracked `src/core/lens_profiles.pin`: official lens-profile release v41, asset SHA256 `5b9136697b75ddf9cda20965f17e786b6c8530e3d59109f87505069602e7f676`. The Mac receipt helper defaults to this pinned mode. For Windows deploy, set `$Env:GYROFLOW_LENS_PROFILES = 'pinned'` before running the recipe. An existing different database is refused without replacement; use a fresh isolated build tree instead of modifying an authored/development database.
+
+For an offline build, supply the matching file with `--lens-profiles-file path/to/profiles.cbor.gz` to the Mac helper and use `--offline`. Direct Cargo/Windows builds use `GYROFLOW_LENS_PROFILES_FILE` plus `GYROFLOW_BUILD_OFFLINE=1` (or `CARGO_NET_OFFLINE=true`). Cargo's command-line `--offline` alone does not inform the HTTP build script; the helper explicitly forwards it. A missing or digest-mismatched pinned input fails the build.
+
+Fresh publication uses a uniquely owned sibling file, bounded transfer and gzip decoding, then an atomic hard link that cannot replace an existing destination. A concurrent matching pinned file is reused; a different one is preserved and refused. Only this invocation's partial file is removed. Filesystems without hard links fail closed, including common exFAT/ReFS configurations: the supplied-file option also uses this publication path. Use a supported build volume or prepopulate the matching database in a fresh isolated tree. Gzip integrity is checked; CBOR semantics and runtime lens updates are separate.
+
+The build/deploy receipt records the database identity. Portable staging requires the staged database hash to match both the receipt and tracked pin, and records the facts in its manifests. Ordinary direct Cargo builds retain the latest/reuse mode, the Mac helper has an explicit `--lens-profiles latest` development option, and the app's existing runtime updater is unchanged. This pins one build input; it does not establish reproducibility or close the other public-release gates.
+
 The Mac helper runs a locked Cargo build, selects this package's executable from
 Cargo's artifact report and records its SHA256 only if source stays clean at the
 same commit. Each invocation uses a fresh, exclusively owned Cargo target

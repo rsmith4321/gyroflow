@@ -9,6 +9,7 @@ records that the result is not a redistributable release.
 """
 import argparse
 import hashlib
+import importlib.util
 import json
 from pathlib import Path
 import plistlib
@@ -57,6 +58,41 @@ def copy_ocio_notices(app, notices):
             report['errors'].append(f'{library.name} embeds zlib {facts["embedded_zlib"]}; notices are for {zlib}')
     shutil.copytree(packet, notices/'OpenColorIO-third-party')
     (notices/'OpenColorIO-third-party/STAGE-CHECK.json').write_text(json.dumps(report, indent=2)+'\n')
+    return report
+
+
+def read_lens_pin(root):
+    spec = importlib.util.spec_from_file_location('build_plus', Path(__file__).with_name('build_plus.py'))
+    module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
+    return module.read_lens_pin(root)
+
+
+def check_lens_profiles(app, platform, receipt, development):
+    """Tie the staged, untracked lens database to the build receipt and the tracked pin.
+
+    The database is not in the git archive, the executable hash or Cargo.lock.
+    Development stages record what they contain; portable stages require the pin."""
+    relative = 'Contents/Resources/camera_presets/profiles.cbor.gz' if platform == 'mac' else 'camera_presets/profiles.cbor.gz'
+    staged = app/relative
+    facts = dict(path=relative, sha256=None, bytes=None)
+    if staged.is_file() and not staged.is_symlink():
+        data = staged.read_bytes()
+        facts.update(sha256=hashlib.sha256(data).hexdigest(), bytes=len(data))
+    build = receipt.get('lens_profiles') if isinstance(receipt, dict) else None
+    errors, pin = [], None
+    if facts['sha256'] is None: errors.append(f'Missing regular lens profile database {relative}')
+    if not isinstance(build, dict) or build.get('mode') != 'pinned':
+        errors.append('Build receipt does not record a pinned lens profile database')
+    else:
+        try: pin = read_lens_pin(ROOT)
+        except (OSError, RuntimeError, UnicodeDecodeError) as failure: errors.append(f'Cannot read lens profile pin: {failure}')
+        if pin and build.get('sha256') != pin['sha256']:
+            errors.append(f'Receipt lens profile SHA-256 {build.get("sha256")} is not pinned {pin["sha256"]}')
+        if pin and facts['sha256'] not in (None, pin['sha256']):
+            errors.append(f'Staged lens profile SHA-256 {facts["sha256"]} is not pinned {pin["sha256"]}')
+    report = dict(staged=facts, build=build, pin=pin, errors=errors)
+    if not development and errors:
+        raise RuntimeError('Lens profile input check failed: '+'; '.join(errors))
     return report
 
 
@@ -339,6 +375,7 @@ def main():
                 windows_audit['errors'].append(f'Executable OCIO/ShaderTools imports do not match deploy features {receipt_in.get("features")!r}')
             if windows_audit['errors']:
                 raise RuntimeError('Windows runtime audit failed: '+'; '.join(windows_audit['errors']))
+    lens_profiles=check_lens_profiles(app,args.platform,receipt_in,args.development_runtime)
     notices.mkdir(exist_ok=True)
     shutil.copy2(ROOT/'LICENSE',notices/'Gyroflow-GPL-3.0.txt')
     shutil.copy2(ROOT/'resources/color/OCIO-LICENSE.txt',notices/'OpenColorIO-BSD-3-Clause.txt')
@@ -357,7 +394,7 @@ def main():
         input_binary_sha256=binary_hash,
         source=f'https://github.com/rsmith4321/gyroflow-plus/tree/{binary_commit}' if binary_commit else None,
         checkout_source=f'https://github.com/rsmith4321/gyroflow-plus/tree/{commit}',external_mac_dependencies=external,
-        public_release_approved=False)
+        lens_profiles=lens_profiles,public_release_approved=False)
     if mac_audit is not None: manifest['mac_runtime_audit'] = mac_audit
     if windows_audit is not None: manifest['windows_runtime_audit'] = windows_audit
     (notices/'BUILD.json').write_text(json.dumps(manifest,indent=2)+'\n')
@@ -373,7 +410,7 @@ def main():
     receipt = dict(source_commit=binary_commit, checkout_commit=commit,
         binary_source_verified=receipt_in is not None, platform=args.platform,
         packaged_binary_sha256=hashlib.sha256(packaged_binary.read_bytes()).hexdigest(),
-        input_binary_sha256=manifest['input_binary_sha256'],
+        input_binary_sha256=manifest['input_binary_sha256'], lens_profiles=lens_profiles,
         development_runtime=args.development_runtime, public_release_approved=False)
     if mac_audit is not None: receipt['mac_runtime_audit'] = mac_audit
     if windows_audit is not None:

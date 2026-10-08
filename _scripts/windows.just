@@ -348,8 +348,14 @@ deploy features="":
     $EndCommit = git rev-parse HEAD
     if ($LASTEXITCODE -ne 0) { throw "Cannot read final source commit" }
     $Dirty = $Dirty -or [bool]$EndStatus -or ($EndCommit -ne $Commit)
+    # The lens database is untracked build input (src/core/build.rs; GYROFLOW_LENS_PROFILES).
+    $LensFile = Get-Item -LiteralPath "$TargetDir\camera_presets\profiles.cbor.gz"
+    $LensProfiles = [ordered]@{ mode = $(if ($Env:GYROFLOW_LENS_PROFILES) { $Env:GYROFLOW_LENS_PROFILES } else { "latest" });
+                                path = "resources/camera_presets/profiles.cbor.gz"; bytes = $LensFile.Length;
+                                sha256 = (Get-FileHash -LiteralPath $LensFile.FullName -Algorithm SHA256).Hash.ToLowerInvariant() }
     [ordered]@{ commit = $Commit; dirty = $Dirty; target = $Target;
-                features = "{{features}}"; exe_sha256 = $ExeHash; crt_source = $CRTDirectory } |
+                features = "{{features}}"; exe_sha256 = $ExeHash; crt_source = $CRTDirectory;
+                lens_profiles = $LensProfiles } |
         ConvertTo-Json | Set-Content -Encoding ascii $ReceiptPath
 
 [no-cd]
