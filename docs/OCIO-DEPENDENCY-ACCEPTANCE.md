@@ -115,6 +115,13 @@ Expat/zlib are system dependencies; runtime versions come from the user's OS.
 The SDK/current host report Expat 2.7.4 and zlib 1.2.12. No independent security
 patch conclusion is inferred from those version strings.
 
+The exact runtime notice packet and public source-pin/hash index are now retained
+in [the repository](../resources/color/ocio-third-party/README.md), alongside the
+unchanged OCIO root notice. This preserves the texts with a source clone; it
+does not add them to the earlier staged app or close whole-app distribution
+notice/source obligations. Binary packaging must include and verify the packet
+against the actual selected OCIO build.
+
 ## Remaining app and release gates
 
 ### Matching Qt 6.7.3 preview compatibility
