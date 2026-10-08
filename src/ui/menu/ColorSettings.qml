@@ -396,7 +396,8 @@ MenuItem {
         CheckBox {
             text: qsTr("Preview colors");
             checked: root.exportOptions.previewColors;
-            onToggled: root.exportOptions.previewColors = checked;
+            // Enter and accessibility actions may change checked without emitting toggled.
+            onCheckedChanged: root.exportOptions.previewColors = checked;
         }
         Button {
             text: qsTr("Reset adjustments");
