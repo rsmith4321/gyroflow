@@ -24,6 +24,42 @@ def git(*args):
     return subprocess.check_output(['git', *args], cwd=ROOT)
 
 
+def msvc_version(value):
+    if not re.fullmatch(r'\d+\.\d+\.\d+\.\d+', value):
+        raise argparse.ArgumentTypeError('Use the full MSVC redistributable FileVersion, e.g. 14.44.35211.0')
+    return tuple(map(int, value.split('.')))
+
+
+def copy_ocio_notices(app, notices):
+    """Copy the OCIO dependency notice packet after checking it against its manifest.
+
+    A staged OCIO library embedding a zlib other than the packet's pin is an
+    error. Embedded Expat has no version string and is recorded for review."""
+    packet = ROOT/'resources/color/ocio-third-party'
+    manifest = json.loads((packet/'manifest.json').read_text())
+    report = dict(errors=[], libraries={})
+    for item in manifest['notice_files']:
+        path = packet/item['path']
+        if not path.is_file() or path.stat().st_size != item['bytes'] or \
+                hashlib.sha256(path.read_bytes()).hexdigest() != item['sha256']:
+            report['errors'].append(f'Notice missing or changed: {item["path"]}')
+    zlib = next(pin['ref'].lstrip('v') for pin in manifest['pins'] if pin['component'] == 'zlib')
+    for library in sorted(app.rglob('*OpenColorIO*')):
+        if library.is_symlink() or not library.is_file() or library.suffix.lower() not in ('.dll', '.dylib'):
+            continue
+        data = library.read_bytes()
+        embedded = re.search(rb' deflate (\d+\.\d+\.\d+) Copyright ', data)
+        facts = dict(sha256=hashlib.sha256(data).hexdigest(),
+                     embedded_zlib=embedded.group(1).decode() if embedded else None,
+                     embedded_expat=b'not well-formed (invalid token)' in data)
+        report['libraries'][library.relative_to(app).as_posix()] = facts
+        if facts['embedded_zlib'] not in (None, zlib):
+            report['errors'].append(f'{library.name} embeds zlib {facts["embedded_zlib"]}; notices are for {zlib}')
+    shutil.copytree(packet, notices/'OpenColorIO-third-party')
+    (notices/'OpenColorIO-third-party/STAGE-CHECK.json').write_text(json.dumps(report, indent=2)+'\n')
+    return report
+
+
 MACHO_MAGIC = {bytes.fromhex(value) for value in
                ('feedface', 'cefaedfe', 'feedfacf', 'cffaedfe',
                 'cafebabe', 'bebafeca', 'cafebabf', 'bfbafeca')}
@@ -210,6 +246,8 @@ def main():
     parser.add_argument('--binary',type=Path,required=True,help='built from this source checkout')
     parser.add_argument('--licenses',type=Path,help='dependency copyright/license texts and source/build provenance')
     parser.add_argument('--development-runtime',action='store_true')
+    parser.add_argument('--deploy-receipt',type=Path,help='Windows: win64-deploy.json written by just deploy')
+    parser.add_argument('--msvc-redist-floor',type=msvc_version,help='Windows: required C++ redistributable FileVersion for the newest toolset among staged components, e.g. 14.44.35211.0')
     args=parser.parse_args()
     runtime=args.runtime.resolve(strict=True);binary=args.binary.resolve(strict=True)
     output=args.output.resolve()
@@ -219,7 +257,17 @@ def main():
     if not args.development_runtime and not args.licenses: parser.error('Supply dependency notices/provenance with --licenses')
     version=tomllib.loads((ROOT/'Cargo.toml').read_text())['package']['version']
     commit=git('rev-parse','HEAD').decode().strip()
-    mac_audit = None
+    mac_audit = windows_audit = None
+    if args.platform=='windows' and not args.development_runtime:
+        if not args.deploy_receipt or not args.msvc_redist_floor:
+            parser.error('Windows stages require --deploy-receipt and --msvc-redist-floor')
+        receipt_in=json.loads(args.deploy_receipt.read_text())
+        binary_hash=hashlib.sha256(binary.read_bytes()).hexdigest()
+        runtime_exe=runtime/'Gyroflow.exe'
+        if (receipt_in.get('commit')!=commit or receipt_in.get('dirty') is not False
+                or receipt_in.get('exe_sha256')!=binary_hash
+                or not runtime_exe.is_file() or hashlib.sha256(runtime_exe.read_bytes()).hexdigest()!=binary_hash):
+            parser.error('Deploy receipt, --binary and runtime Gyroflow.exe must be one clean build of this commit')
     output.mkdir(parents=True)
     if args.platform=='mac':
         app=output/'Gyroflow Plus.app'
@@ -256,25 +304,42 @@ def main():
     else:
         app=output/'Gyroflow Plus'
         shutil.copytree(runtime,app)
-        for name in ['gyroflow.exe','Gyroflow.exe']:
-            (app/name).unlink(missing_ok=True)
-        shutil.copy2(binary,app/'GyroflowPlus.exe')
+        # Keep the upstream executable name. The embedded MDK key displays a QR
+        # overlay for a renamed executable (docs/WINDOWS-LUT-TESTING.md).
+        # The folder, settings and update identities remain the fork's own.
+        (app/'gyroflow.exe').unlink(missing_ok=True)
+        shutil.copy2(binary,app/'Gyroflow.exe')
         # Portable ZIP only; no Appx, installer identity or association registry.
         if any(p.suffix.lower() in ('.appx','.msix','.pfx') for p in app.rglob('*')):
             raise RuntimeError('Expected a portable Windows runtime, without Store packages or signing keys')
         (app/'qt.conf').write_text('[Paths]\nPrefix=.\nPlugins=.\nQmlImports=.\n')
         notices=app/'Notices';external=[]
+        import windows_runtime_audit  # pinned pefile: _scripts/requirements-package.txt
+        floor=args.msvc_redist_floor
+        windows_audit=windows_runtime_audit.audit(app,'Gyroflow.exe',floor)
+        if not args.development_runtime:
+            if not windows_audit['native_version_check']:
+                windows_audit['errors'].append('Release staging must run on Windows to cross-check FileVersion natively')
+            ocio='ocio-runtime' in receipt_in.get('features','').replace(',',' ').split()
+            if windows_audit.get('ocio_runtime_linked')!=ocio or windows_audit.get('shader_tools_linked')!=ocio:
+                windows_audit['errors'].append(f'Executable OCIO/ShaderTools imports do not match deploy features {receipt_in.get("features")!r}')
+            if windows_audit['errors']:
+                raise RuntimeError('Windows runtime audit failed: '+'; '.join(windows_audit['errors']))
     notices.mkdir(exist_ok=True)
     shutil.copy2(ROOT/'LICENSE',notices/'Gyroflow-GPL-3.0.txt')
     shutil.copy2(ROOT/'resources/color/OCIO-LICENSE.txt',notices/'OpenColorIO-BSD-3-Clause.txt')
     shutil.copy2(ROOT/'docs/PLUS-DISTRIBUTION.md',notices/'COMMUNITY-FORK.md')
     if args.licenses: shutil.copytree(args.licenses.resolve(strict=True),notices/'Dependencies')
+    ocio_notices=copy_ocio_notices(app,notices)
+    if not args.development_runtime and ocio_notices['errors']:
+        raise RuntimeError('OpenColorIO notice check failed: '+'; '.join(ocio_notices['errors']))
     manifest=dict(name='Gyroflow Plus',community_fork=True,version=version,commit=commit,
         dirty_source=dirty,development_runtime=args.development_runtime,
         input_binary_sha256=hashlib.sha256(binary.read_bytes()).hexdigest(),
         source=f'https://github.com/rsmith4321/gyroflow-plus/tree/{commit}',external_mac_dependencies=external,
         public_release_approved=False)
     if mac_audit is not None: manifest['mac_runtime_audit'] = mac_audit
+    if windows_audit is not None: manifest['windows_runtime_audit'] = windows_audit
     (notices/'BUILD.json').write_text(json.dumps(manifest,indent=2)+'\n')
     # A complete committed source archive accompanies every stage. Refusing
     # dirty builds avoids omitting untracked source or collecting private files.
@@ -285,12 +350,15 @@ def main():
         subprocess.run(['codesign','--verify','--deep','--strict',str(app)],check=True)
     # Signing changes the Mach-O executable bytes. Keep the final hash outside
     # the signed bundle to avoid a circular manifest/resource-signature hash.
-    packaged_binary = app/'Contents/MacOS/gyroflow' if args.platform=='mac' else app/'GyroflowPlus.exe'
+    packaged_binary = app/'Contents/MacOS/gyroflow' if args.platform=='mac' else app/'Gyroflow.exe'
     receipt = dict(source_commit=commit, platform=args.platform,
         packaged_binary_sha256=hashlib.sha256(packaged_binary.read_bytes()).hexdigest(),
         input_binary_sha256=manifest['input_binary_sha256'],
         development_runtime=args.development_runtime, public_release_approved=False)
     if mac_audit is not None: receipt['mac_runtime_audit'] = mac_audit
+    if windows_audit is not None:
+        receipt['windows_runtime_audit'] = {key: windows_audit.get(key) for key in ('machine', 'errors',
+            'ocio_runtime_linked', 'shader_tools_linked', 'crt_version', 'native_version_check', 'pefile_version')}
     (output/'PACKAGE.json').write_text(json.dumps(receipt,indent=2)+'\n')
     print(json.dumps(receipt,indent=2))
 

@@ -154,12 +154,25 @@ profile *param:
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 [no-cd]
-deploy:
+deploy features="":
     #!powershell
     $ErrorActionPreference = 'Stop'
+    # Native exit codes do not trigger $ErrorActionPreference. This function
+    # shadows xcopy so every copy below fails the recipe; optional copies call
+    # xcopy.exe directly.
+    function xcopy { $input | xcopy.exe @args; if ($LASTEXITCODE -ne 0) { throw "xcopy $args failed ($LASTEXITCODE)" } }
 
     $ProjectDir = resolve-path "{{ProjectDir}}"
     cd $ProjectDir
+    # Never mix files from an earlier deploy or bundle into this runtime.
+    if ((Test-Path "$ProjectDir\_deployment\_binaries\win64") -and (Get-ChildItem -Force "$ProjectDir\_deployment\_binaries\win64")) {
+        throw "_deployment\_binaries\win64 is not empty; move or remove it before deploying"
+    }
+    $ReceiptPath = "$ProjectDir\_deployment\_binaries\win64-deploy.json"
+    $ArchivePath = "$ProjectDir\_deployment\_binaries\Gyroflow-{{NameSuffix}}.zip"
+    if ((Test-Path $ReceiptPath) -or (Test-Path $ArchivePath)) {
+        throw "Move the previous deploy receipt and ZIP before deploying; outputs must be fresh"
+    }
     mkdir "$ProjectDir\_deployment\_binaries\win64" -Force
 
     if ("{{Arch}}" -eq "aarch64") {
@@ -168,7 +181,16 @@ deploy:
         $Target = "x86_64-pc-windows-msvc"
     }
 
-    cargo build --profile deploy --target $Target
+    $Commit = git rev-parse HEAD
+    if ($LASTEXITCODE -ne 0) { throw "Cannot read the source commit" }
+    $Dirty = [bool](git status --porcelain)
+    if ($LASTEXITCODE -ne 0) { throw "Cannot read the source status" }
+    if ("{{features}}") {
+        cargo build --profile deploy --target $Target --features "{{features}}"
+    } else {
+        cargo build --profile deploy --target $Target
+    }
+    if ($LASTEXITCODE -ne 0) { throw "cargo build failed" }
 
     $TargetDir   = resolve-path "{{ProjectDir}}\_deployment\_binaries\win64"
     $QtDir       = resolve-path "{{QtPath}}\.."
@@ -283,32 +305,52 @@ deploy:
     xcopy /Y "$CargoTarget\mdk-r3d.dll"                                  "$TargetDir\"
     echo F | xcopy /Y "$CargoTarget\gyroflow.exe"                        "$TargetDir\Gyroflow.exe"
     xcopy /Y "$ProjectDir\_deployment\windows\Gyroflow_with_console.bat" "$TargetDir\"
+    if (("{{features}}" -split "[ ,]") -contains "ocio-runtime") {
+        # Shared official OCIO prefix and the Qt module used by generated preview shaders.
+        xcopy /Y "$Env:OCIO_ROOT\bin\OpenColorIO_2_4.dll"                "$TargetDir\"
+        xcopy /Y "$QtDir\bin\Qt6ShaderTools.dll"                           "$TargetDir\"
+    }
+    $ExeHash = (Get-FileHash -LiteralPath "$CargoTarget\gyroflow.exe" -Algorithm SHA256).Hash.ToLowerInvariant()
+    if ((Get-FileHash -LiteralPath "$TargetDir\Gyroflow.exe" -Algorithm SHA256).Hash.ToLowerInvariant() -ne $ExeHash) {
+        throw "Staged Gyroflow.exe differs from the cargo output"
+    }
     # xcopy /Y /E "$ProjectDir\resources\camera_presets\*"                 "$TargetDir\camera_presets\"
     mkdir "$TargetDir\camera_presets\" -Force
     echo F | xcopy /Y "$ProjectDir\resources\camera_presets\profiles.cbor.gz"  "$TargetDir\camera_presets\profiles.cbor.gz"
 
     # Other
-    xcopy /Y "$QtDir\bin\d3dcompiler_47.dll"                             "$TargetDir\"
+    # Optional: Qt loads D3DCompiler_47 from System32 only; these app-local
+    # copies serve other loaders and are not required by the stage audit.
+    xcopy.exe /Y "$QtDir\bin\d3dcompiler_47.dll"                         "$TargetDir\"
     if ("{{Arch}}" -eq "aarch64") {
-        xcopy /Y "C:\Program Files (x86)\Windows Kits\10\bin\10.0.22621.0\arm64\d3dcompiler_47.dll" "$TargetDir\"
+        xcopy.exe /Y "C:\Program Files (x86)\Windows Kits\10\bin\10.0.22621.0\arm64\d3dcompiler_47.dll" "$TargetDir\"
     } else {
-        xcopy /Y "C:\Program Files (x86)\Windows Kits\10\bin\10.0.22621.0\x64\d3dcompiler_47.dll" "$TargetDir\"
+        xcopy.exe /Y "C:\Program Files (x86)\Windows Kits\10\bin\10.0.22621.0\x64\d3dcompiler_47.dll" "$TargetDir\"
     }
 
-    # VC Redist
-    if ("{{Arch}}" -eq "x86_64") {
-        xcopy /Y "C:\Windows\System32\vcruntime140.dll"     "$TargetDir\"
-        xcopy /Y "C:\Windows\System32\vcruntime140_1.dll"   "$TargetDir\"
-        xcopy /Y "C:\Windows\System32\msvcp140.dll"         "$TargetDir\"
-        xcopy /Y "C:\Windows\System32\msvcp140_1.dll"       "$TargetDir\"
-        xcopy /Y "C:\Windows\System32\msvcp140_2.dll"       "$TargetDir\"
-    }
+    # Copy one redistributable set from the active VS toolchain, never System32.
+    if (-not $Env:VCToolsRedistDir) { throw "Run deploy in a Visual Studio developer environment (VCToolsRedistDir is required)" }
+    $RedistArch = if ("{{Arch}}" -eq "aarch64") { "arm64" } else { "x64" }
+    $CRTDirectories = @(Get-ChildItem -Directory (Join-Path (Join-Path $Env:VCToolsRedistDir $RedistArch) "Microsoft.VC14*.CRT"))
+    if ($CRTDirectories.Count -ne 1) { throw "Expected exactly one $RedistArch VC redistributable folder" }
+    $CRTDirectory = $CRTDirectories[0].FullName
+    xcopy /Y "$CRTDirectory\*.dll" "$TargetDir\"
     # Vulkan shaderc
     if ("{{Arch}}" -eq "x86_64") {
         Invoke-WebRequest -URI "https://api.gyroflow.xyz/sdk/shaderc_shared.dll" -OutFile "$TargetDir\shaderc_shared.dll"
     }
 
-    7z a $ProjectDir\_deployment\_binaries\Gyroflow-{{NameSuffix}}.zip $TargetDir\*
+    7z a $ArchivePath $TargetDir\*
+    if ($LASTEXITCODE -ne 0) { throw "7z failed" }
+    # Write only after every required copy and the archive succeeded.
+    $EndStatus = git status --porcelain
+    if ($LASTEXITCODE -ne 0) { throw "Cannot read final source status" }
+    $EndCommit = git rev-parse HEAD
+    if ($LASTEXITCODE -ne 0) { throw "Cannot read final source commit" }
+    $Dirty = $Dirty -or [bool]$EndStatus -or ($EndCommit -ne $Commit)
+    [ordered]@{ commit = $Commit; dirty = $Dirty; target = $Target;
+                features = "{{features}}"; exe_sha256 = $ExeHash; crt_source = $CRTDirectory } |
+        ConvertTo-Json | Set-Content -Encoding ascii $ReceiptPath
 
 [no-cd]
 bundle:

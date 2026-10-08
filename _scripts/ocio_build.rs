@@ -22,6 +22,10 @@ pub fn build_bridge(repository: &std::path::Path) {
     if env::var("CARGO_CFG_TARGET_ENV").as_deref() == Ok("msvc") {
         // OCIO errors must unwind C++ objects before the C ABI catches them.
         config.flag("/EHsc");
+        // The bridge uses dllimport declarations; a static OCIO prefix would need
+        // OpenColorIO_SKIP_IMPORTS and its private dependencies at link time.
+        let dll = root.join("bin/OpenColorIO_2_4.dll");
+        assert!(dll.is_file(), "ocio-runtime on MSVC requires a shared OpenColorIO 2.4.2 prefix: {} is missing", dll.display());
     }
     config.compile("gyroflow_ocio_bridge");
     println!(

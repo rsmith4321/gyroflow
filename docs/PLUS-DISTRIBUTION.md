@@ -13,7 +13,7 @@ BSD 3-clause copyright/license; see `resources/color/OCIO-LICENSE.txt`.
 | Application/UI | Gyroflow Plus, explicitly marked Community fork |
 | Application version | `0.1.0-dev`; upstream core retains its own version |
 | Mac bundle | `com.ryansmith.gyroflow-plus`, `Gyroflow Plus.app` |
-| Windows portable executable | `GyroflowPlus.exe`, separate directory |
+| Windows portable executable | `Gyroflow Plus` directory; executable keeps `Gyroflow.exe` for the embedded MDK key |
 | Settings | `Gyroflow Plus` user-data directory; Qt organization Ryan Smith |
 | Update API/download | `rsmith4321/gyroflow-plus`, stable `plus-v<semver>` tags only |
 | Project format | Compatible `.gyroflow`, no default-handler takeover |
@@ -51,15 +51,28 @@ python3 _scripts/package_plus.py mac path/to/prepared/Gyroflow.app path/to/new-s
 ```
 
 ```powershell
+python -m pip install --require-hashes -r _scripts/requirements-package.txt
+just deploy ocio-runtime   # requires OCIO_ROOT and an empty _deployment/_binaries/win64
 python _scripts/package_plus.py windows _deployment/_binaries/win64 path/to/new-stage `
   --binary target/x86_64-pc-windows-msvc/deploy/gyroflow.exe `
+  --deploy-receipt _deployment/_binaries/win64-deploy.json `
+  --msvc-redist-floor 14.44.35211.0 `
   --licenses path/to/dependency-notices
 ```
+
+The floor above is an example; replace it with the full FileVersion required by
+the newest toolset used to build the app, OCIO, Qt and OpenCV. Run deploy in a
+Visual Studio developer environment. It copies one runtime set from
+`VCToolsRedistDir` and writes a build receipt only after all required copies and
+archiving succeed. Move prior runtime, receipt and ZIP outputs before deploying.
 
 The stager requires a clean source checkout for every candidate, preserves
 the runtime's dependency notices, adds GPL/OCIO/fork notices, corresponding app
 source archive, source URL, input-build binary SHA256 and commit manifest, and refuses an
-existing output. Mac auditing rejects absolute non-system dependencies. It
+existing output. Mac auditing rejects absolute non-system dependencies. Windows
+auditing (on Windows) rejects unresolved imports or symbols, stale library
+versions and an incoherent or too-old C++ runtime; it is not a run on a clean
+machine. It
 ad-hoc signs local Mac stages; that does not establish Developer ID signing,
 notarization, Windows trust or public-release readiness. Supplying notices does
 not establish that every dependency's license/source obligations are satisfied;

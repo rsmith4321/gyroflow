@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "scope": "OpenColorIO 2.4.2 private arm64 Mac dependency recipe; not a whole-app distribution notice inventory",
+  "scope": "OpenColorIO 2.4.2 notices for the private arm64 Mac dependency recipe and the Windows x64 default recipe's static Expat and zlib; not a whole-app distribution notice inventory",
   "opencolorio_library_sha256": "b1939e6d021afebdabdd22c6748bebc89c73866f51fde3e773d229911f4911f3",
   "pins": [
     {
@@ -43,7 +43,32 @@
       "commit": "227cc413fb2d50b2a10073087be96b59d5364aea",
       "ref": "227cc413fb2d50b2a10073087be96b59d5364aea",
       "archive_url": "https://codeload.github.com/DLTcollab/sse2neon/tar.gz/227cc413fb2d50b2a10073087be96b59d5364aea",
-      "archive_sha256": "3427a495743bb6fd1b5f9f806b80f57d67b1ac7ccf39a5f44aedd487fd7e6da1"
+      "archive_sha256": "3427a495743bb6fd1b5f9f806b80f57d67b1ac7ccf39a5f44aedd487fd7e6da1",
+      "platforms": [
+        "mac-arm64"
+      ]
+    },
+    {
+      "component": "Expat",
+      "commit": "654d2de0da85662fcc7644a7acd7c2dd2cfb21f0",
+      "ref": "R_2_5_0",
+      "archive_url": "https://github.com/libexpat/libexpat/releases/download/R_2_5_0/expat-2.5.0.tar.xz",
+      "archive_sha256": "ef2420f0232c087801abf705e89ae65f6257df6b7931d37846a193ef2e8cdcbe",
+      "platforms": [
+        "windows"
+      ],
+      "selection": "OCIO 2.4.2 recommended version, built static by its install recipe when no Expat is found"
+    },
+    {
+      "component": "zlib",
+      "commit": "04f42ceca40f73e2978b50e93806c2a18c1281fc",
+      "ref": "v1.2.13",
+      "archive_url": "https://github.com/madler/zlib/releases/download/v1.2.13/zlib-1.2.13.tar.gz",
+      "archive_sha256": "b3a24de97a8fdbc835b9833169501030b8977031bcb54b3b3ac13740f846ab30",
+      "platforms": [
+        "windows"
+      ],
+      "selection": "OCIO 2.4.2 recommended version, built static by its install recipe when no zlib is found"
     }
   ],
   "embedded_components": [
@@ -101,7 +126,10 @@
       "bytes": 1083,
       "sha256": "5c347d431a555ec6e5bc9720ceba2119570357dab5203372d469be9bcce374cc",
       "component": "sse2neon",
-      "upstream_path": "LICENSE"
+      "upstream_path": "LICENSE",
+      "platforms": [
+        "mac-arm64"
+      ]
     },
     {
       "path": "ocio-internal/sampleicc/README.md",
@@ -134,10 +162,39 @@
       "component": "xxHash",
       "upstream_container": "OpenColorIO",
       "upstream_path": "ext/xxHash/src/include/xxhash.h"
+    },
+    {
+      "path": "ocio-internal/cdl/FileFormatCDL-notice.txt",
+      "bytes": 1506,
+      "sha256": "ae7e09d2524f0bde84b632ad6d7b4fb99981255caec0be9fa16a6b4f3cf46578",
+      "component": "OpenColorIO CDL file format (Cinesite VFX)",
+      "upstream_container": "OpenColorIO",
+      "upstream_path": "src/OpenColorIO/fileformats/FileFormatCDL.cpp",
+      "upstream_lines": "1-27"
+    },
+    {
+      "path": "expat/COPYING",
+      "bytes": 1144,
+      "sha256": "122f2c27000472a201d337b9b31f7eb2b52d091b02857061a8880371612d9534",
+      "component": "Expat",
+      "upstream_path": "COPYING",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "path": "zlib/LICENSE",
+      "bytes": 1002,
+      "sha256": "845efc77857d485d91fb3e0b884aaa929368c717ae8186b66fe1ed2495753243",
+      "component": "zlib",
+      "upstream_path": "LICENSE",
+      "platforms": [
+        "windows"
+      ]
     }
   ],
   "system_dependencies": [
-    "Apple system Expat",
-    "Apple system zlib"
+    "Apple system Expat (Mac only)",
+    "Apple system zlib (Mac only)"
   ]
 }

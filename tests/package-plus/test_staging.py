@@ -7,6 +7,7 @@ import io
 import json
 from pathlib import Path
 import plistlib
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -17,6 +18,7 @@ ROOT = Path(__file__).resolve().parents[2]
 spec = importlib.util.spec_from_file_location('package_plus', ROOT / '_scripts/package_plus.py')
 stager = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(stager)
+PACKET = 'resources/color/ocio-third-party'
 
 
 class StagingTests(unittest.TestCase):
@@ -116,11 +118,12 @@ class MacDependencyTests(unittest.TestCase):
         repo = self.root / 'repo'
         for relative, value in (('Cargo.toml', '[package]\nversion="0.1.0-dev"\n'),
                                 ('LICENSE', 'synthetic license fixture'),
-                                ('resources/color/OCIO-LICENSE.txt', 'synthetic OCIO notice fixture'),
                                 ('docs/PLUS-DISTRIBUTION.md', 'synthetic distribution fixture')):
             path = repo / relative
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(value)
+        shutil.copytree(ROOT / PACKET, repo / PACKET)
+        shutil.copy2(ROOT / 'resources/color/OCIO-LICENSE.txt', repo / 'resources/color')
         notices = self.root / 'dependency-notices'
         notices.mkdir()
         (notices / 'NOTICE').write_text('Synthetic; does not establish license acceptance')
@@ -320,6 +323,43 @@ class MacDependencyTests(unittest.TestCase):
         self.assertIn('below embedded Mach-O minimum 27.0', '\n'.join(receipt['mac_runtime_audit']['errors']))
         self.assertTrue(receipt['development_runtime'])
         self.assertFalse(receipt['public_release_approved'])
+        check = self.stage_app / 'Contents/Resources/Notices/OpenColorIO-third-party/STAGE-CHECK.json'
+        self.assertEqual(json.loads(check.read_text())['errors'], [])
+
+
+class OcioNoticeTests(unittest.TestCase):
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory(prefix='plus-notice-test-')
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+        self.repo = self.root / 'repo'
+        shutil.copytree(ROOT / PACKET, self.repo / PACKET)
+        shutil.copy2(ROOT / 'resources/color/OCIO-LICENSE.txt', self.repo / 'resources/color')
+        self.app = self.root / 'Gyroflow Plus'
+        self.app.mkdir()
+
+    def check(self):
+        notices = self.root / f'Notices-{len(list(self.root.iterdir()))}'
+        notices.mkdir()
+        with patch.object(stager, 'ROOT', self.repo):
+            report = stager.copy_ocio_notices(self.app, notices)
+        self.assertTrue((notices / 'OpenColorIO-third-party/expat/COPYING').is_file())
+        return report
+
+    def test_packet_matches_its_manifest_and_windows_zlib_pin(self):
+        (self.app / 'OpenColorIO_2_4.dll').write_bytes(
+            b'MZ synthetic; never executed deflate 1.2.13 Copyright 1995-2022 not well-formed (invalid token)')
+        report = self.check()
+        self.assertEqual(report['errors'], [])
+        self.assertEqual(report['libraries']['OpenColorIO_2_4.dll']['embedded_zlib'], '1.2.13')
+        self.assertTrue(report['libraries']['OpenColorIO_2_4.dll']['embedded_expat'])
+
+    def test_other_embedded_zlib_and_changed_notice_are_errors(self):
+        (self.app / 'OpenColorIO_2_4.dll').write_bytes(b'MZ synthetic deflate 1.3.1 Copyright 1995-2024')
+        (self.repo / PACKET / 'zlib/LICENSE').write_text('edited')
+        errors = '\n'.join(self.check()['errors'])
+        self.assertIn('embeds zlib 1.3.1; notices are for 1.2.13', errors)
+        self.assertIn('Notice missing or changed: zlib/LICENSE', errors)
 
 
 if __name__ == '__main__':
