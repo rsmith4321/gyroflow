@@ -12,14 +12,17 @@ LUT first. A local LUT-folder dropdown and remembered camera/profile choices lin
 to official DJI, GoPro and Insta360 downloads; manufacturer files are not bundled.
 See [LUT library usage](docs/LUT-LIBRARY.md). Source footage and embedded motion data are preserved.
 
-Gyroflow Plus brings together **Gyroflow stabilization and color tools based on
-[OpenColorIO](https://opencolorio.org/)** to help you finish drone videos in one
-place: stabilize, choose a LUT, make basic color corrections, and export. The
-Highlights/Shadows controls use sampled curves derived from OpenColorIO;
-exposure, relative color balance and saturation use small native math tested
-against OpenColorIO. The full OpenColorIO runtime and configurable color-management
-workflow are not integrated. See the processing order, native Mac acceptance
-and measured limits in the [basic grading report](docs/BASIC-GRADING-PLAN.md).
+Gyroflow Plus combines **Gyroflow stabilization with LUTs and simple color
+correction** to help you finish drone and action-camera clips in one place.
+We built a lightweight color implementation based on
+[OpenColorIO](https://opencolorio.org/): Highlights/Shadows use sampled curves
+derived from its grading transforms, while exposure, relative color balance
+and saturation use small native math tested against its processors. The
+full OpenColorIO runtime and configurable color-management workflow are not
+integrated. OpenColorIO copyright and license notices are retained.
+See the [implementation and library integration notes](docs/OPENCOLORIO-INTEGRATION.md)
+and the processing order, native Mac acceptance and measured limits in the
+[basic grading report](docs/BASIC-GRADING-PLAN.md).
 
 Edits are nondestructive: original recordings and embedded motion data are
 untouched, while projects retain the selected LUT and adjustment values for
