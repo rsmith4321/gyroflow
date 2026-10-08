@@ -75,7 +75,7 @@ encoded exports. Measure matched real-clip timings and preview/export agreement.
 Do not replace the working path based solely on library maturity or synthetic
 CPU results. No production runtime change is made by this documentation update.
 
-## Official runtime prototype: 2026-10-07
+## Initial standalone runtime prototype: 2026-10-07
 
 The [standalone probe](../tests/ocio-runtime/README.md) now builds against the
 official OCIO 2.4.2 library and generates both CPU processors and Qt preview
@@ -101,10 +101,12 @@ The cached path has no custom per-pixel curve or interpolation evaluator. OCIO
 generates the curve from the exact parameters and evaluates it through its
 own LUT processor; the GPU preview uses direct generated grading code. This
 reduces maintained algorithm code while retaining a bounded approximation.
-Next work is the application bridge, row concurrency and matched real-clip
-timings, preview shader preparation/caching during slider changes, and platform
-and package acceptance. The installed app still uses the previously accepted
-lightweight implementation.
+These measurements describe the initial standalone probe. The application bridge,
+row concurrency, generated preview resource lifecycle and matched real-clip
+checks were subsequently implemented and accepted on the development Mac as
+recorded below. The tested official-runtime development build is installed on
+that Mac; the Cargo default and public release still use the accepted lightweight
+implementation pending Windows and portable package acceptance.
 
 ## Experimental app integration
 
