@@ -71,3 +71,34 @@ malformed or unsupported LUTs; and actual Mac/Windows preview and hardware
 encoded exports. Measure matched real-clip timings and preview/export agreement.
 Do not replace the working path based solely on library maturity or synthetic
 CPU results. No production runtime change is made by this documentation update.
+
+## Official runtime prototype: 2026-10-07
+
+The [standalone probe](../tests/ocio-runtime/README.md) now builds against the
+official OCIO 2.4.2 library and generates both CPU processors and Qt preview
+shaders from one transform definition. No upstream processing source was edited.
+
+- **144 CPU cases** cover the exact and cached-tone processors in packed and
+  padded planar RGBA layouts. Maximum deviation from the independent reference
+  was **4.77e-7**; alpha and planar padding were unchanged.
+- **12 actual Metal cases** using generated Qt QSB shaders agree with the CPU
+  result within **one RGB8 code**. HLSL SM5 compilation also passed; Windows
+  execution has not been tested.
+- On this Apple M4 Max, three repeats of five applications to a 3840x2160
+  float image gave a median **0.514 s/frame** for the exact combined grade in
+  planar layout. The same grade with a 4097-sample official tone curve evaluated
+  by OCIO's `Lut1DTransform` took **0.0647 s/frame**, about eight times faster.
+  These are single-threaded processor-only timings; file I/O, frame conversion,
+  stabilization, encoding, and app scheduling are excluded. They are not a
+  comparison with the complete existing export pipeline.
+- The local OCIO dylib is about **6 MB**. It still links the development Mac's
+  Imath library; this is not a portable package.
+
+The cached path has no custom per-pixel curve or interpolation evaluator. OCIO
+generates the curve from the exact parameters and evaluates it through its
+own LUT processor; the GPU preview uses direct generated grading code. This
+reduces maintained algorithm code while retaining a bounded approximation.
+Next work is the application bridge, row concurrency and matched real-clip
+timings, preview shader preparation/caching during slider changes, and platform
+and package acceptance. The installed app still uses the previously accepted
+lightweight implementation.
