@@ -386,11 +386,84 @@ does not establish all 242 GPU frames, Windows execution, public packaging, or
 resolve the original b9 lossy decoded-output compatibility hold. The installed
 app, staged bundle, production algorithms and feature default remain unchanged.
 
+## Matched candidate export timing
+
+A fresh fixed-artifact comparison completed exactly **20 exports**: one
+eight-control warmup per binary, followed by three alternating paired trials
+for each of neutral, LUT-only and eight-control grading. The installed b9
+development executable and private staged executable retain their pinned
+identities. Both predate the later error/completion guards.
+
+| 45–49 second source segment | Installed median (s) | Staged median (s) | Paired staged / installed |
+| --- | ---: | ---: | ---: |
+| Color disabled | 5.058269 | 4.942471 | 0.966513 |
+| LUT only | 9.968430 | 8.024112 | 0.805157 |
+| Eight-control grade | 11.865412 | 9.269408 | 0.783609 |
+
+Ratios are the geometric mean of three matched pairs. All cases pass the
+preselected **15% maximum/minimum spread** gate. All 20 exports finalized
+242-frame, 3840x2160 HEVC Main10 output at 60000/1001 fps, with limited range
+and BT.709 space. Actual options require hardware encoding without software
+fallback; logs, selected providers and preservation checks pass. Independent
+recomputation exactly matches every median, paired ratio, spread and noise flag.
+
+These are CLI wall times including startup, export and teardown; validation
+and preservation scans are outside the interval. They compare complete fixed
+artifacts, without isolating OCIO, SIMD, FFmpeg or encoder contributions.
+Chrome was active throughout recorded snapshots, reaching 94.7% CPU. A
+Backblaze file scan during the staged warmup is retained and excluded only
+from timed statistics; no timed trial trips the frozen interference classifier.
+Passing repeatability does not rule out sustained background contention.
+These results describe the observed host load and the pinned earlier binaries.
+
+The retained packet is `matched-timing-plan-v2/runs/timing-v2` under the
+evidence directory below. Settings, original media, both bundles and runtime
+identities remain exact. This timing acceptance does not resolve the original
+lossy decoded-output compatibility hold or establish a public package.
+
+## Bounded generated GPU color timing
+
+The unchanged production adapter, bridge and fragment wrapper now have
+a bounded cached real-frame timing measurement on Metal / Apple M4 Max,
+using the same accepted private OCIO 2.4.2 and Qt 6.7.3 providers. Each of
+the two existing 3840x2160 RGBA32F cases uses **20 discarded warmup draws
+and 100 measured draws**, followed by one untimed output guard.
+
+| Cached 4K draw | GPU median (ms) | GPU p95 (ms) | CPU-through-GPU-completion median (ms) |
+| --- | ---: | ---: | ---: |
+| LUT only | 0.465938 | 0.578000 | 0.630292 |
+| Eight-control grade | 0.462354 | 0.572292 | 0.624167 |
+
+Every selected GPU duration is finite and positive. The separate wall interval
+covers CPU polish, recording, submission and GPU completion. GPU elapsed
+includes target clear and the production ShaderEffect draw. Initial input/LUT
+texture upload and shader preparation occur before timing; readback, pixel
+comparisons, hashes and file I/O are outside the measured loop. Raw ordered
+samples retain the corresponding draw ordinals.
+
+Review caught a one-frame publication delay in the exact
+[Qt 6.7.3 Metal implementation](https://github.com/qt/qtbase/blob/v6.7.3/src/gui/rhi/qrhimetal.mm).
+The corrected private fixture associates the following getter with each
+measured draw; its final sample is collected when the existing untimed guard
+begins. All 100 wall/GPU pairs are retained, with no added draw. The held initial
+recipe was not executed. No Qt library or production code was patched.
+
+Both post-timing full images exactly match the accepted GPU output SHA-256
+and retain the previously verified CPU/GPU error and alpha results. Build/run
+bounds, selected providers and preservation checks pass. The retained packet
+is `real-frame-preview-timing-plan-v2/runs/timing-01` under the evidence
+directory below.
+
+Backblaze and Chrome were active in the retained host snapshots. These results
+measure a resident, repeated first-frame color draw; they exclude MDK decoding
+and stabilization, new-frame uploads, presentation/vsync, interaction and
+export. They do not measure app FPS, isolate incremental OCIO cost without a
+neutral baseline, or establish quiet-host or Windows performance.
+
 ## Remaining acceptance
 
-Original decoded color-output release acceptance, matched candidate timing,
-current Windows native
-preview/export, complete notices/provenance, clean-machine installation,
+Original decoded color-output release acceptance, current Windows native
+preview/export, complete bundle notices/provenance, clean-machine installation,
 older-OS execution and public signing/notarization remain open. The private
 bundle must not be offered as a release download on this evidence.
 
