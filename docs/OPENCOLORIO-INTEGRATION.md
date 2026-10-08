@@ -404,3 +404,44 @@ Terminal control receipt SHA-256:
 `4e023fc332ce275c18b9f7521486e472685cdc9746c4193c9d1a24394f1b4f20`;
 terminal new-pixel receipt SHA-256:
 `bcfa7d55449f8583b15680349c50375864d00c2876aa804b25c8ff6615d9401a`.
+
+## Native effect one-frame agreement: 2026-10-08
+
+A private full application build from `479419e9` tested the existing OCIO
+ShaderEffect on Qt 6.7.3 / Metal. The diagnostic driver initially waited on a
+QML-added `loaded` property unavailable through the native MDKVideoItem
+metaobject. A separate private revision uses the native video metadata to
+position the declared frame. This repair changes only the diagnostic driver;
+the application color processor, shader, stabilization and encoder remain
+unchanged.
+
+The metadata preflight settled at frame **2777**, timestamp **46329.616 ms**,
+with the selected DJI O4 LUT and all eight controls matching their frozen
+processor values. One bounded capture then read the actual native video layer
+before and after Qt's offscreen grab of the existing effect. Both inputs were
+byte-identical, the refresh probe returned false, and the synchronous bracket
+recorded zero notifications. The output and input dimensions were **836×471**;
+the observed image was RGBA8, with opaque alpha and no image color space.
+
+The unchanged production OCIO CPU bridge evaluated the captured input once,
+using the same LUT and controls. Row mapping, rounding and the fixed outer
+one-pixel border were declared before capture. The comparison passed the
+unchanged one-code gate: all **1,173,438 interior RGB components** differ by at
+most **one code**, with zero larger differences. The full image has the same
+one-code maximum; its **7,830 border components** match exactly. CPU output is
+finite, with no clipped components in this case. Original media, LUT, retained
+project fixture, settings and installed application binaries passed the retained
+preservation checks.
+
+This establishes one-frame agreement between the actual native layer input,
+the existing effect's offscreen output and the official CPU processor. The
+original visible-window numerical and exact old/new decoded-output holds
+remain open, as do Windows runtime closure and public packaging gates. It
+does not change the installed/default runtime or establish release readiness.
+
+The private packet is
+`_dev/ocio-runtime/portable-app-build/mdk-native-effect-capture-v6-native-readiness`.
+Capture receipt SHA-256:
+`2ebffefc727f24bdbc1b712a8a28b83516b15fb8b36dcd5e5df8ba75f17e0bb1`;
+comparison statistics SHA-256:
+`a46633a2527de0746b40a01b22d46f62ec056d3455e83b7b5047099679744efb`.
