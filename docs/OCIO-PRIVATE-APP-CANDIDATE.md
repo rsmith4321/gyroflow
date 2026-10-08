@@ -160,19 +160,55 @@ zoom. It establishes near agreement for this software branch, not equivalence
 of the original VideoToolbox branch. Existing hardware-export differences
 are smaller at keyframes and increase between them, which is compatible with
 predictive encoding propagating small differences. That remains a hypothesis;
-the original hardware encoder's input was not captured.
+the retained hardware exports did not record their encoder input.
 
 Two bounded debugger attempts produced no frame samples: the first stopped
 before FFmpeg loaded and the second timed out before reaching application main.
 Both diagnostic children were stopped, and preservation checks passed. This
-capture route is discontinued. A separately rebuilt diagnostic capture is being
-prepared to inspect the original hardware branch before encoder submission.
-It is private test instrumentation, not a production change.
+debugger route is discontinued.
+
+A subsequent private source diagnostic preserves the original 45–49 second
+trim, 4K HEVC settings and stabilization. Two rebuilt variants hold source,
+Qt/OpenCV/MDK and static codec inputs constant while selecting the previous
+Homebrew FFmpeg/OCIO family or the private static FFmpeg/OCIO family. Four
+sequential runs capture one frame at each color boundary, then deliberately
+stop before encoder initialization or submission. This is test instrumentation,
+not a production change or recreation of the retained b9 executable.
+
+Actual loader logs observe the intended OCIO prefix in each variant. The new
+executable contains static application FFmpeg definitions but also loads the
+Homebrew FFmpeg images later during MDK initialization. These isolated build
+targets are not the relocated app bundle, and this diagnostic is not evidence
+of a Homebrew-free runtime. Loaded-image lists alone do not establish ownership
+of every FFmpeg call.
+
+Both cases capture the same PTS, P010LE input/output, GBRPF32LE intermediate,
+color metadata and strides. The YUV boundaries record BT.709 limited range;
+the float intermediates record RGB matrix and unspecified range. The Rayon
+pool records 16 threads with the production OCIO worker limit of eight. All
+input/settings/source/prefix preservation checks pass. Across the complete
+first frame:
+
+| Boundary | LUT only | LUT plus all controls |
+| --- | --- | --- |
+| Stabilized P010 input | Exact bytes | Exact bytes |
+| Float input to OCIO | Exact bytes | Exact bytes |
+| Float output from OCIO, maximum absolute difference | 1.1920928955078125e-7 | 2.980232238769531e-7 |
+| Restored P010, changed 10-bit samples | 59 of 12,441,600 | 79 of 12,441,600 |
+| Restored P010, maximum difference | One code value | One code value |
+
+All captured float values are finite. Restored P010 comparisons use the ten
+significant bits; their six unused low bits are zero. Input P010 low bits are
+often nonzero, and the exact-byte input comparison includes them. The small
+restored differences are nearly evenly split in sign. This first-frame result
+does not reproduce the much larger decoded hardware-export differences above.
 
 The new GUI/CLI and short software-lossless results do not lift the original
 hardware-output hold. No production algorithm or conversion workaround is
-justified by the results so far. The next discriminator is captured
-processor-boundary samples from the original hardware export settings.
+justified by the results so far. The captured boundaries establish near
+agreement for one rebuilt frame; they do not establish all-frame equality,
+encoder determinism, or a cause for the retained outputs. A controlled encoder
+comparison with identical input remains the next discriminator.
 
 ## Remaining acceptance
 
