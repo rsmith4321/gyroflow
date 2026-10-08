@@ -6,6 +6,13 @@ with production fixtures. It is not a complete portable app or a public download
 The installed development app still uses the OCIO prefix recorded in
 [Mac app acceptance](OCIO-MAC-ACCEPTANCE.md); this new prefix has not replaced it.
 
+A later separately linked, relocated and locally signed full app candidate now
+has current-Mac native preview/hardware export evidence. Its color outputs differ
+from the earlier b9 development build, so the private candidate is held for
+investigation. See [private app acceptance](OCIO-PRIVATE-APP-CANDIDATE.md) for the
+exact build/stage identities, completed checks and remaining gates. The individual
+dependency sections below retain their original, narrower proof boundaries.
+
 ## Compiled runtime closure
 
 The shared OCIO library includes private static Imath, yaml-cpp, pystring and

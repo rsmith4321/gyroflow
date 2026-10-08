@@ -6,6 +6,11 @@ Qt 6.11.2, FFmpeg 9.0.1. Implementation under test is
 This records development-runtime acceptance on one Mac. It does not approve a
 portable public release or establish Windows execution.
 
+A later separately rebuilt dependency/app candidate is recorded in
+[private app acceptance](OCIO-PRIVATE-APP-CANDIDATE.md). It has current-Mac native
+preview/hardware export checks but remains held for a color-output difference.
+It has not replaced the installed development app described here.
+
 ## Matched hardware export timing
 
 A byte-identical private SSD copy of an original DJI O4 Pro 4K ten-bit log clip
