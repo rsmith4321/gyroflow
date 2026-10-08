@@ -2746,6 +2746,7 @@ pub struct Filesystem {
     save_allowed_folders:     qt_method!(fn(&self)),
     restore_allowed_folders:  qt_method!(fn(&self)),
     get_next_file_url:        qt_method!(fn(&self, current_url: QUrl, index: i32) -> QUrl),
+    list_lut_files:           qt_method!(fn(&self, folder: QUrl) -> QString),
     url_opened:               qt_signal!(url: QUrl),
 }
 impl Filesystem {
@@ -2796,6 +2797,15 @@ impl Filesystem {
                 Err(e) => ::log::error!("Failed to move file to trash: {e:?}"),
             }
         }
+    }
+
+    fn list_lut_files(&self, folder: QUrl) -> QString {
+        let mut entries: Vec<_> = filesystem::list_folder(&util::qurl_to_encoded(folder))
+            .into_iter().filter(|(name, _)| name.to_ascii_lowercase().ends_with(".cube"))
+            .collect();
+        entries.sort_by(|a, b| human_sort::compare(&a.0, &b.0));
+        entries.truncate(512);
+        QString::from(serde_json::to_string(&entries).unwrap_or_else(|_| "[]".into()))
     }
 
     fn get_next_file_url(&self, current_url: QUrl, index: i32) -> QUrl {

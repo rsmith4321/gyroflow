@@ -161,31 +161,53 @@ Rectangle {
 
                 Item {
                     width: parent.width;
-                    height: children[0].height * 1.5;
-                    Image {
-                        source: "qrc:/resources/logo" + (style === "dark"? "_white" : "_black") + ".svg"
-                        sourceSize.width: Math.min(300 * dpiScale, parent.width * 0.9);
+                    height: logoRow.height * 1.5;
+                    Row {
+                        id: logoRow;
                         anchors.centerIn: parent;
+                        spacing: 7 * dpiScale;
+                        Image {
+                            id: logoImage;
+                            source: "qrc:/resources/logo" + (style === "dark"? "_white" : "_black") + ".svg";
+                            sourceSize.width: Math.max(1, Math.min(275 * dpiScale, gflogo.width * 0.9 - 35 * dpiScale));
+                        }
+                        Item {
+                            width: 28 * dpiScale;
+                            height: logoImage.height;
+                            Rectangle {
+                                anchors.centerIn: parent;
+                                width: parent.width;
+                                height: 4 * dpiScale;
+                                radius: height / 2;
+                                color: styleTextColor;
+                            }
+                            Rectangle {
+                                anchors.centerIn: parent;
+                                width: 4 * dpiScale;
+                                height: parent.width;
+                                radius: width / 2;
+                                color: styleTextColor;
+                            }
+                        }
                     }
                 }
-                FontLoader {
-                    id: plusWordmarkFont;
-                    source: "qrc:/resources/fonts/Allura-Regular.ttf";
-                }
                 BasicText {
                     width: parent.width;
-                    text: "Plus";
-                    horizontalAlignment: Text.AlignHCenter;
-                    font.family: plusWordmarkFont.name;
-                    font.pixelSize: 48 * dpiScale;
-                    bottomPadding: 4 * dpiScale;
-                }
-                BasicText {
-                    width: parent.width;
-                    text: "Community fork";
+                    text: qsTr("Community fork");
                     horizontalAlignment: Text.AlignHCenter;
                     font.pixelSize: 10 * dpiScale;
-                    bottomPadding: 8 * dpiScale;
+                    bottomPadding: 5 * dpiScale;
+                }
+                BasicText {
+                    width: parent.width;
+                    text: qsTr("Gyroflow stabilization with LUTs and simple color correction.");
+                    horizontalAlignment: Text.AlignHCenter;
+                    wrapMode: Text.WordWrap;
+                    font.pixelSize: 10 * dpiScale;
+                    opacity: 0.7;
+                    leftPadding: 12 * dpiScale;
+                    rightPadding: 12 * dpiScale;
+                    bottomPadding: 10 * dpiScale;
                 }
                 Hr { }
             }

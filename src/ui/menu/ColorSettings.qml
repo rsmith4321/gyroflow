@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import QtQuick
+import QtQuick.Dialogs as QQD
 import "../components/"
 
 MenuItem {
@@ -14,6 +15,48 @@ MenuItem {
     required property QtObject exportOptions;
     property bool syncing: true;
     property var recentLuts: [];
+    property string libraryFolder: settings.value("colorLutLibrary", settings.value("folder-export-lut", ""));
+    property var libraryLuts: [];
+    property var cameraLuts: ({});
+    property string pendingCameraId: "";
+    readonly property var cameraProfiles: [
+        { id: "dji-o4-dlogm", name: "DJI O4 / O4 Pro — D-Log M", url: "https://www.dji.com/downloads/softwares/o4-air-unit-dlog-to-rec709" },
+        { id: "dji-action4-dlogm", name: "DJI Osmo Action 4 — D-Log M", url: "https://www.dji.com/downloads/softwares/dji-osmo-action-4-d-log-m-to-rec-709-vivid-lut" },
+        { id: "dji-action5-dlogm", name: "DJI Osmo Action 5 Pro — D-Log M", url: "https://www.dji.com/lut" },
+        { id: "gopro-gplog", name: "GoPro — GP-Log (match gamut/version)", url: "https://community.gopro.com/s/article/10-Bit-Log-Encoding?language=en_US" },
+        { id: "insta-acepro2-ilog", name: "Insta360 Ace Pro 2 — I-Log", url: "https://www.insta360.com/download/i-log" }
+    ];
+    function refreshLibrary(): void {
+        libraryLuts = libraryFolder ? JSON.parse(filesystem.list_lut_files(libraryFolder)) : [];
+        updateLibrarySelection();
+    }
+    function updateLibrarySelection(): void {
+        librarySelector.currentIndex = libraryLuts.findIndex(entry => lutKey(entry[1]) === lutKey(exportOptions.lutUrl));
+    }
+    function loadCameraLuts(): void {
+        try {
+            const saved = JSON.parse(settings.value("cameraColorLuts", "{}"));
+            if (saved && typeof saved === "object" && !Array.isArray(saved)) {
+                const valid = {};
+                cameraProfiles.forEach(profile => {
+                    const url = saved[profile.id];
+                    if (typeof url === "string" && url.startsWith("file:") && /\.cube$/i.test(url)) valid[profile.id] = url;
+                });
+                cameraLuts = valid;
+            }
+        } catch (e) { cameraLuts = {}; }
+    }
+    function acceptLut(url: string): void {
+        root.chooseLut(url);
+        if (pendingCameraId && !exportOptions.lutPreviewError) {
+            const saved = Object.assign({}, cameraLuts);
+            saved[pendingCameraId] = url;
+            cameraLuts = saved;
+            settings.setValue("cameraColorLuts", JSON.stringify(saved));
+        }
+        pendingCameraId = "";
+    }
+
 
     function lutKey(url: string): string {
         return filesystem.url_to_path(url);
@@ -30,6 +73,7 @@ MenuItem {
     }
     function updateRecentSelection(): void {
         recentSelector.currentIndex = recentLuts.findIndex(url => lutKey(url) === lutKey(exportOptions.lutUrl));
+        updateLibrarySelection();
     }
     function rememberLut(): void {
         const url = exportOptions.lutUrl;
@@ -63,6 +107,8 @@ MenuItem {
     }
     Component.onCompleted: {
         loadRecentLuts();
+        loadCameraLuts();
+        refreshLibrary();
         syncSliders();
         rememberLut();
     }
@@ -87,7 +133,8 @@ MenuItem {
         title: qsTr("Choose a LUT");
         nameFilters: [qsTr("3D LUT files") + " (*.cube *.CUBE)"];
         type: "export-lut";
-        onAccepted: root.chooseLut(selectedFile.toString());
+        onAccepted: root.acceptLut(selectedFile.toString());
+        onRejected: root.pendingCameraId = "";
     }
     Label {
         text: qsTr("LUT");
@@ -95,7 +142,7 @@ MenuItem {
             spacing: 6 * dpiScale;
             Button {
                 text: qsTr("Choose LUT…");
-                onClicked: lutDialog.open2();
+                onClicked: { root.pendingCameraId = ""; lutDialog.open2(); }
             }
             Button {
                 text: qsTr("Clear");
@@ -118,6 +165,89 @@ MenuItem {
             displayText: currentIndex >= 0 ? currentText : qsTr("Choose a recent LUT…");
             tooltip: currentIndex >= 0 ? filesystem.url_to_path(root.recentLuts[currentIndex]) : "";
             onActivated: (index) => root.chooseLut(root.recentLuts[index]);
+        }
+    }
+    MenuItem {
+        text: qsTr("LUT library & camera presets");
+        objectName: "color-lut-library";
+        opened: false;
+        QQD.FolderDialog {
+            id: libraryDialog;
+            title: qsTr("Choose your LUT folder");
+            onAccepted: {
+                root.libraryFolder = selectedFolder.toString();
+                filesystem.folder_access_granted(selectedFolder);
+                filesystem.save_allowed_folders();
+                settings.setValue("colorLutLibrary", root.libraryFolder);
+                settings.setValue("folder-export-lut", root.libraryFolder);
+                root.refreshLibrary();
+            }
+        }
+        Label {
+            text: qsTr("LUT library");
+            ComboBox {
+                id: librarySelector;
+                width: parent.width;
+                model: root.libraryLuts.map(entry => entry[0]);
+                currentIndex: -1;
+                displayText: currentIndex >= 0 ? currentText : qsTr("Choose from your LUT folder…");
+                enabled: root.libraryLuts.length > 0;
+                onActivated: index => root.chooseLut(root.libraryLuts[index][1]);
+            }
+        }
+        Row {
+            spacing: 6 * dpiScale;
+            Button {
+                text: qsTr("Choose folder…");
+                onClicked: { if (root.libraryFolder) libraryDialog.currentFolder = root.libraryFolder; libraryDialog.open(); }
+            }
+            Button {
+                text: qsTr("Refresh");
+                enabled: !!root.libraryFolder;
+                onClicked: root.refreshLibrary();
+            }
+        }
+        BasicText {
+            width: parent.width;
+            text: root.libraryFolder ? filesystem.display_url(root.libraryFolder) : qsTr("Select a folder for your .cube LUTs.");
+            wrapMode: Text.Wrap;
+            font.pixelSize: 10 * dpiScale;
+            opacity: 0.7;
+        }
+        Label {
+            text: qsTr("Camera LUTs");
+            ComboBox {
+                id: cameraSelector;
+                width: parent.width;
+                model: root.cameraProfiles.map(profile => profile.name);
+                currentIndex: -1;
+                displayText: currentIndex >= 0 ? currentText : qsTr("Choose a camera/profile…");
+            }
+        }
+        Row {
+            spacing: 6 * dpiScale;
+            Button {
+                text: qsTr("Use LUT");
+                enabled: cameraSelector.currentIndex >= 0 && !!root.cameraLuts[root.cameraProfiles[cameraSelector.currentIndex].id];
+                onClicked: root.chooseLut(root.cameraLuts[root.cameraProfiles[cameraSelector.currentIndex].id]);
+            }
+            Button {
+                text: qsTr("Choose file…");
+                enabled: cameraSelector.currentIndex >= 0;
+                onClicked: { root.pendingCameraId = root.cameraProfiles[cameraSelector.currentIndex].id; lutDialog.open2(); }
+            }
+        }
+        LinkButton {
+            text: qsTr("Get the official camera LUT…");
+            visible: cameraSelector.currentIndex >= 0;
+            onClicked: Qt.openUrlExternally(root.cameraProfiles[cameraSelector.currentIndex].url);
+        }
+        BasicText {
+            width: parent.width;
+            wrapMode: Text.WordWrap;
+            font.pixelSize: 10 * dpiScale;
+            opacity: 0.7;
+            text: qsTr("Download the matching official LUT once, then choose its file to remember it for this profile. Camera LUTs are not bundled. Selection is manual; use only on the matching log recording, not an already converted clip.");
         }
     }
     InfoMessageSmall {

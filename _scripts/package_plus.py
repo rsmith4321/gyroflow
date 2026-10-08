@@ -103,8 +103,6 @@ def main():
     notices.mkdir(exist_ok=True)
     shutil.copy2(ROOT/'LICENSE',notices/'Gyroflow-GPL-3.0.txt')
     shutil.copy2(ROOT/'resources/color/OCIO-LICENSE.txt',notices/'OpenColorIO-BSD-3-Clause.txt')
-    shutil.copy2(ROOT/'resources/fonts/Allura-OFL.txt',notices/'Allura-OFL.txt')
-    shutil.copy2(ROOT/'resources/fonts/Allura-FONTLOG.txt',notices/'Allura-FONTLOG.txt')
     shutil.copy2(ROOT/'docs/PLUS-DISTRIBUTION.md',notices/'COMMUNITY-FORK.md')
     if args.licenses: shutil.copytree(args.licenses.resolve(strict=True),notices/'Dependencies')
     manifest=dict(name='Gyroflow Plus',community_fork=True,version=version,commit=commit,

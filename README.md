@@ -1,6 +1,6 @@
 ## Gyroflow Plus — community fork (working name)
 
-[Gyroflow Plus website](https://gyroflowplus.shootcal.com/)
+[Gyroflow Plus website](https://gyroflowplus.com/)
 
 This is Ryan Smith's community development fork of [Gyroflow](https://github.com/gyroflow/gyroflow).
 It keeps Gyroflow's existing stabilization workflow and adds user-selected `.cube`
@@ -8,7 +8,9 @@ LUT preview/export and eight basic grading controls: exposure, temperature,
 tint, brightness, contrast, highlights, shadows and saturation, plus supporting
 compatibility fixes. The controls are in a separate **Color settings** section.
 **Recent LUTs** remembers up to eight files across restarts, with the last-used
-LUT first. Source footage and embedded motion data are preserved.
+LUT first. A local LUT-folder dropdown and remembered camera/profile choices link
+to official DJI, GoPro and Insta360 downloads; manufacturer files are not bundled.
+See [LUT library usage](docs/LUT-LIBRARY.md). Source footage and embedded motion data are preserved.
 
 Gyroflow Plus brings together **Gyroflow stabilization and color tools based on
 [OpenColorIO](https://opencolorio.org/)** to help you finish drone videos in one
