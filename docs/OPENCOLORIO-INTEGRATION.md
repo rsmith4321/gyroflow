@@ -1,8 +1,10 @@
 # OpenColorIO basis and direct library integration
 
 Reviewed 2026-10-07. This describes the current implementation and a possible
-replacement. The default and installed renderer remain the accepted lightweight path;
+replacement. The Cargo default and public renderer remain the accepted lightweight path;
 an optional `ocio-runtime` development feature now exercises the official library.
+[Mac development acceptance](OCIO-MAC-ACCEPTANCE.md) records matched hardware
+timings and full-app preview/save/export checks.
 
 ## Current implementation
 
@@ -177,8 +179,9 @@ The tests caught a self-callback during QQuickItem base destruction; the adapter
 now disconnects it before member teardown. QML clears prior errors before new
 shader adoption so a synchronous shader failure remains visible.
 
-Matched end-to-end timings, full-app Mac paused-video/slider/save/queue acceptance,
-Windows execution and dependency packaging remain gates. Shader compilation,
+Matched end-to-end timings and full-app Mac paused-video/slider/save/export checks
+have passed on the development Mac; see [the acceptance report](OCIO-MAC-ACCEPTANCE.md).
+Windows execution and portable dependency packaging remain gates. Shader compilation,
 synthetic pixel acceptance or these CPU checks alone do not switch the default
 engine or establish a public portable release.
 
