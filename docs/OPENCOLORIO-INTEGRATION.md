@@ -229,6 +229,43 @@ the application Cargo build's effective flags, real-video preview/exports, or a
 portable DLL closure. Those checks remain pending, and the feature default and
 installed/public app are unchanged.
 
+### Supplied-LUT Windows follow-through
+
+A separately brokered run on 2026-10-08 reused the retained `26c5d828` fixture
+with the selected, transfer-verified cube. All **82 unique** float32 cases passed
+on actual **D3D11 / NVIDIA GeForce RTX 5070 Ti Laptop GPU**, including:
+
+| Case | Maximum absolute RGBA error |
+| --- | --- |
+| `o4_lut` | `5.960464477539063e-8` |
+| `o4_lut_grade` | `1.7881393432617188e-7` |
+| Entire suite | `2.384185791015625e-7` |
+
+The existing strict `<1e-5` limit, finite checks and cache/recreation/ownership/error
+checks were unchanged. The fixture compares every RGBA component but its original
+inputs have alpha one; this adds no non-unit-alpha guarantee. One fixture process
+ran, exited zero naturally in **13.672 seconds**, and its owned job had zero active
+processes afterward. The protected stage, dependency prefix, prior evidence,
+settings and retained Easy Eject preview remained unchanged.
+
+Evidence is under
+`C:\Users\rsmit\Documents\Codex\2026-10-08\gyroflow-plus-windows-validation\outputs\native-lut-run-20261008T230213`.
+The result SHA256 is
+`a82321b1742c4dc0c152f1e4635739dac289c39b772368cd235685b7977eb5e6`;
+fixture executable SHA256 is
+`7931907492847dbcc41e67cbec8aeed41345331370ac6dfea360cc2eb4855c4a`.
+The supplied 33³ cube SHA256 is
+`b18162854ab47702068410c33afa98a8cb6eef159fc5a04ce0e65fad0fd8947e`.
+Its O4 filename and transfer identity identify the selected test input; its internal
+Mavic 3 Pro D-Log M comment does not independently establish manufacturer provenance.
+
+The five production color/adapter files are unchanged Git blobs from `26c5d828`
+through `956d357b` (Windows archive bytes use CRLF). The current test source also
+has the separately tested exception branch, which this retained fixture predates.
+This run proves the standalone adapter and selected LUT comparison; it does not
+prove a current-head application build, native MDK video preview/export parity,
+encoded-video identity, clean-machine portability or a public runtime switch.
+
 Reviewed source `e4db0995` adds the bounded shader-compilation exception recovery
 case described in [the preview fixture](../tests/ocio-preview/README.md). The
 case passed separately on the Mac with pinned Qt **6.7.3** and OCIO **2.4.2**:
