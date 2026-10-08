@@ -145,6 +145,33 @@ Private reproducibility, archive hashes, notices and corrected inventory are
 retained under `_dev/ocio-runtime/portable-qt/`. This is current-host preview
 compatibility and a dependency candidate, not old-OS execution or a portable app.
 
+### Inherited FFmpeg archive
+
+The inherited FFmpeg 9 static recipe was acquired and audited separately. Two
+vendor transfers match SHA-256
+`9e79bc612d38f844faf725dbe4576f8aa2dd715ec57d3654dbadcc9b860645b9`
+(20,099,916 bytes). It is not accepted for a macOS 11 app candidate:
+
+- Some arm64 x264/x265 assembly objects record a **macOS 14.0** minimum, although
+  FFmpeg core objects record 11.0.
+- A real consumer link using the recipe's nine static libraries fails with
+  **34 unresolved FreeType/HarfBuzz symbols**; those libraries are absent.
+- The bundled GPL notice is empty. Exact vendor patches/build commit and
+  corresponding dependency source remain unverified.
+
+The header's `ad500d5-avbuild` identity resolves to official FFmpeg baseline
+`ad500d59cb6e0126add4fcb95afb4e2557c4292c`; its source and notices are preserved.
+That identifies a baseline, not complete corresponding vendor-patched source.
+Shared-library metadata queries succeed on the current Mac and report the
+expected codecs and VideoToolbox encoder registration. They do not resolve the
+static blockers or prove hardware encoding, older-OS or full-app execution.
+
+No codec or filter was removed and no installed app was replaced. Private
+hashes, object metadata, link failure and provenance receipts remain under
+`_dev/ocio-runtime/portable-ffmpeg/`. A separate reproducible source build must
+retain the required capabilities, verify its entire static closure and OS floor,
+and preserve matching source and notices before app staging.
+
 ### Full application
 
 Use this prefix only for a separately staged candidate and preserve the `.2.4`
