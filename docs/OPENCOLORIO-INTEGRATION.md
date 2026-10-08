@@ -194,3 +194,9 @@ macOS 26 minimum and QtShaderTools has a macOS 27 minimum, despite OCIO's macOS
 copying those Homebrew dependencies into a bundle does not establish support for
 older systems. Use a matching Qt distribution and an explicit common deployment
 target; audit each Mach-O slice, resolved dependency and runtime search path.
+
+A separately built [private OCIO dependency candidate](OCIO-DEPENDENCY-ACCEPTANCE.md)
+now removes the Homebrew Imath dependency and passes the production CPU and Metal
+fixtures. Its compiled arm64 deployment metadata is macOS 11.0. This resolves
+the OCIO dependency check; it does not yet establish a portable app or execution
+on the declared minimum OS.
