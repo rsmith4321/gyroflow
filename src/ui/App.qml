@@ -672,7 +672,7 @@ Rectangle {
             Qt.callLater(controller.recompute_threaded);
         }
         function openUpdatePage(): void {
-            Qt.openUrlExternally("https://github.com/rsmith4321/gyroflow/releases");
+            Qt.openUrlExternally("https://github.com/rsmith4321/gyroflow-plus/releases");
         }
         function onUpdates_available(version: string, changelog: string): void {
             const heading = "<p align=\"center\">" + qsTr("There's a newer version available: %1.").arg("<b>" + version + "</b>") + "</p>\n\n";

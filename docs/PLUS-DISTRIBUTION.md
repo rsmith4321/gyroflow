@@ -15,7 +15,7 @@ BSD 3-clause copyright/license; see `resources/color/OCIO-LICENSE.txt`.
 | Mac bundle | `com.ryansmith.gyroflow-plus`, `Gyroflow Plus.app` |
 | Windows portable executable | `GyroflowPlus.exe`, separate directory |
 | Settings | `Gyroflow Plus` user-data directory; Qt organization Ryan Smith |
-| Update API/download | `rsmith4321/gyroflow`, stable `plus-v<semver>` tags only |
+| Update API/download | `rsmith4321/gyroflow-plus`, stable `plus-v<semver>` tags only |
 | Project format | Compatible `.gyroflow`, no default-handler takeover |
 
 Official settings and the earlier LUT Preview settings are not automatically

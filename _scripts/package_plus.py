@@ -272,7 +272,7 @@ def main():
     manifest=dict(name='Gyroflow Plus',community_fork=True,version=version,commit=commit,
         dirty_source=dirty,development_runtime=args.development_runtime,
         input_binary_sha256=hashlib.sha256(binary.read_bytes()).hexdigest(),
-        source=f'https://github.com/rsmith4321/gyroflow/tree/{commit}',external_mac_dependencies=external,
+        source=f'https://github.com/rsmith4321/gyroflow-plus/tree/{commit}',external_mac_dependencies=external,
         public_release_approved=False)
     if mac_audit is not None: manifest['mac_runtime_audit'] = mac_audit
     (notices/'BUILD.json').write_text(json.dumps(manifest,indent=2)+'\n')
