@@ -200,8 +200,9 @@ first frame:
 All captured float values are finite. Restored P010 comparisons use the ten
 significant bits; their six unused low bits are zero. Input P010 low bits are
 often nonzero, and the exact-byte input comparison includes them. The small
-restored differences are nearly evenly split in sign. This first-frame result
-does not reproduce the much larger decoded hardware-export differences above.
+restored differences are nearly evenly split in sign. Capturing these inputs
+alone does not explain the larger decoded hardware-export differences; the
+controlled sensitivity test below supplies first-frame reproduction.
 
 The new GUI/CLI and short software-lossless results do not lift the original
 hardware-output hold. No production algorithm or conversion workaround is
@@ -239,13 +240,45 @@ It does not establish general encoder determinism or reproduce the original
 VT context; the historical app's upload/context branch was not recorded.
 The old dependencies themselves record macOS 26 even though the consumers
 record macOS 11, so this is not older-OS acceptance. The remaining concrete
-questions are sensitivity to the measured small input changes, temporal
-encoding and the actual full-frame sequence/process context. The original
-hardware-output hold remains.
+questions at this point are sensitivity to the measured small input changes,
+temporal encoding and the actual full-frame sequence/process context.
+
+## Measured-input sensitivity and original first-frame reproduction
+
+Four further standalone sessions use one fixed previous-family encoder binary:
+the captured old LUT fixture, new LUT fixture, then one repeat of each. Only
+fixture selection changes. The recorded encoder contexts and hardware-option
+readbacks match; actual API providers resolve to the same pinned libraries in
+all four sessions. Each session submits one frame and drains one packet.
+
+Independent comparison of the complete input confirms exactly 59 of 12,441,600
+P010 samples differ by one ten-bit code value. Within each fixture, the two
+decoded outputs are exact. Across fixtures, 5,883,985 decoded samples differ,
+with mean absolute error 0.9785809702932099, root mean square error
+1.8773769013458086 and maximum 41 codes. Every first-frame plane's differing
+count, absolute-error sum and maximum exactly match the retained original
+b9-versus-candidate LUT comparison.
+
+Independent MP4 sample-table and HEVC NAL parsing also checks the original
+exports themselves. Their full-file hashes match the retained receipts; both
+first samples are sync pictures at presentation/decode time zero. The original
+old first coded-picture payload equals both old-fixture outputs byte for byte;
+the original new first coded-picture payload equals both new-fixture outputs.
+All six decoder configurations are exact. Corresponding whole samples differ
+only in prefix SEI bytes whose semantics were not parsed.
+
+This establishes that the measured 59 one-code input changes are sufficient
+to reproduce the original first LUT coded-picture difference using the same
+encoder. It supplies a concrete first-frame explanation without changing
+production color algorithms or converting tiny float differences into an
+encoder-implementation fault. It does not establish the cause across all 242
+frames, temporal rate-control behavior or the historical app upload branch.
+The full-sequence hardware-output hold remains open. All source, fixture,
+tool, library and settings preservation checks pass.
 
 ## Remaining acceptance
 
-Color-output explanation, matched candidate timing, current Windows native
+Full-sequence color-output acceptance, matched candidate timing, current Windows native
 preview/export, complete notices/provenance, clean-machine installation,
 older-OS execution and public signing/notarization remain open. The private
 bundle must not be offered as a release download on this evidence.
