@@ -279,8 +279,12 @@ log in `OcioE4ExceptionExport-20261008` reports **29 passed / 0 failed**.
 
 The required loaded DLL subset matches the private stage for all three exports.
 An **81-image** exact-set/current-hash check belongs to a separate hidden dependency
-probe; it does not establish full-app closure. Both application compiler command
-records include `/EHsc`; exact exception-flag token validation remains separate.
+probe; it does not establish full-app closure. Independent parsing of the complete
+quoted compiler commands for the OCIO bridge and generated Qt preview C++ found
+exactly one `/EHsc` argument in each, no conflicting exception option and no
+response-file argument. Their command hashes match the retained build records.
+Compiler environment variables such as `CL` and `_CL_` were not captured; this
+establishes the recorded argument lists, not environment-wide effective flags.
 The actual logged settings path is
 `AppData/Local/Ryan Smith/Gyroflow Plus/settings.json`. No before baseline was
 captured for that namespace, so preservation remains unverified. The Windows-owned
@@ -288,3 +292,13 @@ saved-read receipt is `Windows-OCIO-final-read-handoff-20261008.json`, SHA-256
 `d7493e21bd3d667cae4489ac51add2b6a198e61205b1e5a407bc820196641da2`.
 Native preview/control acceptance, numerical color agreement, full-app DLL closure
 and the original old/new decoded-output hold remain open.
+
+The subsequent native pass has its own prospective baseline: the actual Plus
+settings file was absent before launch at **2026-10-08T16:31:29.3140902Z**. The
+full **2,165,305,347-byte** DJI flight, chosen DJI LUT and authored Mac project
+were copied directly over the existing authenticated file share, then copied
+locally on Windows and independently hash-verified. A separate Windows-derived
+project adapts paths and clears the Mac-only `-allow_sw 0` encoder option; the
+authored project and source media stay unchanged. Final native results and
+settings restoration remain pending. This baseline does not retroactively
+establish preservation during the earlier CLI tests.
