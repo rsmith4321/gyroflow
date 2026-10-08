@@ -35,7 +35,7 @@ fn main() {
     let project_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
     let pin_path = project_dir.join("lens_profiles.pin");
     let destination = project_dir.join("../../resources/camera_presets/profiles.cbor.gz");
-    for path in [project_dir.join("build.rs"), project_dir.join("lens_db_input.rs"), pin_path.clone(), destination.clone()] {
+    for path in [project_dir.join("build.rs"), project_dir.join("lens_db_input.rs"), pin_path.clone()] {
         println!("cargo:rerun-if-changed={}", path.display());
     }
 
@@ -53,7 +53,14 @@ fn main() {
         offline: truthy("GYROFLOW_BUILD_OFFLINE") || truthy("CARGO_NET_OFFLINE"),
         latest_url: LATEST_URL,
     };
-    match lens_db_input::resolve(&request, &mut fetch) {
+    let resolved = lens_db_input::resolve(&request, &mut fetch);
+    // Watch the database only once it exists: Cargo treats a missing rerun-if-changed
+    // path as always stale, which would rerun this script (and retry the fetch) and
+    // rebuild this crate on every build while the database is unavailable.
+    if destination.is_file() {
+        println!("cargo:rerun-if-changed={}", destination.display());
+    }
+    match resolved {
         Ok(Outcome::Unavailable { reason }) => {
             let target_os = env::var("CARGO_CFG_TARGET_OS").unwrap_or_default();
             if matches!(target_os.as_str(), "android" | "ios") || env::var_os("CARGO_FEATURE_BUNDLE_LENS_PROFILES").is_some() {
