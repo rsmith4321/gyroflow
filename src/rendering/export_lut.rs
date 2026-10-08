@@ -2,18 +2,28 @@
 
 //! Export LUT and neutral-by-default brightness/contrast, after stabilization.
 use ffmpeg_next::{Error, ffi, filter, format::Pixel, frame::Video};
+#[cfg(not(feature = "ocio-runtime"))]
 use rayon::prelude::*;
+#[cfg(not(feature = "ocio-runtime"))]
+use std::ffi::CString;
 use std::{
-    ffi::{CStr, CString},
+    ffi::CStr,
     io::Write,
 };
 
 pub struct ExportLut {
-    file: Option<tempfile::NamedTempFile>,
+    // Retain the canonical snapshot for processor/filter lifetime.
+    _file: Option<tempfile::NamedTempFile>,
+    #[cfg(not(feature = "ocio-runtime"))]
     brightness: f64,
+    #[cfg(not(feature = "ocio-runtime"))]
     contrast: f64,
+    #[cfg(not(feature = "ocio-runtime"))]
     tone: Option<super::tone_curve::ToneCurve>,
+    #[cfg(not(feature = "ocio-runtime"))]
     grade: super::basic_grade::BasicGrade,
+    #[cfg(feature = "ocio-runtime")]
+    ocio: super::ocio_runtime::OcioProcessor,
     graph: Option<filter::Graph>,
     output_graph: Option<filter::Graph>,
     input: Option<(Pixel, u32, u32, i32, i32, i32, i32)>,
@@ -65,7 +75,9 @@ impl ExportLut {
         highlights: f64,
         settings: super::basic_grade::BasicGradeSettings,
     ) -> Result<Self, String> {
+        #[cfg(not(feature = "ocio-runtime"))]
         let grade = super::basic_grade::BasicGrade::new(settings)?;
+        #[cfg(not(feature = "ocio-runtime"))]
         let tone = super::tone_curve::ToneCurve::new(shadows, highlights)?;
         if !brightness.is_finite()
             || !contrast.is_finite()
@@ -87,12 +99,23 @@ impl ExportLut {
         } else {
             None
         };
+        #[cfg(feature = "ocio-runtime")]
+        let ocio = super::ocio_runtime::OcioProcessor::with_lut(super::ocio_runtime::Settings {
+            brightness, contrast, shadows, highlights, exposure: settings.exposure,
+            saturation: settings.saturation, warmth: settings.warmth, tint: settings.tint,
+        },file.as_ref().map(|f|f.path()))?;
         Ok(Self {
-            file,
+            _file: file,
+            #[cfg(not(feature = "ocio-runtime"))]
             brightness,
+            #[cfg(not(feature = "ocio-runtime"))]
             contrast,
+            #[cfg(not(feature = "ocio-runtime"))]
             tone,
+            #[cfg(not(feature = "ocio-runtime"))]
             grade,
+            #[cfg(feature = "ocio-runtime")]
+            ocio,
             graph: None,
             output_graph: None,
             input: None,
@@ -138,7 +161,8 @@ impl ExportLut {
             .map_err(|e| e.to_string())?;
 
         let mut last = rgb;
-        if let Some(file) = self.file.as_ref().filter(|_| apply_lut) {
+        #[cfg(not(feature = "ocio-runtime"))]
+        if let Some(file) = self._file.as_ref().filter(|_| apply_lut) {
             // Pass the private filename through the option API, never a user expression.
             let lut_filter = filter::find("lut3d")
                 .ok_or("This FFmpeg build does not include the lut3d filter")?;
@@ -259,6 +283,9 @@ impl ExportLut {
                 frame.aspect_ratio().denominator(),
             )
         };
+        #[cfg(feature = "ocio-runtime")]
+        let needs_adjustment = self.ocio.is_active();
+        #[cfg(not(feature = "ocio-runtime"))]
         let needs_adjustment = self.brightness != 0.0
             || self.contrast != 0.0
             || self.tone.is_some()
@@ -302,6 +329,12 @@ impl ExportLut {
         Ok(output)
     }
 
+    #[cfg(feature = "ocio-runtime")]
+    fn adjust_rgb(&self, frame: &mut Video) -> Result<(), String> {
+        self.ocio.apply_frame(frame)
+    }
+
+    #[cfg(not(feature = "ocio-runtime"))]
     fn adjust_rgb(&self, frame: &mut Video) -> Result<(), String> {
         if !matches!(frame.format(), Pixel::GBRPF32LE | Pixel::GBRAPF32LE) {
             return Err("Color adjustments require planar float RGB".into());
@@ -341,6 +374,7 @@ impl ExportLut {
         Ok(())
     }
 
+    #[cfg(not(feature = "ocio-runtime"))]
     fn saturate_rgb(&self, frame: &mut Video) -> Result<(), String> {
         let width = frame.width() as usize;
         let height = frame.height() as usize;

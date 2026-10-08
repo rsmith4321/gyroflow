@@ -21,7 +21,7 @@ mod resources;
 #[cfg(not(compiled_qml))]
 mod resources_qml;
 pub mod ui { pub mod ui_tools; pub mod components { pub mod TimelineGyroChart; pub mod TimelineKeyframesView; pub mod FrequencyGraph; pub mod Settings; } }
-pub mod qt_gpu { pub mod qrhi_undistort; }
+pub mod qt_gpu { pub mod qrhi_undistort; #[cfg(feature = "ocio-runtime")] pub mod ocio_preview; }
 
 use ui::components::TimelineGyroChart::TimelineGyroChart;
 use ui::components::TimelineKeyframesView::TimelineKeyframesView;

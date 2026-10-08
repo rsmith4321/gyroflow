@@ -646,11 +646,14 @@ Item {
                     property bool loaded: false;
 
                     layer.enabled: loaded && window.exportSettings && window.exportSettings.previewColors
-                        && !window.exportSettings.lutPreviewError && !window.exportSettings.tonePreviewError && !window.exportSettings.gradePreviewError && (window.exportSettings.lutPreviewSize >= 2
-                            || window.exportSettings.brightness !== 0 || window.exportSettings.contrast !== 0
-                            || !!window.exportSettings.tonePreviewSource || window.exportSettings.gradePreviewParameters.active);
+                        && !window.exportSettings.lutPreviewError && !window.exportSettings.tonePreviewError && !window.exportSettings.gradePreviewError && !window.exportSettings.ocioPreviewError
+                        && (!window.exportSettings.ocioRuntimeEnabled || !!window.exportSettings.ocioPreviewShader)
+                        && (window.exportSettings.ocioRuntimeEnabled ? window.exportSettings.ocioPreviewActive
+                            : window.exportSettings.lutPreviewSize >= 2 || window.exportSettings.brightness !== 0 || window.exportSettings.contrast !== 0
+                                || !!window.exportSettings.tonePreviewSource || window.exportSettings.gradePreviewParameters.active);
                     layer.effect: ShaderEffect {
                         property var source;
+                        property var ocioLutTexture: window.exportSettings ? window.exportSettings.ocioPreviewTexture : null;
                         property real brightness: window.exportSettings ? window.exportSettings.brightness / 100 : 0;
                         property real contrast: window.exportSettings ? window.exportSettings.contrast / 100 : 0;
                         property real gradeRed: window.exportSettings ? window.exportSettings.gradePreviewParameters.gains[0] : 1;
@@ -670,7 +673,13 @@ Item {
                             mipmap: false;
                             cache: false;
                         }
-                        fragmentShader: "qrc:/src/qt_gpu/compiled/color_preview.frag.qsb";
+                        fragmentShader: window.exportSettings && window.exportSettings.ocioRuntimeEnabled
+                            ? window.exportSettings.ocioPreviewShader : "qrc:/src/qt_gpu/compiled/color_preview.frag.qsb";
+                        onStatusChanged: {
+                            if (status === ShaderEffect.Error && window.exportSettings && window.exportSettings.ocioRuntimeEnabled) {
+                                window.exportSettings.ocioPreviewError = qsTr("OCIO color preview could not be rendered. %1").arg(log);
+                            }
+                        }
                     }
                     property bool stabEnabled: stabEnabledBtn.checked;
                     transform: [

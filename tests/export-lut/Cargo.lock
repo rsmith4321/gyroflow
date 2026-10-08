@@ -177,6 +177,7 @@ name = "gyroflow-export-lut-tests"
 version = "0.1.0"
 dependencies = [
  "bytemuck",
+ "cc",
  "ffmpeg-next",
  "rayon",
  "tempfile",

@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #[path = "../../../src/rendering/basic_grade.rs"]
 pub mod basic_grade;
+#[cfg(feature = "ocio-runtime")]
+#[path = "../../../src/rendering/ocio_runtime.rs"]
+pub mod ocio_runtime;
 #[path = "../../../src/rendering/cube_lut.rs"]
 pub mod cube_lut;
 #[path = "../../../src/rendering/export_lut.rs"]
@@ -377,17 +380,29 @@ mod tests {
                 _ => panic!("Unexpected fixture format"),
             };
             for y in 0..a.plane_height(p) as usize {
-                assert_eq!(
-                    &a.data(p)[y * a.stride(p)..][..row_bytes],
-                    &b.data(p)[y * b.stride(p)..][..row_bytes],
-                    "plane {p}, row {y}"
-                );
+                let left = &a.data(p)[y * a.stride(p)..][..row_bytes];
+                let right = &b.data(p)[y * b.stride(p)..][..row_bytes];
+                if cfg!(feature = "ocio-runtime") && p < 3
+                    && matches!(a.format(), Pixel::GBRPF32LE | Pixel::GBRAPF32LE)
+                {
+                    // OCIO applies a float32 matrix; the legacy geq reference
+                    // evaluates the same affine operation in float64. Bound
+                    // their measured rounding difference, retaining exact alpha
+                    // and integer-format comparisons.
+                    for (l, r) in left.chunks_exact(4).zip(right.chunks_exact(4)) {
+                        let l = f32::from_le_bytes(l.try_into().unwrap());
+                        let r = f32::from_le_bytes(r.try_into().unwrap());
+                        assert!((l-r).abs() <= 2e-7, "plane {p}, row {y}: {l} != {r}");
+                    }
+                } else {
+                    assert_eq!(left, right, "plane {p}, row {y}");
+                }
             }
         }
     }
 
     #[test]
-    fn native_adjustments_match_geq_bits_and_do_not_mutate_shared_odd_width_frames() {
+    fn native_adjustments_match_geq_precision_and_do_not_mutate_shared_odd_width_frames() {
         let mut frame = floats(Pixel::GBRAPF32LE, 17, 5);
         for p in 0..4 {
             let stride = frame.stride(p);
@@ -601,6 +616,442 @@ mod tests {
                 }
             }
             assert_eq!(output.pts(), frame.pts());
+        }
+    }
+
+
+    #[cfg(feature = "ocio-runtime")]
+    fn nonlinear_cube() -> Vec<u8> {
+        let mut text = String::from("TITLE \"Nonlinear transition test\"\nLUT_3D_SIZE 3\n");
+        for b in 0..3 {
+            for g in 0..3 {
+                for r in 0..3 {
+                    let [r, g, b] = [r as f32 * 0.5, g as f32 * 0.5, b as f32 * 0.5];
+                    text.push_str(&format!("{} {} {}\n",
+                        0.8 * r * r + 0.1 * g + 0.05,
+                        0.7 * g * g + 0.2 * b + 0.04,
+                        0.75 * b * b + 0.15 * r + 0.03));
+                }
+            }
+        }
+        text.into_bytes()
+    }
+
+    // Independent FFmpeg reference: one graph, explicit source/destination YUV
+    // conversion, official tetrahedral lut3d, then the former float64 geq grade.
+    // The file option is set through FFmpeg's API, avoiding path expression escaping.
+    #[cfg(feature = "ocio-runtime")]
+    fn lut_geq_yuv_reference(frame: &Video, cube: &[u8], brightness: f64, contrast: f64) -> Video {
+        use ffmpeg_next::{ffi, filter};
+        use std::{ffi::{CStr, CString}, io::Write};
+        let mut file = tempfile::Builder::new().suffix(".cube").tempfile().unwrap();
+        file.write_all(cube).unwrap();
+        file.flush().unwrap();
+        let mut graph = filter::Graph::new();
+        let pixel: ffi::AVPixelFormat = frame.format().into();
+        let aspect = frame.aspect_ratio();
+        let matrix = frame.color_space() as i32;
+        let range = frame.color_range() as i32;
+        graph.add(&filter::find("buffer").unwrap(), "in", &format!(
+            "video_size={}x{}:pix_fmt={}:time_base=1/1000000:pixel_aspect={}/{}:colorspace={matrix}:range={range}",
+            frame.width(), frame.height(), pixel as i32, aspect.numerator(), aspect.denominator()
+        )).unwrap();
+        graph.add(&filter::find("buffersink").unwrap(), "out", "").unwrap();
+        let lut_filter = filter::find("lut3d").unwrap();
+        let path = CString::new(file.path().to_str().unwrap()).unwrap();
+        unsafe {
+            let lut = ffi::avfilter_graph_alloc_filter(graph.as_mut_ptr(), lut_filter.as_ptr(), c"lut".as_ptr());
+            assert!(!lut.is_null());
+            assert_eq!(ffi::av_opt_set(lut.cast(), c"file".as_ptr(), path.as_ptr(), ffi::AV_OPT_SEARCH_CHILDREN), 0);
+            assert_eq!(ffi::av_opt_set_int(lut.cast(), c"interp".as_ptr(), 2, ffi::AV_OPT_SEARCH_CHILDREN), 0);
+            assert_eq!(ffi::avfilter_init_str(lut, std::ptr::null()), 0);
+        }
+        graph.output("in", 0).unwrap().input("lut", 0).unwrap().parse(&format!(
+            "[in]scale=in_color_matrix={matrix}:in_range={range}:out_range=full,format=gbrpf32le[lut]"
+        )).unwrap();
+        let channels = ['r', 'g', 'b'].map(|c| format!(
+            "{c}='clip(({c}(X,Y)-0.5)*{}+{},0,1)'", 1.0 + contrast, 0.5 + brightness
+        )).join(":");
+        let pixel_name = unsafe { CStr::from_ptr(ffi::av_get_pix_fmt_name(pixel)) }.to_str().unwrap();
+        graph.output("lut", 0).unwrap().input("out", 0).unwrap().parse(&format!(
+            "[lut]geq={channels}:interpolation=nearest,scale=out_color_matrix={matrix}:out_range={range},format={pixel_name}[out]"
+        )).unwrap();
+        graph.validate().unwrap();
+        assert_eq!(unsafe {
+            ffi::av_buffersrc_add_frame_flags(graph.get("in").unwrap().as_mut_ptr(),
+                frame.as_ptr().cast_mut(), ffi::AV_BUFFERSRC_FLAG_KEEP_REF as i32)
+        }, 0);
+        let mut output = Video::empty();
+        graph.get("out").unwrap().sink().frame(&mut output).unwrap();
+        output
+    }
+
+    #[cfg(feature = "ocio-runtime")]
+    #[test]
+    fn ocio_lut_grade_preserves_yuv_depth_matrix_range_and_size_transitions() {
+        use ffmpeg_next::color::{Range, Space};
+        let cube = nonlinear_cube();
+        let mut filter = ExportLut::with_adjustments(Some(&cube), 0.07, -0.11).unwrap();
+        let mut worst = 0u16;
+        let cases = [
+            (Pixel::YUV420P, 18, 10, Space::BT709, Range::MPEG),
+            (Pixel::YUV420P10LE, 34, 18, Space::BT2020NCL, Range::JPEG),
+            (Pixel::YUV420P, 34, 18, Space::BT709, Range::JPEG),
+            (Pixel::YUV420P10LE, 20, 14, Space::BT709, Range::MPEG),
+            (Pixel::YUV420P10LE, 18, 10, Space::BT2020NCL, Range::MPEG),
+            (Pixel::YUV420P10LE, 34, 18, Space::BT709, Range::JPEG),
+            (Pixel::YUV420P, 18, 10, Space::BT709, Range::MPEG),
+        ];
+        for _ in 0..2 {
+            for (pixel, width, height, space, range) in cases {
+                let ten_bit = pixel == Pixel::YUV420P10LE;
+                let mut frame = Video::new(pixel, width, height);
+                frame.set_pts(Some(987654));
+                frame.set_color_space(space);
+                frame.set_color_range(range);
+                unsafe { (*frame.as_mut_ptr()).sample_aspect_ratio = ffmpeg_next::ffi::AVRational {num: 4, den: 3}; }
+                for p in 0..3 {
+                    frame.data_mut(p).fill(0xa5);
+                    let (low, high) = if range == Range::JPEG {
+                        (0, if ten_bit {1023} else {255})
+                    } else if p == 0 {
+                        if ten_bit {(64, 940)} else {(16, 235)}
+                    } else if ten_bit {(64, 960)} else {(16, 240)};
+                    let bytes = if ten_bit {2} else {1};
+                    for y in 0..frame.plane_height(p) as usize {
+                        for x in 0..frame.plane_width(p) as usize {
+                            let value = (low + (x * 37 + y * 23 + p * 71) % (high - low + 1)) as u16;
+                            let offset = y * frame.stride(p) + x * bytes;
+                            if ten_bit { frame.data_mut(p)[offset..][..2].copy_from_slice(&value.to_le_bytes()); }
+                            else { frame.data_mut(p)[offset] = value as u8; }
+                        }
+                    }
+                }
+                let saved: Vec<_> = (0..3).map(|p| frame.data(p).to_vec()).collect();
+                let expected = lut_geq_yuv_reference(&frame, &cube, 0.07, -0.11);
+                let output = filter.apply(&frame).unwrap();
+                assert_eq!((output.format(), output.width(), output.height(), output.pts(),
+                    output.color_space(), output.color_range(), output.aspect_ratio()),
+                    (pixel, width, height, frame.pts(), space, range, frame.aspect_ratio()));
+                for p in 0..3 {
+                    assert_eq!(frame.data(p), saved[p], "source plane {p}");
+                    for y in 0..frame.plane_height(p) as usize {
+                        for x in 0..frame.plane_width(p) as usize {
+                            let sample = |image: &Video| -> u16 {
+                                let offset = y * image.stride(p) + x * if ten_bit {2} else {1};
+                                if ten_bit {u16::from_le_bytes(image.data(p)[offset..][..2].try_into().unwrap())}
+                                else {image.data(p)[offset] as u16}
+                            };
+                            let delta = sample(&output).abs_diff(sample(&expected));
+                            worst = worst.max(delta);
+                            assert!(delta <= 1, "{pixel:?} {space:?} {range:?} {width}x{height}, plane {p}, {x},{y}: difference {delta} codes");
+                        }
+                    }
+                }
+            }
+        }
+        eprintln!("Combined nonlinear LUT + B/C YUV transitions: worst difference {worst} code(s)");
+    }
+
+    #[cfg(feature = "ocio-runtime")]
+    mod ocio_layout {
+        use super::floats;
+        use crate::ocio_runtime::{OcioProcessor, Settings};
+        use ffmpeg_next::{ffi, format::Pixel, frame::Video};
+        use std::{ptr, sync::Arc};
+
+        fn settings() -> Settings {
+            Settings {
+                brightness: 0.07,
+                contrast: -0.11,
+                shadows: 0.23,
+                highlights: -0.28,
+                exposure: 0.4,
+                saturation: 0.15,
+                warmth: 0.2,
+                tint: -0.3,
+            }
+        }
+
+        fn fill(frame: &mut Video) {
+            let width = frame.width() as usize;
+            let height = frame.height() as usize;
+            for p in 0..frame.planes() {
+                let stride = frame.stride(p);
+                frame.data_mut(p).fill(0xa5);
+                for y in 0..height {
+                    for x in 0..width {
+                        let value = ((x * 7 + y * 11 + p * 13) % 89 + 5) as f32 / 100.0;
+                        frame.data_mut(p)[y * stride + x * 4..][..4]
+                            .copy_from_slice(&value.to_le_bytes());
+                    }
+                }
+            }
+        }
+
+        fn active_bytes(frame: &Video) -> Vec<Vec<u8>> {
+            let row_bytes = frame.width() as usize * 4;
+            (0..frame.planes()).map(|p| {
+                (0..frame.height() as usize).flat_map(|y| {
+                    frame.data(p)[y * frame.stride(p)..][..row_bytes].iter().copied()
+                }).collect()
+            }).collect()
+        }
+
+        // Restore all fields before AVFrame is dropped, even if a test panics.
+        // Never use ffmpeg-next slice helpers while the raw layout is malformed.
+        struct RestoreLayout {
+            frame: *mut ffi::AVFrame,
+            data: [*mut u8; 8],
+            linesize: [i32; 8],
+            buffers: [*mut ffi::AVBufferRef; 8],
+            buffer_sizes: [usize; 8],
+            width: i32,
+            height: i32,
+        }
+        impl RestoreLayout {
+            unsafe fn new(frame: *mut ffi::AVFrame) -> Self {
+                let raw = unsafe { &*frame };
+                Self {
+                    frame, data: raw.data, linesize: raw.linesize, buffers: raw.buf,
+                    buffer_sizes: std::array::from_fn(|p| {
+                        if raw.buf[p].is_null() { 0 } else { unsafe { (*raw.buf[p]).size } }
+                    }),
+                    width: raw.width, height: raw.height,
+                }
+            }
+        }
+        impl Drop for RestoreLayout {
+            fn drop(&mut self) {
+                unsafe {
+                    let raw = &mut *self.frame;
+                    raw.data = self.data;
+                    raw.linesize = self.linesize;
+                    raw.buf = self.buffers;
+                    raw.width = self.width;
+                    raw.height = self.height;
+                    for p in 0..8 {
+                        if !self.buffers[p].is_null() {
+                            (*self.buffers[p]).size = self.buffer_sizes[p];
+                        }
+                    }
+                }
+            }
+        }
+
+        #[test]
+        fn ocio_rejects_malformed_owned_plane_layouts_before_touching_pixels() {
+            let processor = OcioProcessor::new(settings()).unwrap();
+            for case in [
+                "negative stride", "zero stride", "unaligned stride", "short stride",
+                "null data", "unaligned data", "unbacked data", "short owner",
+                "span past owner", "RGB overlap", "alpha aliases RGB",
+                "negative width", "empty height",
+            ] {
+                let mut frame = floats(Pixel::GBRAPF32LE, 17, 5);
+                fill(&mut frame);
+                let saved: Vec<_> = (0..4).map(|p| frame.data(p).to_vec()).collect();
+                let result = unsafe {
+                    let raw = frame.as_mut_ptr();
+                    let guard = RestoreLayout::new(raw);
+                    match case {
+                        "negative stride" => (*raw).linesize[0] = -(*raw).linesize[0],
+                        "zero stride" => (*raw).linesize[0] = 0,
+                        "unaligned stride" => (*raw).linesize[0] += 1,
+                        "short stride" => (*raw).linesize[0] = 16 * 4,
+                        "null data" => (*raw).data[0] = ptr::null_mut(),
+                        "unaligned data" => (*raw).data[0] = (*raw).data[0].add(1),
+                        "unbacked data" => (*raw).buf = [ptr::null_mut(); 8],
+                        "short owner" => {
+                            let owner = ffi::av_frame_get_plane_buffer(raw, 0);
+                            assert!(!owner.is_null());
+                            (*owner).size = ((*raw).data[0] as usize - (*owner).data as usize) + 4;
+                        },
+                        "span past owner" => (*raw).height = 1000,
+                        "RGB overlap" => (*raw).data[1] = (*raw).data[0],
+                        "alpha aliases RGB" => (*raw).data[3] = (*raw).data[2],
+                        "negative width" => (*raw).width = -1,
+                        "empty height" => (*raw).height = 0,
+                        _ => unreachable!(),
+                    }
+                    let result = processor.apply_frame(&mut frame);
+                    drop(guard);
+                    result
+                };
+                assert!(result.is_err(), "accepted malformed layout: {case}");
+                for p in 0..4 {
+                    assert_eq!(frame.data(p), saved[p], "{case} changed plane {p}");
+                }
+            }
+        }
+
+        #[test]
+        fn ocio_rejects_non_float_input_without_mutation() {
+            let processor = OcioProcessor::new(settings()).unwrap();
+            let mut frame = Video::new(Pixel::YUV420P10LE, 18, 10);
+            for p in 0..frame.planes() { frame.data_mut(p).fill(0xa5); }
+            let saved: Vec<_> = (0..frame.planes()).map(|p| frame.data(p).to_vec()).collect();
+            assert!(processor.apply_frame(&mut frame).is_err());
+            for p in 0..frame.planes() { assert_eq!(frame.data(p), saved[p]); }
+        }
+
+        #[test]
+        fn ocio_copy_on_write_keeps_shared_source_and_alpha_exact() {
+            let processor = OcioProcessor::new(settings()).unwrap();
+            let mut source = floats(Pixel::GBRAPF32LE, 17, 5);
+            fill(&mut source);
+            source.set_color_space(ffmpeg_next::color::Space::BT709);
+            source.set_color_range(ffmpeg_next::color::Range::JPEG);
+            let saved: Vec<_> = (0..4).map(|p| source.data(p).to_vec()).collect();
+            let source_active = active_bytes(&source);
+            let mut expected = source.clone();
+            processor.apply_frame(&mut expected).unwrap();
+            let mut shared = Video::empty();
+            unsafe {
+                assert_eq!(ffi::av_frame_ref(shared.as_mut_ptr(), source.as_ptr()), 0);
+                assert_eq!((*shared.as_ptr()).data, (*source.as_ptr()).data);
+                assert_eq!(ffi::av_frame_is_writable(shared.as_ptr().cast_mut()), 0);
+            }
+            processor.apply_frame(&mut shared).unwrap();
+            unsafe {
+                assert_ne!((*shared.as_ptr()).data[0], (*source.as_ptr()).data[0]);
+                assert_eq!(ffi::av_frame_is_writable(shared.as_ptr().cast_mut()), 1);
+            }
+            for p in 0..4 { assert_eq!(source.data(p), saved[p], "source plane {p}"); }
+            assert_eq!(active_bytes(&shared), active_bytes(&expected));
+            assert_eq!(active_bytes(&shared)[3], source_active[3]);
+            assert_eq!(shared.pts(), source.pts());
+            assert_eq!(shared.color_space(), source.color_space());
+            assert_eq!(shared.color_range(), source.color_range());
+        }
+
+        // Each plane gets its own FFmpeg-owned buffer so their strides may differ.
+        // This exercises the C++ bridge's row descriptor fallback, not just the
+        // usual equal-stride fast path.
+        fn unequal_stride_frame(width: u32, height: u32) -> Video {
+            let mut frame = Video::empty();
+            frame.set_format(Pixel::GBRAPF32LE);
+            frame.set_width(width);
+            frame.set_height(height);
+            frame.set_pts(Some(123456));
+            unsafe {
+                let raw = frame.as_mut_ptr();
+                for p in 0..4 {
+                    let stride = width as usize * 4 + (p + 1) * 12;
+                    let buffer = ffi::av_buffer_alloc(stride * height as usize);
+                    assert!(!buffer.is_null());
+                    (*raw).buf[p] = buffer;
+                    (*raw).data[p] = (*buffer).data;
+                    (*raw).linesize[p] = stride as i32;
+                }
+            }
+            fill(&mut frame);
+            frame
+        }
+
+        #[test]
+        fn ocio_unequal_strides_preserve_odd_width_padding_and_alpha() {
+            let processor = OcioProcessor::new(settings()).unwrap();
+            let mut padded = unequal_stride_frame(17, 11);
+            let saved: Vec<_> = (0..4).map(|p| padded.data(p).to_vec()).collect();
+            let source_alpha = active_bytes(&padded)[3].clone();
+            let mut expected = floats(Pixel::GBRAPF32LE, 17, 11);
+            fill(&mut expected);
+            processor.apply_frame(&mut expected).unwrap();
+            processor.apply_frame(&mut padded).unwrap();
+            assert_eq!(active_bytes(&padded), active_bytes(&expected));
+            assert_eq!(active_bytes(&padded)[3], source_alpha);
+            for p in 0..4 {
+                for y in 0..11 {
+                    let start = y * padded.stride(p) + 17 * 4;
+                    let end = (y + 1) * padded.stride(p);
+                    assert_eq!(&padded.data(p)[start..end], &saved[p][start..end],
+                        "padding of plane {p}, row {y}");
+                }
+            }
+            assert_eq!(padded.pts(), Some(123456));
+        }
+
+        #[test]
+        fn ocio_gpu_resources_are_stable_finite_and_neutral_has_no_texture() {
+            use std::io::Write;
+            let mut file = tempfile::Builder::new().suffix(".cube").tempfile().unwrap();
+            file.write_all(&super::nonlinear_cube()).unwrap();
+            file.flush().unwrap();
+            let processor = Arc::new(OcioProcessor::with_lut(settings(), Some(file.path())).unwrap());
+            let resources: Vec<_> = std::thread::scope(|scope| {
+                (0..4).map(|_| {
+                    let processor = Arc::clone(&processor);
+                    scope.spawn(move || processor.gpu_resources().unwrap())
+                }).collect::<Vec<_>>().into_iter().map(|h| h.join().unwrap()).collect()
+            });
+            let expected = &resources[0];
+            let texture = expected.texture.as_ref().expect("nonlinear cube needs one 3D texture");
+            assert_eq!(texture.edge, 3);
+            assert_eq!(texture.values.len(), 3 * 3 * 3 * 3);
+            assert!(texture.values.iter().all(|v| v.is_finite()));
+            assert!(expected.text.contains("applyOcioGrade"));
+            assert!(expected.text.contains("layout(binding = 2) uniform sampler3D ocioLutTexture;"));
+            for result in resources.iter().skip(1) {
+                assert_eq!(result.text, expected.text);
+                let actual = result.texture.as_ref().unwrap();
+                assert_eq!(actual.edge, texture.edge);
+                assert_eq!(actual.values, texture.values);
+            }
+            for _ in 0..3 {
+                let result = processor.gpu_resources().unwrap();
+                assert_eq!(result.text, expected.text);
+                assert_eq!(result.texture.unwrap().values, texture.values);
+            }
+            let neutral = OcioProcessor::new(Settings::default()).unwrap();
+            assert!(!neutral.is_active());
+            assert!(neutral.gpu_resources().unwrap().texture.is_none());
+            let grade_only = OcioProcessor::new(settings()).unwrap();
+            assert!(grade_only.gpu_resources().unwrap().texture.is_none());
+        }
+
+        #[test]
+        fn ocio_missing_lut_file_fails_without_creating_processor() {
+            let directory = tempfile::tempdir().unwrap();
+            let path = directory.path().join("missing.cube");
+            assert!(!path.exists());
+            let error = match OcioProcessor::with_lut(settings(), Some(&path)) {
+                Ok(_) => panic!("missing LUT file created a processor"),
+                Err(error) => error,
+            };
+            assert!(!error.is_empty());
+            assert!(!path.exists());
+        }
+
+        #[test]
+        fn ocio_shared_processor_is_deterministic_under_repeated_concurrent_use() {
+            let processor = Arc::new(OcioProcessor::new(settings()).unwrap());
+            let sizes = [(17, 5), (33, 19), (19, 17), (65, 9)];
+            let expected: Vec<_> = sizes.iter().map(|&(w, h)| {
+                let mut frame = floats(Pixel::GBRAPF32LE, w, h);
+                fill(&mut frame);
+                processor.apply_frame(&mut frame).unwrap();
+                active_bytes(&frame)
+            }).collect();
+            std::thread::scope(|scope| {
+                let mut handles = Vec::new();
+                for (index, &(w, h)) in sizes.iter().enumerate() {
+                    let processor = Arc::clone(&processor);
+                    let reference = &expected[index];
+                    handles.push(scope.spawn(move || {
+                        for repetition in 0..24 {
+                            let mut frame = floats(Pixel::GBRAPF32LE, w, h);
+                            fill(&mut frame);
+                            let before = active_bytes(&frame);
+                            processor.apply_frame(&mut frame).unwrap();
+                            assert_eq!(&active_bytes(&frame), reference,
+                                "thread {index}, repetition {repetition}");
+                            assert_eq!(active_bytes(&frame)[3], before[3]);
+                        }
+                    }));
+                }
+                for handle in handles { handle.join().unwrap(); }
+            });
         }
     }
 }

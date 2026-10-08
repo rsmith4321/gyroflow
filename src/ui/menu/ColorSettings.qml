@@ -381,6 +381,16 @@ MenuItem {
         type: InfoMessage.Error;
         text: root.exportOptions.tonePreviewError;
     }
+    InfoMessageSmall {
+        show: !!root.exportOptions.ocioPreviewError;
+        type: InfoMessage.Error;
+        text: root.exportOptions.ocioPreviewError;
+    }
+    InfoMessageSmall {
+        show: root.exportOptions.ocioPreviewBusy;
+        type: InfoMessage.Info;
+        text: qsTr("Updating color preview…");
+    }
     Row {
         spacing: 8 * dpiScale;
         CheckBox {

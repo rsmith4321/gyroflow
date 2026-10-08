@@ -1,7 +1,8 @@
 # OpenColorIO basis and direct library integration
 
 Reviewed 2026-10-07. This describes the current implementation and a possible
-replacement; it does not claim the official runtime is integrated.
+replacement. The default and installed renderer remain the accepted lightweight path;
+an optional `ocio-runtime` development feature now exercises the official library.
 
 ## Current implementation
 
@@ -102,3 +103,89 @@ Next work is the application bridge, row concurrency and matched real-clip
 timings, preview shader preparation/caching during slider changes, and platform
 and package acceptance. The installed app still uses the previously accepted
 lightweight implementation.
+
+## Experimental app integration
+
+The `ocio-runtime` Cargo feature links official OCIO 2.4.2 through a contained
+C ABI. Export prepares one immutable LUT-first processor per grade snapshot,
+then applies it to validated writable float RGB frames in disjoint row bands.
+Decoded RGB/YUV conversion, stabilization and encoding continue through the
+existing application and FFmpeg code. The feature no longer uses our custom
+per-pixel adjustment loops or FFmpeg's LUT evaluator. The default build is
+unchanged pending native preview and platform acceptance.
+
+The bridge checks signed dimensions/strides, alignment, actual FFmpeg buffer
+ownership/extents and RGB/alpha nonoverlap before creating descriptors, and
+checks again after copy-on-write. Unsupported negative strides return an error.
+It preserves alpha, padding, source buffers and frame metadata. C++ exceptions
+never cross the ABI. A fresh OCIO configuration is used for every snapshot:
+reusing one configuration across different sampled same-size tone LUTs can
+reuse an earlier processor in OCIO 2.4.2; the dense fixture guards this lifecycle.
+OCIO also retains parsed files globally by filename. Each canonical LUT snapshot
+uses a private temporary path, so the bridge calls public `ClearAllCaches()` after
+constructing its immutable exact/CPU processors, and on failed reads. This bounds
+otherwise retained parsed LUT data during slider updates. The public API preserves
+instance-specific processor data; native pixel/resource checks and retained-processor
+concurrency exercise that lifetime separately.
+
+Development build requires `OCIO_ROOT` pointing to the pinned install prefix;
+`OCIO_LINK_NAME` may select a differently named Windows import library. Desktop
+only. A compile-time and runtime version check both require 2.4.2. Qt ShaderTools
+is an additional preview dependency when the feature is selected. The existing
+[probe recipe](../tests/ocio-runtime/README.md) records source provenance and
+local dependency limitations. This is not yet a portable release recipe.
+
+Current CPU acceptance:
+
+- 29 Rust tests cover normal export, negative/malformed planes, allocation
+  ownership, copy-on-write, alpha, odd widths/unequal strides, shared processor
+  concurrency and GPU resource extraction.
+- Fourteen sequential 8/10-bit full/limited YUV, matrix and size transitions
+  match independent FFmpeg LUT-plus-affine references exactly in the measured
+  cases; the test requires at most one output code.
+- Forty independent randomized/ramp grade cases with and without the DJI O4
+  LUT differ by at most 5.37e-7 in float RGB. Alpha remains exact.
+- The independent C ABI fixture covers 800 concurrent calls, errors, resource
+  bounds and LUT-first composition. Dense direct-versus-cached tone checks
+  cover 98 settings and 65,577 RGB samples per setting, max error 5.37e-7.
+- Actual stabilized DJI O4 footage passes all 481 frames at 1280x720 in deliberate
+  lossless HEVC Main 10 exports. Neutral decoded frame hashes, every timestamp
+  and stream properties match the accepted renderer exactly. Combined DJI LUT
+  plus all eight adjustments matches an independent FFmpeg/OCIO reference within
+  one ten-bit code across 664,934,400 samples. These lossless software-encoder
+  exports prove pixel and stabilization preservation, not hardware speed.
+
+Native preview resource acceptance:
+
+- The exact production bridge and Qt 3D texture provider pass 82 float32 rendered
+  cases on Metal / Apple M4 Max, max CPU/GPU RGB difference 2.39e-7. Cases include
+  neutral, grading alone, identity/invert/nonlinear and DJI O4 LUTs with and
+  without all eight adjustments, and out-of-range input values.
+- Seventy native resource swaps cross the 64-source cache purge threshold.
+  Public `QQuickWindow::releaseResources()` and hard scenegraph recreation retain
+  the active source/LUT/grade result. Live asset leases retain needed files;
+  each regenerated pack has a unique path to prevent stale-owner deletion.
+- Native stale/current error delivery, unclaimed-token disposal, invalid texture
+  size and a separate actual software-renderer rejection process pass.
+
+OCIO's default GPU optimizer can remove a Range before a LUT because it assumes
+every sampler axis clamps. Qt's ShaderEffect sampler exposes U/V clamp but uses
+Repeat for W. The bridge disables only `OPTIMIZATION_COMP_RANGE` for GPU shader
+generation to retain OCIO's explicit 0..1 input Range. CPU optimization is
+unchanged; LUT sampling and grading code remain entirely generated by OCIO.
+The tests caught a self-callback during QQuickItem base destruction; the adapter
+now disconnects it before member teardown. QML clears prior errors before new
+shader adoption so a synchronous shader failure remains visible.
+
+Matched end-to-end timings, full-app Mac paused-video/slider/save/queue acceptance,
+Windows execution and dependency packaging remain gates. Shader compilation,
+synthetic pixel acceptance or these CPU checks alone do not switch the default
+engine or establish a public portable release.
+
+The current development dependencies also need rebuilding for portable Mac
+distribution: the local Imath and FFmpeg avcodec/avfilter/x265 libraries have a
+macOS 26 minimum and QtShaderTools has a macOS 27 minimum, despite OCIO's macOS
+11 and QtCore's macOS 14 minima. Merely
+copying those Homebrew dependencies into a bundle does not establish support for
+older systems. Use a matching Qt distribution and an explicit common deployment
+target; audit each Mach-O slice, resolved dependency and runtime search path.

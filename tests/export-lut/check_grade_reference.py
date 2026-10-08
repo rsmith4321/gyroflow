@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Pinned OCIO CPU reference versus native frames and production Metal QSB.
-Usage: python check_grade_reference.py grade_fixture qml output_dir [lut.cube]
+Usage: python check_grade_reference.py grade_fixture qml output_dir [lut.cube] [--cpu-only]
 Requires opencolorio==2.4.2, numpy, Pillow and FFmpeg. Synthetic data only.
 Gamma-2.4 display-linear exposure is intentionally not camera RAW exposure.
 """
@@ -59,6 +59,8 @@ def lut_reference(rgb, lut, output):
 
 
 def main():
+    cpu_only="--cpu-only" in sys.argv
+    if cpu_only: sys.argv.remove("--cpu-only")
     fixture,qml,out=(Path(x).resolve() for x in sys.argv[1:4]);out.mkdir(parents=True,exist_ok=True)
     lut=Path(sys.argv[4]).resolve() if len(sys.argv)>4 else None
     root=Path(__file__).resolve().parents[2];rng=np.random.default_rng(7102026)
@@ -86,6 +88,10 @@ def main():
             if error>1e-5: raise RuntimeError(f'CPU OCIO mismatch {use_lut,controls}: {error}')
             if not np.array_equal(rgba[:,:,3],actual[:,:,3]): raise RuntimeError('Alpha changed')
             results.append(dict(controls=controls,lut=use_lut,float_max_error=error))
+    if cpu_only:
+        (out/'results.json').write_text(json.dumps(results,indent=2)+'\n')
+        print(json.dumps(dict(cpu_cases=len(results),cpu_max_error=max(x['float_max_error'] for x in results),gpu_cases=0)))
+        return
     rgb=rng.integers(0,256,(128,128,3),dtype=np.uint8);Image.fromarray(rgb).save(out/'input.png')
     prgba=np.ones((128,128,4),dtype='<f4');prgba[:,:,:3]=rgb/255;prgba.tofile(out/'preview.f32')
     template=(root/'tests/export-lut/preview-shader-check.qml').read_text()

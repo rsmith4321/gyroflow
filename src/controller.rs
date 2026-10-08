@@ -261,6 +261,11 @@ pub struct Controller {
     prepare_preview_grade: qt_method!(fn(&self, exposure: f64, saturation: f64, warmth: f64, tint: f64) -> QString),
     prepare_preview_tone: qt_method!(fn(&self, shadows: f64, highlights: f64) -> QString),
     prepare_preview_lut: qt_method!(fn(&self, url: QUrl) -> QString),
+    ocio_runtime_enabled: qt_method!(fn(&self) -> bool),
+    prepare_preview_ocio: qt_method!(fn(&self, request_id: i32, lut_url: QUrl, brightness: f64, contrast: f64, shadows: f64, highlights: f64, exposure: f64, saturation: f64, warmth: f64, tint: f64)),
+    ocio_preview_ready: qt_signal!(result: QString),
+    create_ocio_preview_texture: qt_method!(fn(&self, parent: QJSValue, error_target: QJSValue, token: QString) -> QVariant),
+    release_ocio_preview_texture: qt_method!(fn(&self, item: QJSValue)),
     export_preset: qt_method!(fn(&self, url: QUrl, data: QJsonObject, save_type: QString, preset_name: QString) -> QString),
     export_full_metadata: qt_method!(fn(&self, url: QUrl, gyro_url: QUrl)),
     export_parsed_metadata: qt_method!(fn(&self, url: QUrl)),
@@ -324,6 +329,9 @@ pub struct Controller {
 
     ongoing_computations: BTreeSet<u64>,
     optical_analysis_running: bool,
+
+    #[cfg(feature = "ocio-runtime")]
+    ocio_preview_state: Arc<parking_lot::Mutex<crate::qt_gpu::ocio_preview::PreviewState>>,
 
     pub stabilizer: Arc<StabilizationManager>,
 }
@@ -2667,6 +2675,68 @@ impl Controller {
 
     // Utilities
     fn get_username(&self) -> QString { let realname = whoami::realname().unwrap_or_default(); QString::from(if realname.is_empty() { whoami::username().unwrap_or_default() } else { realname }) }
+    fn ocio_runtime_enabled(&self) -> bool { cfg!(feature = "ocio-runtime") }
+    fn prepare_preview_ocio(&self, request_id: i32, lut_url: QUrl, brightness: f64, contrast: f64, shadows: f64, highlights: f64, exposure: f64, saturation: f64, warmth: f64, tint: f64) {
+        #[cfg(feature = "ocio-runtime")]
+        {
+            let settings = rendering::ocio_runtime::Settings { brightness, contrast, shadows, highlights, exposure, saturation, warmth, tint };
+            let state = self.ocio_preview_state.clone();
+            {
+                let mut guard = state.lock();
+                guard.generation = guard.generation.wrapping_add(1);
+                let generation = guard.generation;
+                guard.pending = Some((generation, request_id, settings, util::qurl_to_encoded(lut_url)));
+                if guard.running { return; }
+                guard.running = true;
+            }
+            let finished = util::qt_queued_callback(QPointer::from(self as &Self), |this, (generation, request_id, result): (u64, i32, Result<crate::qt_gpu::ocio_preview::PreparedPreview, String>)| {
+                if this.ocio_preview_state.lock().generation != generation { return; }
+                match result {
+                    Ok(preview) => {
+                        let data = serde_json::json!({ "request_id": request_id, "source": preview.source, "active": preview.active, "texture_token": preview.texture_token() });
+                        // Keep the RAII lease alive through the synchronous GUI
+                        // signal so QML can claim its native texture/asset item.
+                        this.ocio_preview_ready(QString::from(data.to_string()));
+                    },
+                    Err(error) => this.ocio_preview_ready(QString::from(serde_json::json!({ "request_id": request_id, "error": error }).to_string())),
+                }
+            });
+            // Coalesce requests onto one worker. A slow compile cannot create an
+            // unbounded queue of shader jobs, and obsolete completions are ignored.
+            core::run_threaded(move || loop {
+                let job = {
+                    let mut guard = state.lock();
+                    // The worker is the only remaining owner after controller
+                    // destruction. Discard its pending request instead of compiling.
+                    if Arc::strong_count(&state) == 1 { guard.pending = None; guard.running = false; break; }
+                    match guard.pending.take() {
+                        Some(job) => job,
+                        None => { guard.running = false; break; },
+                    }
+                };
+                let (generation, request_id, settings, lut_url) = job;
+                let result = crate::qt_gpu::ocio_preview::prepare(settings, &lut_url);
+                if state.lock().generation == generation { finished((generation, request_id, result)); }
+            });
+        }
+        #[cfg(not(feature = "ocio-runtime"))]
+        {
+            let _ = (lut_url, brightness, contrast, shadows, highlights, exposure, saturation, warmth, tint);
+            self.ocio_preview_ready(QString::from(serde_json::json!({ "request_id": request_id, "error": "The experimental OCIO runtime is not enabled." }).to_string()));
+        }
+    }
+    fn create_ocio_preview_texture(&self, parent: QJSValue, error_target: QJSValue, token: QString) -> QVariant {
+        #[cfg(feature = "ocio-runtime")]
+        { crate::qt_gpu::ocio_preview::create_texture(parent, error_target, token) }
+        #[cfg(not(feature = "ocio-runtime"))]
+        { let _ = (parent, error_target, token); QVariant::default() }
+    }
+    fn release_ocio_preview_texture(&self, item: QJSValue) {
+        #[cfg(feature = "ocio-runtime")]
+        crate::qt_gpu::ocio_preview::retire_texture(item);
+        #[cfg(not(feature = "ocio-runtime"))]
+        let _ = item;
+    }
     fn prepare_preview_grade(&self, exposure: f64, saturation: f64, warmth: f64, tint: f64) -> QString {
         let result = rendering::basic_grade::BasicGrade::new(rendering::basic_grade::BasicGradeSettings { exposure, saturation, warmth, tint });
         QString::from(match result {
@@ -2701,6 +2771,10 @@ impl Controller {
             let mut file = filesystem::open_file(&util::qurl_to_encoded(url), false, false).map_err(|e| e.to_string())?;
             let bytes = rendering::cube_lut::CubeLut::read_bounded(file.get_file())?;
             let cube = rendering::cube_lut::CubeLut::parse(&bytes)?;
+            #[cfg(feature = "ocio-runtime")]
+            return Ok(serde_json::json!({ "size": cube.size }));
+            #[cfg(not(feature = "ocio-runtime"))]
+            {
             let (width, height, data) = cube.atlas();
             let width = width as i32; let height = height as i32;
             let ptr = data.as_ptr();
@@ -2714,6 +2788,7 @@ impl Controller {
             });
             if png.is_empty() { return Err("Could not prepare the LUT preview texture.".into()); }
             Ok(serde_json::json!({ "size": cube.size, "source": png.to_string() }))
+            }
         })();
         QString::from(match result { Ok(v) => v.to_string(), Err(e) => serde_json::json!({ "error": e }).to_string() })
     }

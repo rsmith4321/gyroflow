@@ -74,6 +74,7 @@ MenuItem {
         if (parsed) {
             outputSizePresets = parsed;
         }
+        if (ocioRuntimeEnabled) scheduleOcioPreview();
     }
 
     Item {
@@ -120,9 +121,78 @@ MenuItem {
     property real saturation: 0;
     property real warmth: 0;
     property real tint: 0;
+    // Development-only runtime; project and preset values keep their existing units.
+    readonly property bool ocioRuntimeEnabled: controller.ocio_runtime_enabled();
+    property string ocioPreviewShader: "";
+    property string ocioPreviewError: "";
+    property var ocioPreviewTexture: null;
+    property string ocioPreviewTextureToken: "";
+    property bool ocioPreviewActive: false;
+    property bool ocioPreviewBusy: ocioRuntimeEnabled;
+    property int ocioPreviewRequestId: 0;
+    function scheduleOcioPreview(): void {
+        if (!ocioRuntimeEnabled) return;
+        ocioPreviewRequestId = (ocioPreviewRequestId + 1) % 2147483647;
+        ocioPreviewBusy = true;
+        ocioPreviewTimer.restart();
+    }
+    Timer {
+        id: ocioPreviewTimer;
+        interval: 90; repeat: false;
+        onTriggered: controller.prepare_preview_ocio(root.ocioPreviewRequestId, root.lutUrl,
+            root.brightness / 100, root.contrast / 100, root.shadows / 100, root.highlights / 100,
+            root.exposure, root.saturation / 100, root.warmth / 100, root.tint / 100);
+    }
+    Connections {
+        target: controller;
+        function onOcio_preview_ready(result: string): void {
+            let data;
+            try { data = JSON.parse(result); }
+            catch (e) { root.ocioPreviewError = qsTr("Could not read the OCIO preview result."); root.ocioPreviewBusy = false; return; }
+            if (data.request_id !== root.ocioPreviewRequestId) return;
+            root.ocioPreviewBusy = false;
+            const previous = root.ocioPreviewTexture;
+            if (data.error) {
+                root.ocioPreviewError = data.error;
+                root.ocioPreviewShader = "";
+                root.ocioPreviewActive = false;
+                root.ocioPreviewTexture = null;
+                root.ocioPreviewTextureToken = "";
+            } else if (!data.active) {
+                // A neutral processor needs no ShaderEffect or native resource.
+                // Its unclaimed token is released by the callback's RAII lease.
+                root.ocioPreviewError = "";
+                root.ocioPreviewShader = "";
+                root.ocioPreviewActive = false;
+                root.ocioPreviewTexture = null;
+                root.ocioPreviewTextureToken = "";
+            } else {
+                // Clear the previous failure before adoption. ShaderEffect may
+                // report a new shader-load error synchronously during binding.
+                root.ocioPreviewError = "";
+                const texture = controller.create_ocio_preview_texture(window.videoArea.vid, root, data.texture_token);
+                if (!texture) {
+                    if (!root.ocioPreviewError) root.ocioPreviewError = qsTr("Could not bind the OCIO preview resources.");
+                    root.ocioPreviewShader = "";
+                    root.ocioPreviewActive = false;
+                    root.ocioPreviewTexture = null;
+                    root.ocioPreviewTextureToken = "";
+                } else {
+                    root.ocioPreviewTextureToken = data.texture_token;
+                    root.ocioPreviewTexture = texture;
+                    root.ocioPreviewShader = data.source;
+                    root.ocioPreviewActive = !!data.active;
+                }
+            }
+            if (previous) controller.release_ocio_preview_texture(previous);
+        }
+    }
+    onBrightnessChanged: { if (ocioRuntimeEnabled) Qt.callLater(scheduleOcioPreview); }
+    onContrastChanged: { if (ocioRuntimeEnabled) Qt.callLater(scheduleOcioPreview); }
     property string gradePreviewError: "";
     property var gradePreviewParameters: ({ gains: [1, 1, 1], saturation: 1, active: false });
     function updateGradePreview(): void {
+        if (ocioRuntimeEnabled) { scheduleOcioPreview(); return; }
         const data = JSON.parse(controller.prepare_preview_grade(exposure, saturation / 100, warmth / 100, tint / 100));
         gradePreviewError = data.error || "";
         gradePreviewParameters = data.error ? ({ gains: [1, 1, 1], saturation: 1, active: false }) : data;
@@ -134,6 +204,7 @@ MenuItem {
     property string tonePreviewSource: "";
     property string tonePreviewError: "";
     function updateTonePreview(): void {
+        if (ocioRuntimeEnabled) { scheduleOcioPreview(); return; }
         tonePreviewSource = ""; tonePreviewError = "";
         if (shadows !== 0 || highlights !== 0) {
             const data = JSON.parse(controller.prepare_preview_tone(shadows / 100, highlights / 100));
@@ -152,13 +223,14 @@ MenuItem {
         if (lutUrl) {
             const data = JSON.parse(controller.prepare_preview_lut(lutUrl));
             if (data.error) lutPreviewError = data.error;
-            else { lutPreviewSize = data.size; lutPreviewSource = data.source; }
+            else { lutPreviewSize = data.size; lutPreviewSource = data.source || ""; }
         }
+        if (ocioRuntimeEnabled) scheduleOcioPreview();
     }
     property real originalWidth: outWidth;
     property real originalHeight: outHeight;
 
-    property bool canExport: !resolutionWarning.visible && !resolutionWarning2.visible && !lutPreviewError && !tonePreviewError && !gradePreviewError;
+    property bool canExport: !resolutionWarning.visible && !resolutionWarning2.visible && !lutPreviewError && !tonePreviewError && !gradePreviewError && !ocioPreviewError && !ocioPreviewBusy;
 
     function getExportOptions(): var {
         let encoderOpts = encoderOptions.text.replace("-qscale:v", "-qscale")

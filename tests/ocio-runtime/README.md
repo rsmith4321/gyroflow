@@ -91,3 +91,43 @@ execution or package dependency closure. The application fixture and native
 acceptance need to cover those separately. No malicious pointers are passed to
 the C ABI; its image pointers/ownership are caller preconditions enforced by the
 Rust adapter.
+
+The fixture also constructs bounded, non-neutral `.cube` tables with standard
+0–1 input domains and both bounded and extended finite output values. It compares
+the production combined processor with independent official tetrahedral
+`FileTransform` followed by the grade, and proves a reversed-order negative
+control differs. LUT-only behavior, packed alpha, missing/incomplete files and
+processor use after removal of the loaded LUT file are checked.
+
+Dense direct-versus-cached tone coverage uses **98 settings and 65,577 RGB
+samples per setting**, including 16 subdivisions per baked LUT interval and
+adjacent floating-point values at public VIDEO shadow/highlight starts, pivots
+and midpoints. Each setting constructs a new production bridge snapshot and
+compares it with a fresh official processor. On the development Mac, the maximum
+analytic-versus-cached deviation was **5.37e-7**; the existing **1e-5** floating
+point acceptance bound is enforced. This is still not native preview or an
+encoded-video error measurement.
+
+Keep an OCIO configuration's processor cache scoped to a single snapshot when
+using these generated in-memory tone LUTs. In OCIO 2.4.2, the streamed transform
+description used by `Config::getProcessor` omits complete `Lut1D` entry data.
+Reusing one configuration across differently sampled LUTs of the same shape
+may reuse an earlier processor. The production bridge creates a fresh
+configuration per snapshot; future configuration sharing needs explicit cache
+handling and a retained multi-setting regression check.
+
+GPU resource extraction coverage makes **400 concurrent first-access shader and
+texture queries** and compares the results with serial extraction. It checks
+the official descriptor's texture ordering, the normalized sampler's binding,
+RGB texture contents, null pointers, exact and insufficient capacities, copy
+guards, and the no-LUT resource contract. This validates extraction and lazy
+initialization only; native Qt upload, preview output and GPU execution still
+need their separate application checks.
+
+Cache-lifetime coverage removes a retained processor's LUT source, then applies
+its CPU processor and performs its first lazy GPU extraction while another
+thread constructs and destroys **64 fresh LUT snapshots**. Their constructor
+clears OCIO's global filename caches. **16 missing/incomplete loads** are also
+rejected and repaired at the same filename, proving that negative cache entries
+do not prevent recovery. Retained CPU output, shader text and texture contents
+must match the serial snapshot before, during and after those clears.
