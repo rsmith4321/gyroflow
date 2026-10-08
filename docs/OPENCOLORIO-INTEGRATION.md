@@ -268,5 +268,23 @@ identities are retained in the packet's `cli-export-result.json`.
 These checks establish completed real CLI exports and observed hardware encoder
 sessions. They do not establish numerical preview/export color agreement, native
 GUI acceptance, CPU-stabilization fallback absence or whole-export GPU execution.
-Numeric timestamp/cardinality checks, color-tag validation, current-app settings
-namespace preservation and full loaded-DLL closure remain separate checks.
+Later saved-file checks confirmed **H.265 / GPU 0 / 1280×720** for every matching
+application-PID encoder-session row. Each output has **857 six-decimal timestamps**;
+maximum frame-grid error is **0.333334 µs** and maximum spacing error is
+**0.666667 µs**, within the retained decimal-rounding bounds for **60000/1001**.
+No stream time-base field was saved, so these readings do not establish an exact
+rational timestamp contract. All three probes report limited range (`tv`) and
+BT.709 matrix, transfer and primaries. The earlier Windows OCIO export-fixture
+log in `OcioE4ExceptionExport-20261008` reports **29 passed / 0 failed**.
+
+The required loaded DLL subset matches the private stage for all three exports.
+An **81-image** exact-set/current-hash check belongs to a separate hidden dependency
+probe; it does not establish full-app closure. Both application compiler command
+records include `/EHsc`; exact exception-flag token validation remains separate.
+The actual logged settings path is
+`AppData/Local/Ryan Smith/Gyroflow Plus/settings.json`. No before baseline was
+captured for that namespace, so preservation remains unverified. The Windows-owned
+saved-read receipt is `Windows-OCIO-final-read-handoff-20261008.json`, SHA-256
+`d7493e21bd3d667cae4489ac51add2b6a198e61205b1e5a407bc820196641da2`.
+Native preview/control acceptance, numerical color agreement, full-app DLL closure
+and the original old/new decoded-output hold remain open.
