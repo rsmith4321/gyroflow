@@ -144,9 +144,35 @@ four conversions in both builds; no fallback substitutes for those failures.
 Neither standalone probe accepts real rendering frames or explains the color
 output difference.
 
-The new GUI/CLI agreement does not lift this hold. No production algorithm or
-conversion workaround is justified by the results so far. The next discriminator
-is lossless real-frame output and captured processor-boundary samples.
+A subsequent real-video discriminator exports four frames per case through
+software H.264 with explicit ten-bit CQP0. Actual bitstreams establish transform
+bypass, zero luma/chroma quantizers and the requested pixel format; this is not
+an assumption based on a quality-option name. Old/new neutral output is exact
+across 49,766,400 decoded samples. With the O4 LUT and all eight controls,
+256 samples differ by one code value, with mean absolute error
+5.1440329218107e-6. Independent checks confirm every decoded value is within
+0–1023 and the signed differences are evenly split. LUT contents and all
+source/settings/project/binary/media preservation checks pass.
+
+This lossless test changes the target to planar YUV420P10LE and shortens the trim
+to 45,000–45,040 ms. Both changes can affect the processing route or adaptive
+zoom. It establishes near agreement for this software branch, not equivalence
+of the original VideoToolbox branch. Existing hardware-export differences
+are smaller at keyframes and increase between them, which is compatible with
+predictive encoding propagating small differences. That remains a hypothesis;
+the original hardware encoder's input was not captured.
+
+Two bounded debugger attempts produced no frame samples: the first stopped
+before FFmpeg loaded and the second timed out before reaching application main.
+Both diagnostic children were stopped, and preservation checks passed. This
+capture route is discontinued. A separately rebuilt diagnostic capture is being
+prepared to inspect the original hardware branch before encoder submission.
+It is private test instrumentation, not a production change.
+
+The new GUI/CLI and short software-lossless results do not lift the original
+hardware-output hold. No production algorithm or conversion workaround is
+justified by the results so far. The next discriminator is captured
+processor-boundary samples from the original hardware export settings.
 
 ## Remaining acceptance
 
