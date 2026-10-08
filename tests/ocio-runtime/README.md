@@ -59,3 +59,35 @@ cache, selected-camera LUT integration, decoder/encoder integration, persistent
 projects, concurrency acceptance, Windows execution or portable package proof.
 See [integration boundaries](../../docs/OPENCOLORIO-INTEGRATION.md). The working
 application path remains in place until those checks pass.
+
+## Isolated production C ABI checks
+
+`bridge_check.cpp` compiles the actual production `bridge.cpp` separately from
+Cargo. Run from the repository root, using the pinned OCIO 2.4.2 prefix and the
+same FFmpeg development library as the application. Example for macOS:
+
+```sh
+clang++ -std=c++17 -O2 \
+  -I/path/to/ocio-install/include -I/path/to/ffmpeg/include \
+  tests/ocio-runtime/bridge_check.cpp src/rendering/ocio/bridge.cpp \
+  -L/path/to/ocio-install/lib -L/path/to/ffmpeg/lib \
+  -lOpenColorIO -lavutil \
+  -Wl,-rpath,/path/to/ocio-install/lib \
+  -Wl,-rpath,/path/to/ffmpeg/lib \
+  -o /tmp/gyroflow-ocio-bridge-check
+/tmp/gyroflow-ocio-bridge-check
+```
+
+This compares 800 concurrent calls sharing one immutable processor with serial
+output, exercises unequal RGB plane strides, neutral behavior, prefix/suffix
+and row-padding guards, invalid parameters and bounded error/shader output.
+It also proves that FFmpeg may retain a valid negative stride after
+`av_frame_make_writable`; the production Rust adapter must validate signed
+linesizes before calling FFmpeg wrappers that expose plane slices.
+
+These checks do **not** exercise the Rust frame/AVBuffer validator, Rayon band
+splitting, alpha plane sharing, a real decoder/encoder, the Qt preview, Windows
+execution or package dependency closure. The application fixture and native
+acceptance need to cover those separately. No malicious pointers are passed to
+the C ABI; its image pointers/ownership are caller preconditions enforced by the
+Rust adapter.
