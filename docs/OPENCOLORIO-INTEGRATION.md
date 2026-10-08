@@ -238,3 +238,20 @@ identities remained exact. The same committed case subsequently passed Windows
 CTest in its own 30-second-bounded process. This validates recovery in the
 standalone adapter fixture; application Cargo compiler flags and native app
 acceptance remain separate checks.
+
+## Windows application build: 2026-10-08
+
+An immutable archive of reviewed source `9fab4b5860762634767aacef2a487d7021f01497`
+built the complete x64 MSVC application using `cargo build --release --features
+ocio-runtime --locked --offline --jobs 2`. Cargo completed successfully in
+**8m 22s**, and the lockfile stayed unchanged. The executable is **46,889,984
+bytes**, with SHA-256
+`af3fda5e7e4dc11b9fcf43dd8246ceefe9cf182f9415ef9774837204d910d592`.
+
+The Windows-owned packet is
+`C:\Users\rsmit\.codex\GyroflowBuildTools\OcioApplication9fab-20261008`.
+A private stage reuses the installed test app's dependencies and adds the
+matching OCIO and Qt ShaderTools DLLs. This establishes full feature-app
+compilation and staging, not real-video/native acceptance, clean-machine DLL
+closure, complete distribution notices or a public package. Those checks remain
+open; the feature default and installed/public app are unchanged.
