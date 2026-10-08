@@ -98,6 +98,13 @@ by an arbitrary Windows version. Those still need the native runtime gate.
 [AVICAP32 requirements](https://learn.microsoft.com/en-us/windows/win32/api/vfw/nf-vfw-capgetdriverdescriptiona),
 [ImageHlp requirements](https://learn.microsoft.com/en-us/windows/win32/api/imagehlp/nf-imagehlp-mapfileandchecksuma).
 
+The Windows audit also rejects known Microsoft debug runtime DLLs in any staged
+directory, required or delayed imports of them, and export forwarders to them.
+Resolving their symbols does not make them release redistributables. Release
+runtime names and ordinary application DLLs with "debug" in their names remain
+allowed by this rule. See Microsoft's
+[DLL redistribution guidance](https://learn.microsoft.com/en-us/cpp/windows/determining-which-dlls-to-redistribute).
+
 The stager requires a clean source checkout for every candidate and a matching
 build/deploy receipt for portable stages on both platforms. It checks the receipt's
 commit, clean-source flag and executable SHA256 before creating the output and

@@ -149,6 +149,44 @@ class Rules(unittest.TestCase):
         facts = stage(**{'Gyroflow.exe': image(dll=True)})
         self.assertEqual(errors(facts), ['Missing PE executable: Gyroflow.exe'])
 
+    def test_staged_debug_runtime_is_rejected_in_every_directory(self):
+        names = ('ucrtbased.dll', 'vcruntime140d.dll', 'vcruntime140_1d.dll',
+                 'msvcp140d.dll', 'msvcp140d_1.dll', 'msvcp140_atomic_waitd.dll',
+                 'concrt140d.dll', 'vccorlib140d.dll', 'vcomp140d.dll',
+                 'vcamp140d.dll', 'mfc140d.dll', 'mfc140ud.dll',
+                 'mfcm140d.dll', 'mfcm140ud.dll', 'msvcrtd.dll', 'msvcr120d.dll')
+        for name in names:
+            for path in (name, 'plugins/' + name.upper()):
+                with self.subTest(path=path):
+                    found = errors(stage(**{path: image(version=CRT)}))
+                    self.assertTrue(any('debug C++ runtime' in e for e in found), found)
+
+    def test_required_and_delayed_debug_runtime_imports_are_rejected(self):
+        for delayed in (False, True):
+            for name in ('vcruntime140d.dll', 'ucrtbased.dll'):
+                with self.subTest(name=name, delayed=delayed):
+                    facts = stage(**{'Gyroflow.exe': image(imports=[(name, delayed, ['f'], [])], dll=False),
+                                     name: image(exports=['f'], version=CRT)})
+                    self.assertTrue(any('imports debug C++ runtime' in e for e in errors(facts)))
+
+    def test_export_forwarder_cannot_hide_debug_runtime(self):
+        facts = stage(**{'foo.dll': image(forwarders=['VCRUNTIME140D.f', 'ucrtbased.dll.#7']),
+                         'vcruntime140d.dll': image(exports=['f'], version=CRT),
+                         'ucrtbased.dll': image(ordinals=[7], version=CRT)})
+        found = errors(facts)
+        self.assertEqual(sum('forwards to debug C++ runtime' in e for e in found), 2)
+
+    def test_release_runtime_names_remain_allowed(self):
+        names = ('vcruntime140.dll', 'vcruntime140_1.dll', 'msvcp140.dll',
+                 'msvcp140_1.dll', 'msvcp140_codecvt_ids.dll', 'msvcp140_atomic_wait.dll',
+                 'concrt140.dll', 'vccorlib140.dll', 'vcomp140.dll',
+                 'mfc140.dll', 'mfc140u.dll', 'mfcm140u.dll', 'my_debug_tool.dll')
+        for name in names:
+            with self.subTest(name=name):
+                facts = stage(**{'Gyroflow.exe': image(imports=[(name, False, ['f'], [])], dll=False),
+                                 name: image(exports=['f'], version=CRT)})
+                self.assertEqual(errors(facts), [])
+
 
 if __name__ == '__main__':
     unittest.main()

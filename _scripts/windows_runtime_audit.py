@@ -34,6 +34,11 @@ STAGED_SYSTEM_EXCEPTIONS = frozenset({'d3dcompiler_47'})
 # Documented optional delay loads. Empty: a missing delay load is an error.
 OPTIONAL_DELAY_IMPORTS = frozenset()
 CRT = re.compile(r'(msvcp140(_\w+)?|vcruntime140(_\w+)?|concrt140|vcomp140|vccorlib140|mfc140\w*)\.dll')
+# Microsoft debug runtimes belong on test machines, not portable release stages.
+# Check known runtime families, not arbitrary application DLLs ending in "d".
+DEBUG_CRT = re.compile(r'(ucrtbased|msvcrtd|(msvcp|msvcr)\d+d'
+                       r'|(msvcp|vcruntime|concrt|vccorlib|vcomp|vcamp)140d(_\w+)?'
+                       r'|(msvcp|vcruntime)140_\w+d|mfcm?140u?d)\.dll')
 FAMILIES = re.compile(r'(avcodec|avdevice|avfilter|avformat|avutil|postproc|swresample|swscale)-\d+\.dll'
                       r'|(opencolorio)_\d+_\d+\.dll|(opencv_[a-z0-9]+?)\d+\.dll')
 
@@ -148,6 +153,11 @@ def evaluate(facts, executable, redist_floor=None, native_versions=None):
             errors.append(f'{relative}: {info["machine"]} image in {main["machine"]} stage')
         if '/' in relative and name in root:
             errors.append(f'{relative} shadows {root[name]}; only the executable directory satisfies imports')
+        if DEBUG_CRT.fullmatch(name):
+            errors.append(f'{relative}: debug C++ runtime is not redistributable')
+        for entry in info['imports']:
+            if DEBUG_CRT.fullmatch(entry['dll'].casefold()):
+                errors.append(f'{relative}: imports debug C++ runtime {entry["dll"]}')
         if '/' not in relative and _system(name) and name[:-4] not in STAGED_SYSTEM_EXCEPTIONS:
             errors.append(f'{relative}: staged copy of a Windows system DLL')
     families = {}
@@ -178,6 +188,8 @@ def evaluate(facts, executable, redist_floor=None, native_versions=None):
             if not separator or not symbol:
                 errors.append(f'{relative}: malformed export forwarder {forward}')
                 continue
+            if DEBUG_CRT.fullmatch(module):
+                errors.append(f'{relative}: forwards to debug C++ runtime {module}')
             if not (module.startswith(('api-ms-win-', 'ext-ms-win-')) or _system(module) or module in root):
                 errors.append(f'{relative}: export forwards to unstaged {forward}')
             elif module in root:
