@@ -255,3 +255,18 @@ matching OCIO and Qt ShaderTools DLLs. This establishes full feature-app
 compilation and staging, not real-video/native acceptance, clean-machine DLL
 closure, complete distribution notices or a public package. Those checks remain
 open; the feature default and installed/public app are unchanged.
+
+The pristine feature executable subsequently completed three private CLI exports
+of the same DJI clip: neutral, LUT only, and LUT with all eight adjustments.
+Each output contained **857 frames** at **1280×720**, **HEVC Main 10** with
+`yuv420p10le`, and **60000/1001** average frame rate, and passed a complete
+error-checked decode. Read-only NVIDIA encoder-session observations matched the
+owned application PID and output dimensions, with **9 / 15 / 16 samples** for
+the three respective cases. The runner completed with exit zero; exact output
+identities are retained in the packet's `cli-export-result.json`.
+
+These checks establish completed real CLI exports and observed hardware encoder
+sessions. They do not establish numerical preview/export color agreement, native
+GUI acceptance, CPU-stabilization fallback absence or whole-export GPU execution.
+Numeric timestamp/cardinality checks, color-tag validation, current-app settings
+namespace preservation and full loaded-DLL closure remain separate checks.
