@@ -1039,3 +1039,25 @@ inputs and final packaging remain separate acceptance checks.
 Evidence: `_dev/root-relocatable-mac-release-20261009/clean-graded-export/`,
 `clean-graded-repeat/`, `matched80-graded-control-v2/` and
 `package-audit/MAC-AUDIT-V10C-ROOT.json` under the same packet.
+
+The later clean source `5a400b6b` completes the actual Mac deploy build in
+291.814 seconds and the actual package helper in 7.067 seconds. Its completed
+private stage includes the exact committed source archive, pinned lens data,
+retained dependency notices, zero required-library/path audit errors, and an
+ad-hoc signature verified with `codesign --verify --deep --strict`. The signed
+stage passes native CLI startup and the same hardware-required graded export;
+all 242 decoded frames and timestamps match the accepted clean `9ea94fb1`
+reference exactly. Original user data and media remain byte-identical.
+
+This closes the technical staging and current-source export checks for that
+Mac candidate. Complete dependency redistribution inputs, current native GUI
+preview, Windows execution, older-OS execution, and public release acceptance
+remain open. Evidence: `_dev/root-release-mac-5a400b6b-20261009/`.
+
+A subsequent packaging-only repair preserves the audit report when resolving
+an optional weak dependency raises `RuntimeError` or `OSError`, including
+Python 3.11/3.12 symlink loops. A regression reproduces both uncaught failures
+against the previous production auditor and passes after the correction.
+The packaging suite runs 63 tests: 62 pass and one platform test is skipped.
+The already signed candidate retains its exact `5a400b6b` source identity;
+the diagnostic repair changes no application or color-processing source.

@@ -263,8 +263,12 @@ def check_mac_dependencies(app):
                     errors.add(f'Missing dependency {value!r} in {path} [{architecture}]'); continue
                 # A user's machine could supply an outside path, including
                 # one reached by parent traversal in an @rpath load.
-                outside = [str(candidate.resolve()) for candidate in candidates
-                           if not contained(candidate.resolve()) and not system(candidate.resolve())]
+                outside = []
+                for candidate in candidates:
+                    try: candidate = candidate.resolve()
+                    except (OSError, RuntimeError): continue  # Invalid dependency recorded above.
+                    if not contained(candidate) and not system(candidate):
+                        outside.append(str(candidate))
                 external.update(outside)
                 if not outside:
                     optional_weak_missing.add(f'{value} in {shown(path)} [{architecture}]')

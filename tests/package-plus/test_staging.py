@@ -389,6 +389,24 @@ class MacDependencyTests(unittest.TestCase):
         self.assertEqual(report['external_dependencies'], [str(self.root / 'outside/missing.dylib')])
         self.assertEqual(report['optional_weak_missing'], [])
 
+    def test_unresolved_weak_symlink_resolution_error_keeps_audit_report(self):
+        self.mdk({'arm64': self.slice(rpaths=('@loader_path/..',),
+                                     weak=('@rpath/loop.dylib',))})
+        loop = self.app / 'Contents/Frameworks/loop.dylib'
+        loop.symlink_to(loop.name)
+        resolve = Path.resolve
+        # Python 3.11/3.12 raise for this loop even with strict=False.
+        # Simulate both documented failure types on newer Python as well.
+        for failure in (RuntimeError('Symlink loop'), OSError('Symlink loop')):
+            def resolving(path, *args, **kwargs):
+                if path == loop: raise failure
+                return resolve(path, *args, **kwargs)
+            with self.subTest(failure=type(failure).__name__):
+                with patch.object(Path, 'resolve', resolving):
+                    report = self.audit()
+                self.assertTrue(any('Invalid dependency' in error and 'loop.dylib' in error
+                                    for error in report['errors']))
+
     def test_weak_obsolete_framework_load_is_still_refused(self):
         self.mdk({'arm64': self.slice(weak=('/System/Library/Frameworks/QTKit.framework/Versions/A/QTKit',))})
         self.assertIn('Obsolete FFmpeg framework dependency', '\n'.join(self.audit()['errors']))
