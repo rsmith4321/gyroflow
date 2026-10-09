@@ -48,7 +48,8 @@ prototype. Once a runtime is prepared and audited, stage it under the fork ident
 ```sh
 # After committing source, run in the prepared Mac dependency environment.
 # Cargo reports the exact executable path in _dev/mac-build.json.
-python3 _scripts/build_plus.py --features ocio-runtime --output _dev/mac-build.json
+python3 _scripts/build_plus.py --no-default-features \
+  --features opencv,ocio-runtime,ffmpeg-next/static --output _dev/mac-build.json
 python3 _scripts/package_plus.py mac path/to/prepared/Gyroflow.app path/to/new-stage \
   --binary _dev/mac-build.json.target/deploy/gyroflow --deploy-receipt _dev/mac-build.json \
   --licenses path/to/dependency-notices
@@ -105,9 +106,28 @@ separate controlled build-and-combine receipt; the single-target helper does not
 attest a later `lipo` output. Build receipts are local provenance, not signatures
 or proof that dependency/toolchain inputs meet the remaining release gates.
 
+For the selected Windows OCIO candidate, compilation uses the explicit feature
+selection below, after preparing and verifying the native dependency environment
+(including `OCIO_ROOT` and `MDK_SDK`):
+
+```powershell
+cargo build --locked --profile deploy --target x86_64-pc-windows-msvc `
+  --no-default-features --features opencv,ocio-runtime --jobs 2
+```
+
+This compilation command does not create a prepared runtime or its deploy
+receipt. The existing `just deploy` recipe enables Cargo defaults and does not
+pass through `--no-default-features`; it is not the reproduction path for the
+accepted candidate. Keep its deployment tooling separate until that pass-through
+has been implemented and tested on Windows. Current private validation uses an
+independently recorded build/stage plan; see the
+[current Windows preflight](OPENCOLORIO-INTEGRATION.md#current-windows-application-preflight).
+
+Once a matching runtime and verified build/deploy receipt have been prepared,
+the staging command is:
+
 ```powershell
 python -m pip install --require-hashes -r _scripts/requirements-package.txt
-just deploy ocio-runtime   # requires OCIO_ROOT and an empty _deployment/_binaries/win64
 python _scripts/package_plus.py windows _deployment/_binaries/win64 path/to/new-stage `
   --binary target/x86_64-pc-windows-msvc/deploy/gyroflow.exe `
   --deploy-receipt _deployment/_binaries/win64-deploy.json `
