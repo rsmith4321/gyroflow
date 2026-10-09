@@ -1061,3 +1061,19 @@ against the previous production auditor and passes after the correction.
 The packaging suite runs 63 tests: 62 pass and one platform test is skipped.
 The already signed candidate retains its exact `5a400b6b` source identity;
 the diagnostic repair changes no application or color-processing source.
+
+The same signed `5a400b6b` candidate also passes a bounded native GUI visual
+smoke check using the production `--open` path and Metal on Apple M4 Max.
+The saved DJI O4 LUT and all eight controls load correctly. At frame 2793
+(approximately 46 seconds, within the saved 45–49 second trim), toggling
+preview color visibly switches between flat log and graded output while
+retaining the settings. Double-clicking Exposure resets it from 0.37 to 0.00
+without changing the other controls. The owned process group closes at its
+90-second observation bound; all protected application data and original
+media/project/LUT bytes remain identical, and the installed app is untouched.
+
+The initial zero-second viewport showed a blank/tiny-triangle image before
+seeking into the saved trim; this observation is retained without attributing
+a cause. This smoke check does not replace numerical GPU/CPU parity or Windows
+acceptance. Evidence: `native-gui-smoke/RESULT.json`, `OBSERVATION.json` and
+`native.log` within the same candidate packet.
