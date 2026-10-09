@@ -665,3 +665,42 @@ Evidence: `_dev/root-current-rgb-app-20261009/ACCEPTANCE.json` and
 `b36f5cde9033298f82adcf2e460f681fa0baa0182cd1eb0e8d1cf9487112f8e2`.
 No installed app, default feature, public package or release gate changed.
 Current Windows acceptance remains open and is paused at Ryan's request.
+
+
+### Deploy-profile follow-through with the pinned dependency
+
+A fresh Mac application build at `d23695a9` uses the normal **deploy** profile
+(`inherits = "release"`, LTO, one codegen unit), `ocio-runtime`, and the original
+pinned qmetaobject dependency. It does **not** use the candidate binding patch.
+The canonical and private root lockfiles are byte-identical and unchanged.
+All 453 compared source/resource/configuration files match the current checkout
+except `src/core/settings.rs`, whose private seam changes only the settings
+location. The OCIO processor and GPU preview source files also match the earlier
+Mac acceptance source at `479419e9`.
+
+The build exits zero in **286.195 seconds**, with its owned process group terminal.
+Using the same verified, three-frame tagged MP4 and red-to-gray LUT, the app
+completes neutral PNG, LUT PNG and LUT EXR exports. The test omits the interpolation
+parameter, so the ordinary mapping selects **Lanczos4**. All nine decoded images
+match the reference values and preselected tolerances in the table above; their
+observed interior values and maximum errors are unchanged. All 15 bounded fixture,
+app and decode commands exit zero with terminal owned groups. Existing authored
+Plus settings hashes remain exact.
+
+This adds actual optimized application-path evidence without a dependency
+override or a bilinear substitution. It is still a synthetic 64×64 interior-color
+observation, not real-camera motion, native-preview, hardware-export or portable
+package acceptance. The sequence logs retain an encoder PTS warning and an
+unsuccessful attempt to update the sequence pattern's file times; all individual
+images were created and decoded. No timing or file-time guarantee is inferred.
+
+An optimized run that finishes does not make the Qt null-reference offset pattern
+valid, and it does not fix the separate debug Lanczos integer overflow. Both
+findings and the earlier failed runs remain retained. No installed app, default
+feature or public release changed; current Windows acceptance remains held at
+Ryan's request.
+
+Evidence: `_dev/root-current-rgb-app-20261009/deploy-pinned-binding-v5/ACCEPTANCE.json`,
+`SOURCE-VERIFICATION.json`, `RESULT.json`, and
+`exports-v5-deploy-default/RESULT.json`. The deploy binary SHA-256 is
+`918148aca654990cf352cfc5d37779dfef02c4e08450d884fe9b37d7e07e82df`.
