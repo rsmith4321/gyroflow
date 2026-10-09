@@ -121,6 +121,16 @@ The local MDK 0.39.0 playback SDK was extracted separately and supplied with
 `MDK_SDK`; its archive hash is
 `5620e05359f692f6d9ecabc6e49bf62adf4e061f568a18355210bfac70f716a5`.
 
+That archive hash is retained from the original test record. The current native
+notice review has not recovered the original archive filename or download URL
+from the inspected provider records; there are no archive files directly in the
+known MDK provider parent directory. This does not establish whether a copy
+exists elsewhere. The accepted private stage has separate DLL identities, but
+the observed MDK version alone cannot establish equivalence to a later download
+with the same version label. Archive provenance and matching notices remain
+release gates; do not substitute a newly downloaded archive's notices without
+checking which components were actually shipped.
+
 ### Full application and export evidence
 
 - The actual release application starts and reports its version (exit 0).
