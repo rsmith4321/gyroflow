@@ -1392,3 +1392,43 @@ exports, installation, or a portable Windows package. A fresh private package
 and those app-level checks are the next steps; no rebuild is needed solely to
 resolve the log-search error. The public download and default color runtime
 remain unchanged.
+
+### Current Windows private application checks: 2026-10-09
+
+The exact application above was staged privately with Qt 6.7.3, official OCIO
+2.4.2 and the pinned native dependencies. The native dependency audit reported
+zero errors, including architecture, import/symbol resolution and the native
+CRT FileVersion check. This is an audit and run on the development laptop, not
+proof of a clean-machine portable release.
+
+Two saved-project exports used the same original DJI O4 clip, stabilization and
+45–49 second requested trim: neutral, and the selected DJI LUT with all eight
+controls set. Both completed and independently decoded to 242 frames at
+3840×2160, HEVC Main 10, with matching timestamps, pixel format and color tags.
+Their actual duration was 4.037367 seconds; the application's nominal 240-frame
+progress total is not an exact output-frame count. Every full-resolution decoded
+frame hash differs between the neutral and graded files. This establishes that
+the saved grade affects export while preserving the compared output properties;
+it is not a numerical color oracle or a new matched performance benchmark.
+
+GPU encoding was requested. Both runs reported `Rendering completed` and no
+`uses_cpu` error. The existing queue marks initialization of the software HEVC
+encoder as `uses_cpu` when GPU encoding is requested, so the fallback guard
+passed. NVENC specifically is inferred, rather than established by a retained
+encoder-name observation.
+
+Actual interface startup exposed a packaging error: generated `qt.conf` pointed
+QML imports at the application root, while the deployed modules were under
+`qml/`. The staged configuration was corrected and its native audit passed.
+The application then created its window without QML path environment overrides.
+The matching packaging source fix is `d2f45862`; the application executable is
+unchanged. The original failed startup evidence is retained. Screen capture
+showed the laptop's screensaver, so visible preview comparison and interactive
+save/reopen/reset checks are still unverified.
+
+The private phase closed every owned application job and verified all 1,298
+original input pins without mismatches. Its frozen handback SHA-256 is
+`f937fece805730436a8095653a35207d668e02eea4692e5e96aa4797b8e10fd0`.
+Native dependency notice/source provenance collection and the interactive checks
+remain open. This does not approve an installation or public download, and the
+default color runtime remains unchanged.
