@@ -2133,19 +2133,25 @@
    }
   },
   "unattributed": {
-   "name": "Software OpenGL (implementation attribution pending)",
-   "version": "n/a",
+   "name": "Software OpenGL (Mesa 11.2.2 / LLVM 3.6.2; notice coverage pending)",
+   "version": "Mesa 11.2.2 / LLVM 3.6.2",
    "required": true,
    "identity": {
     "staged_dll_count": 1,
     "immediate_provider": "Qt 6.7.3 msvc2019_64 bin",
     "installed_provider_same_bytes": true,
-    "opengl32sw_dll_sha256": "b04de4541863bc7d8879040a78889c4849c1b1da2784c4630f734c146c2998ce"
+    "opengl32sw_dll_sha256": "b04de4541863bc7d8879040a78889c4849c1b1da2784c4630f734c146c2998ce",
+    "official_reference_same_bytes": true,
+    "implementation_versions": {
+     "Mesa": "11.2.2",
+     "LLVM": "3.6.2"
+    }
    },
    "notice_members": [],
    "provenance_members": [
     "unattributed/PROVENANCE.json",
-    "unattributed/CURRENT-PROVIDER.json"
+    "unattributed/CURRENT-PROVIDER.json",
+    "unattributed/REFERENCE-ATTRIBUTION.json"
    ],
    "reused_repo_paths": [],
    "release_provenance": {
@@ -2154,8 +2160,8 @@
      {
       "id": "opengl32sw-provider",
       "class": "blocker",
-      "text": "opengl32sw.dll (20639888 B, b04de454...) is byte-identical to the Qt 6.7.3 provider bin copy. Its implementation version/source and applicable notice texts remain unestablished; no matching local attribution was found.",
-      "needed_artifact": "Applicable license/copyright texts and implementation source/version attribution for this exact Qt-distributed DLL. Immediate package-provider identity alone does not satisfy this requirement."
+      "text": "opengl32sw.dll is byte-identical to the Qt 6.7.3 provider and the published Qt software-renderer reference. Static strings establish Mesa 11.2.2 and LLVM 3.6.2. Applicable notice coverage and the Qt patch/build source revision remain unestablished.",
+      "needed_artifact": "Reviewed applicable copyright/license texts for the exact Qt-distributed Mesa/LLVM DLL, with the version-matched upstream sources distinguished from unknown Qt patches/build identity. Reference/version attribution alone does not satisfy the remaining requirement."
      }
     ],
     "resolved": []
@@ -2172,8 +2178,8 @@
   },
   {
    "path": "README.md",
-   "bytes": 3763,
-   "sha256": "9fdc538a642d33a7f3231ed1e5fc58162961dca3133a7cad10a68eb79dac3c4d",
+   "bytes": 4068,
+   "sha256": "c09428a6a793387e227403d298d0d57de1c2a7b0b27c3b84814642942e7eb9ed",
    "component": "packet",
    "role": "packet"
   },
@@ -6388,6 +6394,13 @@
    "bytes": 1442,
    "sha256": "f06c7de59b5fb016d0340094ad5bff204a74ccbb51bc3136371e801da6b45788",
    "component": "zlib",
+   "role": "provenance"
+  },
+  {
+   "path": "unattributed/REFERENCE-ATTRIBUTION.json",
+   "bytes": 1681,
+   "sha256": "37136a8c3a3478650768c7434533b4e0979b13aedea99d416fbd5cb31f1a6dfe",
+   "component": "unattributed",
    "role": "provenance"
   }
  ]
