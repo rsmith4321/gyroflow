@@ -1912,7 +1912,25 @@
     "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/c1e91487f1df88f1312a54f3d3e9905f82fcdb7a56f713d1752a76c3c1e3fec9.txt",
     "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/cd91ad948c33bdd42475168cbacf77cf46d56650f844bd0db09d2806c6013af2.txt",
     "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/e91106c84e56640ce2e841e57c29f5cb85c65bae67363b89797a472f77949ffa.txt",
-    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/fd5384ba46f5aee151a59dd738e9f78e83e4410532a581bc8cee8fa519b4d750.txt"
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/fd5384ba46f5aee151a59dd738e9f78e83e4410532a581bc8cee8fa519b4d750.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/header-notices/02139e4e08f0aaa55fcca803df3044477152c698a73c45ad1bba401ddd722803.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/header-notices/03b1905ad79b116b5b13fa814673d35304584ad0d1f7776a4b0ca53179fd4dd7.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/header-notices/0e46698bd809c8f9dcb8116e8a9385c7f15bed34906b78cd6508d32985369a4c.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/header-notices/244109277d300ced1df305738b059f1adb8cc5c3095a4449dc9963497597e214.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/header-notices/2651f6b2574a1f64db0aca7715941f1134983f0afcdadea32ab9c56e7f4c234f.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/header-notices/2a3d140a10bf2cac38bc6cfa2c9e7bbca7e6278cc22d5a1a848b04000640323e.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/header-notices/3f6497154fc31c2378b8aee65e5d4772ed45e00c26c80ea0521eb0ea5eff1499.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/header-notices/4827dadbefe039d9475accaec71208a59596179e9410d41cf4adc6028ed34ba6.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/header-notices/6ede89454b13ad9403411c9d1a14ef5aac6b85467984cda242477ba8476d0a93.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/header-notices/739b192fbdcf961bbc7d37cf63dd908b6ea0f518028b37bad6cc38f095615ae9.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/header-notices/9176352036576891a1f0a115e3bcc4ddec08268efb2422aa4f0c5912d0ff0c91.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/header-notices/9a713f52dd0aada3bd0e75e6e21d5ba39817fd829ea20b57640d8595f488c2a1.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/header-notices/bb28022ff3d8f99f9d25beb3cef2853ea4883fbae38e79efda566c9bd14b849c.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/header-notices/c6ef44de495f48cb3e12490f22641cac9d98eff9a4426a55bd40b3f68fe0dc17.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/header-notices/d215bedc7b0e354f8fa1a134167ad4def7fae9fde17e6235c132ec22eb103ff5.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/header-notices/e03a6fa526fa580bf5d32a8c88ee6b285fd0cf35c4da60b7969d410101a7aa72.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/header-notices/f279182b9e8f1dc7388a509b3ade0eaa6c0cf7b2724c2e4e37baa043c16a0bec.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/PACKAGE-NOTICE.txt"
    ],
    "provenance_members": [
     "mdk-0.39.0-e89bc0b/PROVENANCE.json",
@@ -1927,7 +1945,10 @@
     "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/PROVENANCE.json",
     "mdk-0.39.0-e89bc0b/bundled/libass.dll/PROVENANCE.json",
     "mdk-0.39.0-e89bc0b/bundled/evidence/ACTIONS-BUILD-CONTENT.json",
-    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/PROVENANCE.json"
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/PROVENANCE.json",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/PACKAGE-LICENSE.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/PACKAGE.nuspec",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/PROVENANCE.json"
    ],
    "reused_repo_paths": [],
    "release_provenance": {
@@ -1952,12 +1973,6 @@
       "needed_artifact": "A source archive (or root's chosen source route) for FFmpeg 590fb407 plus the avbuild d91e8a95 patch files listed in bundled/evidence/avbuild-d91e8a95-patch-set.tsv."
      },
      {
-      "id": "mdk-ffmpeg9-libva-headers",
-      "class": "blocker",
-      "text": "ffmpeg-9.dll compiles VA-API code (VA 1.19.0) against libva headers that devpkgs takes from the latest Microsoft.Direct3D.VideoAccelerationCompatibilityPack NuGet package at run time. The package version, and so the exact notice text, is not established; no libva-header notice is in the package.",
-      "needed_artifact": "The NuGet package version used by the devpkgs run that produced the avbuild dep-av input, and the licence file inside that package."
-     },
-     {
       "id": "mdk-ffmpeg9-build-revision",
       "class": "advisory",
       "text": "avbuild d91e8a95, nv-codec-headers eddcea9e and the devpkgs dep-av revision (oneVPL 3a3ca48d, zlib da607da7, libva_loader 7d814d7b, pins unchanged 2026-07-12 to 2026-09-29) are inferred from link time and repository history, not from embedded ids. The texts at those pins are exact.",
@@ -1974,6 +1989,12 @@
       "class": "advisory",
       "text": "devpkgs ce43c819 (FriBidi b93119f5, FreeType 0a0221a1) is inferred from the embedded HarfBuzz version 14.5.0 and the 2026-09-29T12:36:56Z link time; libass af5f116d is exact from its embedded commit id. HarfBuzz 14.5.0 is embedded exactly, but its source commit 863d3f77 remains inferred from the devpkgs pin; a matching version alone is not an exact commit identity.",
       "needed_artifact": null
+     },
+     {
+      "id": "mdk-libva-historical-download",
+      "class": "advisory",
+      "text": "The historical devpkgs artifact is selected by latest-successful workflow metadata and exact nested archive size in the FFmpeg log. All 28 headers match official NuGet 1.0.2, but the FFmpeg log contains no original download redirect/digest; raw dep-av download identity remains unproven.",
+      "needed_artifact": "Original avbuild dependency-download checksum or equivalent provider build receipt."
      }
     ],
     "resolved": [
@@ -2014,6 +2035,12 @@
       "class": "resolved",
       "prior_text": "ffmpeg-9.dll compiles AMD AMF encoder code against AMF headers downloaded as AMF-headers-v$AMF_VER.tar.gz, where AMF_VER is a private avbuild repository variable. The version, and so the exact notice text, is not established; no AMF notice is in the package.",
       "text": "AMF 1.5.2 established by public Actions log and defined binary section payload comparison. Exact release-header preambles from all 57 files (34 unique) and tag LICENSE.txt are retained under bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/. Raw binary postprocessing and broader source obligations remain separate."
+     },
+     {
+      "id": "mdk-ffmpeg9-libva-headers",
+      "class": "resolved",
+      "prior_text": "ffmpeg-9.dll compiles VA-API code (VA 1.19.0) against libva headers that devpkgs takes from the latest Microsoft.Direct3D.VideoAccelerationCompatibilityPack NuGet package at run time. The package version, and so the exact notice text, is not established; no libva-header notice is in the package.",
+      "text": "All 28 retained historical x64 libva 1.19.0 header files exactly match official NuGet package 1.0.2. All 17 distinct license comments and full package NOTICE are retained, together with package License/nuspec provenance. Missing header-notice text resolved; historical download digest and broader source requirements remain separate."
      }
     ]
    }
@@ -2235,8 +2262,8 @@
   },
   {
    "path": "README.md",
-   "bytes": 5210,
-   "sha256": "a2e457b8aecfe36235b891dfb5ec301ae7facfcf2c07061bbb02629ed3faebc0",
+   "bytes": 5788,
+   "sha256": "5f2ded8d5ab50f6bf8e917f4e875fc7300a413be3036b4fa4c91a3364574e3fa",
    "component": "packet",
    "role": "packet"
   },
@@ -6851,6 +6878,153 @@
    "sha256": "fd5384ba46f5aee151a59dd738e9f78e83e4410532a581bc8cee8fa519b4d750",
    "component": "mdk",
    "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/header-notices/02139e4e08f0aaa55fcca803df3044477152c698a73c45ad1bba401ddd722803.txt",
+   "bytes": 1203,
+   "sha256": "02139e4e08f0aaa55fcca803df3044477152c698a73c45ad1bba401ddd722803",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/header-notices/03b1905ad79b116b5b13fa814673d35304584ad0d1f7776a4b0ca53179fd4dd7.txt",
+   "bytes": 1210,
+   "sha256": "03b1905ad79b116b5b13fa814673d35304584ad0d1f7776a4b0ca53179fd4dd7",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/header-notices/0e46698bd809c8f9dcb8116e8a9385c7f15bed34906b78cd6508d32985369a4c.txt",
+   "bytes": 1198,
+   "sha256": "0e46698bd809c8f9dcb8116e8a9385c7f15bed34906b78cd6508d32985369a4c",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/header-notices/244109277d300ced1df305738b059f1adb8cc5c3095a4449dc9963497597e214.txt",
+   "bytes": 1198,
+   "sha256": "244109277d300ced1df305738b059f1adb8cc5c3095a4449dc9963497597e214",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/header-notices/2651f6b2574a1f64db0aca7715941f1134983f0afcdadea32ab9c56e7f4c234f.txt",
+   "bytes": 1198,
+   "sha256": "2651f6b2574a1f64db0aca7715941f1134983f0afcdadea32ab9c56e7f4c234f",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/header-notices/2a3d140a10bf2cac38bc6cfa2c9e7bbca7e6278cc22d5a1a848b04000640323e.txt",
+   "bytes": 1203,
+   "sha256": "2a3d140a10bf2cac38bc6cfa2c9e7bbca7e6278cc22d5a1a848b04000640323e",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/header-notices/3f6497154fc31c2378b8aee65e5d4772ed45e00c26c80ea0521eb0ea5eff1499.txt",
+   "bytes": 1198,
+   "sha256": "3f6497154fc31c2378b8aee65e5d4772ed45e00c26c80ea0521eb0ea5eff1499",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/header-notices/4827dadbefe039d9475accaec71208a59596179e9410d41cf4adc6028ed34ba6.txt",
+   "bytes": 1203,
+   "sha256": "4827dadbefe039d9475accaec71208a59596179e9410d41cf4adc6028ed34ba6",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/header-notices/6ede89454b13ad9403411c9d1a14ef5aac6b85467984cda242477ba8476d0a93.txt",
+   "bytes": 1177,
+   "sha256": "6ede89454b13ad9403411c9d1a14ef5aac6b85467984cda242477ba8476d0a93",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/header-notices/739b192fbdcf961bbc7d37cf63dd908b6ea0f518028b37bad6cc38f095615ae9.txt",
+   "bytes": 1203,
+   "sha256": "739b192fbdcf961bbc7d37cf63dd908b6ea0f518028b37bad6cc38f095615ae9",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/header-notices/9176352036576891a1f0a115e3bcc4ddec08268efb2422aa4f0c5912d0ff0c91.txt",
+   "bytes": 1262,
+   "sha256": "9176352036576891a1f0a115e3bcc4ddec08268efb2422aa4f0c5912d0ff0c91",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/header-notices/9a713f52dd0aada3bd0e75e6e21d5ba39817fd829ea20b57640d8595f488c2a1.txt",
+   "bytes": 1203,
+   "sha256": "9a713f52dd0aada3bd0e75e6e21d5ba39817fd829ea20b57640d8595f488c2a1",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/header-notices/bb28022ff3d8f99f9d25beb3cef2853ea4883fbae38e79efda566c9bd14b849c.txt",
+   "bytes": 1203,
+   "sha256": "bb28022ff3d8f99f9d25beb3cef2853ea4883fbae38e79efda566c9bd14b849c",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/header-notices/c6ef44de495f48cb3e12490f22641cac9d98eff9a4426a55bd40b3f68fe0dc17.txt",
+   "bytes": 1198,
+   "sha256": "c6ef44de495f48cb3e12490f22641cac9d98eff9a4426a55bd40b3f68fe0dc17",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/header-notices/d215bedc7b0e354f8fa1a134167ad4def7fae9fde17e6235c132ec22eb103ff5.txt",
+   "bytes": 1203,
+   "sha256": "d215bedc7b0e354f8fa1a134167ad4def7fae9fde17e6235c132ec22eb103ff5",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/header-notices/e03a6fa526fa580bf5d32a8c88ee6b285fd0cf35c4da60b7969d410101a7aa72.txt",
+   "bytes": 1219,
+   "sha256": "e03a6fa526fa580bf5d32a8c88ee6b285fd0cf35c4da60b7969d410101a7aa72",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/header-notices/f279182b9e8f1dc7388a509b3ade0eaa6c0cf7b2724c2e4e37baa043c16a0bec.txt",
+   "bytes": 1198,
+   "sha256": "f279182b9e8f1dc7388a509b3ade0eaa6c0cf7b2724c2e4e37baa043c16a0bec",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/PACKAGE-NOTICE.txt",
+   "bytes": 17038,
+   "sha256": "ba1323cc17ac8bfb833babdaf99aa70475115fe0d28f97e1df820863a2339507",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/PACKAGE-LICENSE.txt",
+   "bytes": 14969,
+   "sha256": "3cf16b92f68abb112d5af1267a74ef64e0988111730e89827a6a5e5308346617",
+   "component": "mdk",
+   "role": "provenance"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/PACKAGE.nuspec",
+   "bytes": 810,
+   "sha256": "6fd60452238e582bf07e32957f88f78a336411be2b9295228b3d9a05e1dda964",
+   "component": "mdk",
+   "role": "provenance"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/PROVENANCE.json",
+   "bytes": 18083,
+   "sha256": "733b5c1d6a4d0319a0d860160e311cb04191fee43a08365c3457e9774c126081",
+   "component": "mdk",
+   "role": "provenance"
   }
  ]
 }

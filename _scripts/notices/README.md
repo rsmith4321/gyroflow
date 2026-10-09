@@ -14,12 +14,12 @@ verifier:
 ```sh
 python3 -I _scripts/notices/verify_native_notices.py \
   resources/notices/native/windows-x64 --repo-root . \
-  --manifest-sha256 14d8bde57281e613b62124bc93f0d14d613bfab71667bed8e1693dfee0ff8d31
+  --manifest-sha256 efb50bf94c2123ec241f5e644bab0e8033547b1d5fe200e13f94f4af82adb933
 ```
 
 The Qt GPL-2.0-or-later alias is retained as the full upstream target text,
 rather than the literal Git symbolic-link target name. Content integrity currently passes. Add `--require-release-complete` to check the
-recorded release gaps; it currently returns **3**, because nine blockers or
+recorded release gaps; it currently returns **3**, because eight blockers or
 obligations remain. A normal integrity exit of zero is not distribution approval.
 The manifest pin prevents an edited gap classification from silently passing.
 
@@ -44,9 +44,10 @@ upstream commits.
 An embedded library version does not establish an exact source commit. The
 HarfBuzz version is exact, while its source pin and other documented build pins
 remain inferred in the historical provenance. The remaining MDK requirements
-cover libva header provenance and source delivery. The FreeType credit/license choice and OpenCL notice gaps have since
+cover corresponding-source delivery; the historical libva download identity
+remains an advisory. The FreeType credit/license choice and OpenCL notice gaps have since
 been resolved with retained documentation and exact installed provider files.
-Nine recorded blockers or obligations remain across the complete native tree.
+Eight recorded blockers or obligations remain across the complete native tree.
 AMF 1.5.2 now has its tag LICENSE and all 57 release-header preambles retained
 with public Actions and limited binary section comparison evidence; the AMF
 notice gap is resolved. Raw binary identity and broader source requirements remain
@@ -178,3 +179,8 @@ Remaining attribution decisions include the upstream objc2 and pulp licensing
 statements, nalgebra 0.30.1's declaration/text discrepancy, and native libraries
 outside Cargo's view. Keep full upstream texts and supplements; the gate's fallback
 allow-list is a recorded review decision, not a general exemption from attribution.
+
+The libva header notice gap is resolved by exact comparison of all 28 retained
+historical headers with official NuGet package 1.0.2. All 17 distinct verbatim
+header comments and the full package NOTICE are retained. Package License and
+nuspec are provenance; original download identity remains explicitly unproven.

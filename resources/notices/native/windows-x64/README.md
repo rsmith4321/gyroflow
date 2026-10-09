@@ -11,7 +11,7 @@ of original installed provider files. `.gitattributes` keeps those bytes unchang
 Later additions retain MDK bundled notices, the FreeType license choice and
 acknowledgment, and the byte-matched OpenCL SDK provider's copyright and metadata.
 The current `427a6ca4` private Windows stage has the same 120 DLL identities as
-the frozen inventory. Nine blocking requirements remain; consult the manifest
+the frozen inventory. Eight blocking requirements remain; consult the manifest
 for the current component records. A copied notice tree does not close them.
 
 `MANIFEST.json` lists:
@@ -73,3 +73,13 @@ DLL differs from MDK in one PE size field and padding beyond the code section
 VirtualSize. `mdk-0.39.0-e89bc0b/bundled/evidence/ACTIONS-BUILD-CONTENT.json` records this limited
 comparison for FFmpeg and libass. No raw binary identity or complete corresponding
 source is inferred from it. Only the missing AMF notice gap is closed.
+
+## libva header notices
+
+All 28 libva 1.19.0 headers in the retained historical dependency artifact match
+Microsoft.Direct3D.VideoAccelerationCompatibilityPack 1.0.2 byte for byte. The
+17 distinct header license blocks and full package NOTICE are retained, with
+package License and nuspec recorded as provenance. The historical dependency
+download is supported by workflow timing and archive size; its original checksum
+is absent from the FFmpeg log. This closes the missing header-notice text, while
+the download-identity advisory and broader source obligations remain open.
