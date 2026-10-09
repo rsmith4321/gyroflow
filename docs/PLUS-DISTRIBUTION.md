@@ -69,6 +69,14 @@ build dependencies. The package auditor rejects external runtime paths and
 checks the full bundled dependency closure; this option alone is not portable
 package or older-OS acceptance.
 
+The Mac stage report separates absent weak library lookups
+(`optional_weak_missing`) and nonexistent search directories contained in the
+bundle (`absent_contained_search_paths`) from required dependency failures.
+Present weak libraries still undergo architecture, deployment-floor and
+transitive-load checks. External paths, missing required libraries and obsolete
+framework dependencies remain release refusals. These diagnostics describe
+loader inputs; they do not prove that optional codecs or camera SDKs work.
+
 ## Lens profile build input
 
 Portable builds explicitly select the tracked `src/core/lens_profiles.pin`: official lens-profile release v41, asset SHA256 `5b9136697b75ddf9cda20965f17e786b6c8530e3d59109f87505069602e7f676`. The Mac receipt helper defaults to this pinned mode. For Windows deploy, set `$Env:GYROFLOW_LENS_PROFILES = 'pinned'` before running the recipe. An existing different database is refused without replacement; use a fresh isolated build tree instead of modifying an authored/development database.

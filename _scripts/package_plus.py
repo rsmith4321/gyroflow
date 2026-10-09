@@ -142,7 +142,7 @@ def read_macho(path):
         raise RuntimeError(f'No Mach-O architectures in {path}')
     slices = {}
     for architecture in architectures:
-        loads, rpaths, minimums = [], [], []
+        loads, weak, rpaths, minimums = [], [], [], []
         output = run('otool', '-arch', architecture, '-l', str(path))
         for block in re.split(r'\nLoad command \d+\n', output):
             command = re.search(r'^\s*cmd\s+(\S+)\s*$', block, re.M)
@@ -152,7 +152,9 @@ def read_macho(path):
                 field = 'path' if command == 'LC_RPATH' else 'name'
                 value = re.search(r'^\s*' + field + r'\s+(.+?)\s+\(offset \d+\)\s*$', block, re.M)
                 if not value: raise RuntimeError(f'Malformed {command} in {path} [{architecture}]')
-                (rpaths if command == 'LC_RPATH' else loads).append(value.group(1))
+                # dyld skips a missing weak library; every other load is required.
+                (rpaths if command == 'LC_RPATH' else weak if command == 'LC_LOAD_WEAK_DYLIB'
+                 else loads).append(value.group(1))
             elif command in ('LC_BUILD_VERSION', 'LC_VERSION_MIN_MACOSX'):
                 if command == 'LC_BUILD_VERSION':
                     platform = re.search(r'^\s*platform\s+(\S+)\s*$', block, re.M)
@@ -165,7 +167,8 @@ def read_macho(path):
                 minimums.append(value.group(1))
         if len(minimums) != 1:
             raise RuntimeError(f'Expected one macOS minimum in {path} [{architecture}]')
-        slices[architecture] = dict(dependencies=loads, rpaths=rpaths, minimum_macos=minimums[0])
+        slices[architecture] = dict(dependencies=loads, weak_dependencies=weak, rpaths=rpaths,
+                                    minimum_macos=minimums[0])
     return slices
 
 
@@ -174,11 +177,16 @@ def check_mac_dependencies(app):
 
     Development-only external loads are inspected but never count toward the
     embedded deployment floor. Apple shared-cache libraries need not be on disk.
+    Absent weak libraries and absent in-bundle run-path directories are what
+    dyld skips; they are reported separately and are not closure errors. A
+    weak library that is present is audited like any other.
     """
     app = app.resolve(strict=True)
     executable = app / 'Contents/MacOS/gyroflow'
     external, errors, inventory, inspected, embedded_minimums = set(), set(), set(), {}, {}
+    optional_weak_missing, absent_search_paths = set(), set()
     def contained(path): return path.is_relative_to(app)
+    def shown(path): return path.relative_to(app) if contained(path) else path
     def system(path): return path.is_relative_to('/usr/lib') or path.is_relative_to('/System/Library')
     def expand(value, loader):
         for prefix, base in (('@loader_path', loader.parent), ('@executable_path', executable.parent)):
@@ -215,7 +223,10 @@ def check_mac_dependencies(app):
                 errors.add(f'Unresolvable LC_RPATH {value!r} in {path} [{architecture}]'); continue
             if not contained(resolved) and not system(resolved): external.add(str(resolved))
             if not resolved.is_dir() and not system(resolved):
-                errors.add(f'Missing LC_RPATH directory {resolved} in {path} [{architecture}]')
+                if contained(resolved):
+                    absent_search_paths.add(f'{value} ({shown(resolved)}) in {shown(path)} [{architecture}]')
+                else:
+                    errors.add(f'Missing LC_RPATH directory {resolved} in {path} [{architecture}]')
             result.append(resolved)
         return tuple(dict.fromkeys(result + list(inherited)))
     visited, reached = set(), set()
@@ -230,7 +241,8 @@ def check_mac_dependencies(app):
             errors.add('Too many distinct Mach-O loader contexts to audit safely'); return
         visited.add(key)
         reached.add((path, architecture))
-        for value in data['dependencies']:
+        for value, weak in ([(value, False) for value in data['dependencies']] +
+                            [(value, True) for value in data['weak_dependencies']]):
             if any(part in ('QTKit.framework', 'VideoDecodeAcceleration.framework')
                    for part in Path(value).parts):
                 errors.add(f'Obsolete FFmpeg framework dependency {value!r} in {path} [{architecture}]')
@@ -247,7 +259,16 @@ def check_mac_dependencies(app):
                 if system(candidate) or candidate.is_file():
                     resolved = candidate; break
             if resolved is None:
-                errors.add(f'Missing dependency {value!r} in {path} [{architecture}]'); continue
+                if not weak:
+                    errors.add(f'Missing dependency {value!r} in {path} [{architecture}]'); continue
+                # A user's machine could supply an outside path, including
+                # one reached by parent traversal in an @rpath load.
+                outside = [str(candidate.resolve()) for candidate in candidates
+                           if not contained(candidate.resolve()) and not system(candidate.resolve())]
+                external.update(outside)
+                if not outside:
+                    optional_weak_missing.add(f'{value} in {shown(path)} [{architecture}]')
+                continue
             if system(resolved): continue
             if not contained(resolved): external.add(str(resolved))
             visit(resolved, architecture, paths)
@@ -266,6 +287,8 @@ def check_mac_dependencies(app):
                 visit(path, architecture, runpaths(executable, architecture, ()))
     floor = max(embedded_minimums.values(), key=macos_version, default=None)
     return dict(external_dependencies=sorted(external), errors=sorted(errors),
+                optional_weak_missing=sorted(optional_weak_missing),
+                absent_contained_search_paths=sorted(absent_search_paths),
                 maximum_embedded_minimum_macos=floor, embedded_minimum_macos=embedded_minimums)
 
 

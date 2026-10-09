@@ -159,8 +159,8 @@ class MacDependencyTests(unittest.TestCase):
         self.mock.start()
         self.addCleanup(self.mock.stop)
 
-    def slice(self, dependencies=(), rpaths=(), minimum='11.0', legacy=False):
-        return dict(dependencies=dependencies, rpaths=rpaths, minimum=minimum, legacy=legacy)
+    def slice(self, dependencies=(), rpaths=(), minimum='11.0', legacy=False, weak=()):
+        return dict(dependencies=dependencies, rpaths=rpaths, minimum=minimum, legacy=legacy, weak=weak)
 
     def binary(self, relative, slices):
         path = relative if isinstance(relative, Path) else self.app / relative
@@ -197,6 +197,7 @@ class MacDependencyTests(unittest.TestCase):
             blocks.append(f'cmd LC_BUILD_VERSION\nplatform 1\nminos {data["minimum"]}\nsdk 27.0')
         blocks += [f'cmd LC_RPATH\npath {value} (offset 12)' for value in data['rpaths']]
         blocks += [f'cmd LC_LOAD_DYLIB\nname {value} (offset 24)' for value in data['dependencies']]
+        blocks += [f'cmd LC_LOAD_WEAK_DYLIB\nname {value} (offset 24)' for value in data['weak']]
         output = f'{path} (architecture {architecture}):\n' + ''.join(
             f'Load command {index}\n{block}\n' for index, block in enumerate(blocks))
         return subprocess.CompletedProcess(args, 0, stdout=output, stderr='')
@@ -337,6 +338,70 @@ class MacDependencyTests(unittest.TestCase):
         self.assertEqual(report['external_dependencies'], [str(self.root / 'outside/missing')])
         self.assertIn('Missing LC_RPATH directory', '\n'.join(report['errors']))
 
+    def mdk(self, slices):
+        """Main executable loading a bundled framework whose own loads the test chooses."""
+        self.main_binary(self.slice(('@rpath/mdk.framework/mdk',), ('@loader_path/../Frameworks',)))
+        return self.binary('Contents/Frameworks/mdk.framework/mdk', slices)
+
+    def test_missing_weak_load_is_optional_where_the_same_hard_load_fails(self):
+        name = '@rpath/libdav1d.7.dylib'
+        self.mdk({'arm64': self.slice((name,), ('@loader_path/..',))})
+        report = self.audit()
+        self.assertIn(f"Missing dependency '{name}'", '\n'.join(report['errors']))
+        self.assertEqual(report['optional_weak_missing'], [])
+        self.mdk({'arm64': self.slice(rpaths=('@loader_path/..',), weak=(name,))})
+        report = self.audit()
+        self.assertEqual(report['errors'], [])
+        self.assertEqual(report['external_dependencies'], [])
+        self.assertEqual(report['optional_weak_missing'],
+                         [f'{name} in Contents/Frameworks/mdk.framework/mdk [arm64]'])
+
+    def test_present_weak_load_keeps_hard_closure_slices_and_minimum(self):
+        self.mdk({'arm64': self.slice(rpaths=('@loader_path/..',), weak=('@rpath/libmdk-braw.dylib',))})
+        braw = self.binary('Contents/Frameworks/libmdk-braw.dylib', {'arm64': self.slice(
+            ('@rpath/libBlackmagicRawAPI.dylib',), minimum='27.0')})
+        report = self.audit()
+        self.assertIn("Missing dependency '@rpath/libBlackmagicRawAPI.dylib'", '\n'.join(report['errors']))
+        self.assertEqual(report['optional_weak_missing'], [])
+        self.assertEqual(report['maximum_embedded_minimum_macos'], '27.0')
+        self.binary(braw, {'x86_64': self.slice()})
+        self.assertIn('Missing arm64 Mach-O slice', '\n'.join(self.audit()['errors']))
+
+    def test_weak_load_from_outside_the_bundle_is_still_external(self):
+        homebrew = self.root / 'homebrew/lib'
+        homebrew.mkdir(parents=True)
+        self.binary(homebrew / 'libdav1d.7.dylib', {'arm64': self.slice()})
+        self.mdk({'arm64': self.slice(rpaths=(str(homebrew),), weak=('@rpath/libdav1d.7.dylib',))})
+        report = self.audit()
+        self.assertEqual(report['external_dependencies'], sorted([str(homebrew), str(homebrew / 'libdav1d.7.dylib')]))
+        self.assertEqual(report['optional_weak_missing'], [])
+        # A fixed outside path is external even while absent from this machine.
+        missing = self.root / 'usr-local/lib/libx265.dylib'
+        self.mdk({'arm64': self.slice(weak=(str(missing),))})
+        report = self.audit()
+        self.assertEqual(report['external_dependencies'], [str(missing)])
+        self.assertEqual(report['optional_weak_missing'], [])
+
+    def test_missing_weak_rpath_parent_escape_is_still_external(self):
+        self.mdk({'arm64': self.slice(rpaths=('@loader_path/..',),
+                                     weak=('@rpath/../../../outside/missing.dylib',))})
+        report = self.audit()
+        self.assertEqual(report['external_dependencies'], [str(self.root / 'outside/missing.dylib')])
+        self.assertEqual(report['optional_weak_missing'], [])
+
+    def test_weak_obsolete_framework_load_is_still_refused(self):
+        self.mdk({'arm64': self.slice(weak=('/System/Library/Frameworks/QTKit.framework/Versions/A/QTKit',))})
+        self.assertIn('Obsolete FFmpeg framework dependency', '\n'.join(self.audit()['errors']))
+
+    def test_absent_search_directory_inside_bundle_is_a_diagnostic(self):
+        self.mdk({'arm64': self.slice(rpaths=('@loader_path/Frameworks', '@loader_path/..'))})
+        report = self.audit()
+        self.assertEqual(report['errors'], [])
+        self.assertEqual(report['external_dependencies'], [])
+        self.assertEqual(report['absent_contained_search_paths'], [
+            '@loader_path/Frameworks (Contents/Frameworks/mdk.framework/Frameworks) in '
+            'Contents/Frameworks/mdk.framework/mdk [arm64]'])
+
     def test_missing_universal_dependency_slice_is_rejected(self):
         self.main_binary(self.slice(('@loader_path/../Frameworks/libOpenColorIO.dylib',)),
                          ('x86_64', 'arm64'))
@@ -447,6 +512,23 @@ class MacDependencyTests(unittest.TestCase):
             self.stage()
         self.assertFalse(any(call[0]=='codesign' for call in self.tool_calls))
         self.assertFalse((self.root/'stage/PACKAGE.json').exists())
+
+    def test_portable_stage_records_a_missing_weak_load(self):
+        self.mdk({'arm64': self.slice(rpaths=('@loader_path/..', '@loader_path/Frameworks'),
+                                      weak=('@rpath/libdav1d.7.dylib',))})
+        output = self.stage()
+        audit = json.loads((output / 'PACKAGE.json').read_text())['mac_runtime_audit']
+        self.assertEqual(audit['errors'], [])
+        self.assertEqual(audit['optional_weak_missing'],
+                         ['@rpath/libdav1d.7.dylib in Contents/Frameworks/mdk.framework/mdk [arm64]'])
+        self.assertEqual(len(audit['absent_contained_search_paths']), 1)
+
+    def test_portable_stage_refuses_the_same_load_when_it_is_hard(self):
+        self.mdk({'arm64': self.slice(('@rpath/libdav1d.7.dylib',), ('@loader_path/..',))})
+        with self.assertRaisesRegex(RuntimeError, "Missing dependency '@rpath/libdav1d.7.dylib'"):
+            self.stage()
+        self.assertFalse(any(call[0] == 'codesign' for call in self.tool_calls))
+        self.assertFalse((self.root / 'stage/PACKAGE.json').exists())
 
     def test_portable_stage_rejects_external_rpath_even_with_bundled_ocio(self):
         development = self.root / 'SSD/_dev/ocio-runtime/install/lib'
