@@ -106,3 +106,20 @@ treated as equivalent. Backup/reject files are excluded from the source archive.
 Later conditional patches, sed edits, configuration, generated files, dependency
 closure and complete corresponding-source delivery remain open. The source-only
 draft remains unpublished and the eight distribution requirements are unchanged.
+
+## Bundled libass source inputs and Unicode data
+
+`mdk-0.39.0-e89bc0b/bundled/evidence/LIBASS-BUILD-INPUTS.json` records
+the successful vendor job's exact checkout pins and x64 link to static FriBidi,
+FreeType and HarfBuzz. It includes seven logged FriBidi generation commands and
+the identities of their five Unicode 18.0.0 inputs. The original UCD ReadMe and
+full Unicode License V3 are retained alongside the FriBidi LGPL notice.
+
+The previously missing FreeType `subprojects/dlg` source matches all 28 upstream
+Git blobs and is retained in the existing unpublished source-only draft. Its
+Boost license and header notice are included as a conservative source superset;
+this does not assert that dlg code is linked. Vendor build pins are directly
+logged, but raw shipped DLL identity remains limited by PE header/padding
+differences. Generated outputs, an offline rebuild/relink procedure and complete
+public source delivery remain open. The eight distribution requirements are
+unchanged; these records do not approve a public release.

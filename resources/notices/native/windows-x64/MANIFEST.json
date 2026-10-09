@@ -1930,7 +1930,11 @@
     "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/header-notices/d215bedc7b0e354f8fa1a134167ad4def7fae9fde17e6235c132ec22eb103ff5.txt",
     "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/header-notices/e03a6fa526fa580bf5d32a8c88ee6b285fd0cf35c4da60b7969d410101a7aa72.txt",
     "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/header-notices/f279182b9e8f1dc7388a509b3ade0eaa6c0cf7b2724c2e4e37baa043c16a0bec.txt",
-    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/PACKAGE-NOTICE.txt"
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/PACKAGE-NOTICE.txt",
+    "mdk-0.39.0-e89bc0b/bundled/libass.dll/fribidi-1.0.17-b93119f5/UNICODE-LICENSE-V3.txt",
+    "mdk-0.39.0-e89bc0b/bundled/libass.dll/fribidi-1.0.17-b93119f5/UNICODE-DATA-README.txt",
+    "mdk-0.39.0-e89bc0b/bundled/libass.dll/freetype-2.14.3-0a0221a1/dlg-395ccad2/LICENSE",
+    "mdk-0.39.0-e89bc0b/bundled/libass.dll/freetype-2.14.3-0a0221a1/dlg-395ccad2/HEADER-NOTICE.txt"
    ],
    "provenance_members": [
     "mdk-0.39.0-e89bc0b/PROVENANCE.json",
@@ -1950,7 +1954,8 @@
     "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/PACKAGE.nuspec",
     "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/PROVENANCE.json",
     "mdk-0.39.0-e89bc0b/bundled/evidence/FFMPEG-PATCH-OUTCOMES.json",
-    "mdk-0.39.0-e89bc0b/bundled/evidence/FFMPEG-PATCH-STAGE.json"
+    "mdk-0.39.0-e89bc0b/bundled/evidence/FFMPEG-PATCH-STAGE.json",
+    "mdk-0.39.0-e89bc0b/bundled/evidence/LIBASS-BUILD-INPUTS.json"
    ],
    "reused_repo_paths": [],
    "release_provenance": {
@@ -1983,13 +1988,13 @@
      {
       "id": "mdk-libass-fribidi-source",
       "class": "obligation",
-      "text": "libass.dll statically links FriBidi (LGPL-2.1-or-later, b93119f5, 1.0.17). Its corresponding source, and what LGPL-2.1 requires for relinking a statically linked library, must accompany or be offered with the package; not done here.",
-      "needed_artifact": "Root's source route for FriBidi b93119f5 together with the libass af5f116d, HarfBuzz 863d3f77, FreeType 0a0221a1 and devpkgs ce43c819 build files used for libass.dll."
+      "text": "libass.dll statically links FriBidi (LGPL-2.1-or-later, b93119f5, 1.0.17). Its corresponding source, and what LGPL-2.1 requires for relinking a statically linked library, must accompany or be offered with the package; not done here. Exact source archives, seven logged FriBidi table-generation commands and their five Unicode18.0.0 data inputs are now indexed in LIBASS-BUILD-INPUTS.json. The missing FreeType dlg gitlink source is retained as a supplementary source-only draft asset. Generated outputs, standalone offline rebuild/relink qualification and public corresponding-source delivery remain open.",
+      "needed_artifact": "Root's source route for FriBidi b93119f5 together with the libass af5f116d, HarfBuzz 863d3f77, FreeType 0a0221a1 and devpkgs ce43c819 build files used for libass.dll. Qualify generated files and the offline rebuild/relink procedure, and deliver the complete source alongside the package."
      },
      {
       "id": "mdk-libass-build-revision",
       "class": "advisory",
-      "text": "devpkgs ce43c819 (FriBidi b93119f5, FreeType 0a0221a1) is inferred from the embedded HarfBuzz version 14.5.0 and the 2026-09-29T12:36:56Z link time; libass af5f116d is exact from its embedded commit id. HarfBuzz 14.5.0 is embedded exactly, but its source commit 863d3f77 remains inferred from the devpkgs pin; a matching version alone is not an exact commit identity.",
+      "text": "The successful devpkgs VS2026 job directly logs ce43c819 and the libass af5f116d, FriBidi b93119f5, FreeType 0a0221a1 and HarfBuzz 863d3f77 checkout pins. LIBASS-BUILD-INPUTS.json records those lines, the x64 configure/link commands and generated-table inputs. The job artifact and shipped DLL have equal defined section payloads but different raw PE headers/padding; exact shipped build identity and postprocessing remain unproven. Version or section equality alone is not raw binary identity.",
       "needed_artifact": null
      },
      {
@@ -2043,6 +2048,11 @@
       "class": "resolved",
       "prior_text": "ffmpeg-9.dll compiles VA-API code (VA 1.19.0) against libva headers that devpkgs takes from the latest Microsoft.Direct3D.VideoAccelerationCompatibilityPack NuGet package at run time. The package version, and so the exact notice text, is not established; no libva-header notice is in the package.",
       "text": "All 28 retained historical x64 libva 1.19.0 header files exactly match official NuGet package 1.0.2. All 17 distinct license comments and full package NOTICE are retained, together with package License/nuspec provenance. Missing header-notice text resolved; historical download digest and broader source requirements remain separate."
+     },
+     {
+      "id": "mdk-libass-unicode-data-notice",
+      "class": "resolved",
+      "text": "FriBidi b93119f5 generates tables from Unicode18.0.0 data. The original UCD ReadMe copyright/terms reference and full official Unicode License V3 are retained. The five exact input identities and seven actual generation commands are recorded in LIBASS-BUILD-INPUTS.json. This supplements the FriBidi LGPL notice and does not close source/relink or distribution requirements."
      }
     ]
    }
@@ -2963,8 +2973,8 @@
   },
   {
    "path": "README.md",
-   "bytes": 7197,
-   "sha256": "2862f6c8d59e3470e309805782c9cf57e007be540451c4f59f58d28272c183dd",
+   "bytes": 8236,
+   "sha256": "ec8e041bfd60587a2c1db5428a17e09f8ba0c787774e6bb9b76d22ddc9dc1298",
    "component": "packet",
    "role": "packet"
   },
@@ -12631,6 +12641,41 @@
    "path": "mdk-0.39.0-e89bc0b/bundled/evidence/FFMPEG-PATCH-STAGE.json",
    "bytes": 50523,
    "sha256": "d6c41c3f6682103f614bc780f4a3ebb43c87a131bd6cfd07a66b1f05ac1dcb16",
+   "component": "mdk",
+   "role": "provenance"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/libass.dll/fribidi-1.0.17-b93119f5/UNICODE-LICENSE-V3.txt",
+   "bytes": 1995,
+   "sha256": "e7a93b009565cfce55919a381437ac4db883e9da2126fa28b91d12732bc53d96",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/libass.dll/fribidi-1.0.17-b93119f5/UNICODE-DATA-README.txt",
+   "bytes": 729,
+   "sha256": "b0ea442f29dee90584aacd3665a6e1ce87ffc917a4d31f34e1916d2d6f7f9205",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/libass.dll/freetype-2.14.3-0a0221a1/dlg-395ccad2/LICENSE",
+   "bytes": 1338,
+   "sha256": "c9bff75738922193e67fa726fa225535870d2aa1059f91452c411736284ad566",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/libass.dll/freetype-2.14.3-0a0221a1/dlg-395ccad2/HEADER-NOTICE.txt",
+   "bytes": 173,
+   "sha256": "d0264a47b4c3d64f86071549429bf56d0218986f343b6254d1d3587ab96f2dee",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/evidence/LIBASS-BUILD-INPUTS.json",
+   "bytes": 14162,
+   "sha256": "f10861b82703b209ea62f530a16633158c49066482d35e854fdac80b1ecda0ac",
    "component": "mdk",
    "role": "provenance"
   }
