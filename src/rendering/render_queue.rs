@@ -4,6 +4,7 @@
 use qmetaobject::*;
 
 use crate::{ core, rendering, util };
+use super::queued_color;
 use crate::core::StabilizationManager;
 use core::filesystem;
 use core::stabilization_params::ReadoutDirection;
@@ -39,6 +40,16 @@ pub struct RenderQueueItem {
 impl RenderQueueItem {
     pub fn get_status(&self) -> &JobStatus { &self.status }
 }
+
+// A queued job's LUT, like its project file, is bookmarked in app scope: the queue is kept in the app settings
+#[cfg(any(target_os = "macos", target_os = "ios"))]
+fn create_lut_bookmark(url: &str) -> Option<String> { Some(filesystem::apple::create_bookmark(url, false, None)) }
+#[cfg(any(target_os = "macos", target_os = "ios"))]
+fn resolve_lut_bookmark(bookmark: &str) -> Option<String> { Some(filesystem::apple::resolve_bookmark(bookmark, None).0) }
+#[cfg(not(any(target_os = "macos", target_os = "ios")))]
+fn create_lut_bookmark(_url: &str) -> Option<String> { None }
+#[cfg(not(any(target_os = "macos", target_os = "ios")))]
+fn resolve_lut_bookmark(_bookmark: &str) -> Option<String> { None }
 
 #[derive(Default, Clone, Debug, Eq, PartialEq)]
 pub enum JobStatus {
@@ -775,7 +786,7 @@ impl RenderQueue {
                         let (resolved, _is_stale) = filesystem::apple::resolve_bookmark(bookmark, None);
                         if !resolved.is_empty() { project = resolved; }
                     }
-                    self.add_file(project, String::new(), additional_data.clone());
+                    self.add_file_with_color(project, String::new(), additional_data.clone(), x.get("queued_color").cloned());
                 } else if let Ok(data) = serde_json::to_string(&x) {
                     self.add_file(data, String::new(), additional_data.clone());
                 }
@@ -788,13 +799,15 @@ impl RenderQueue {
     fn get_gyroflow_data_internal(stab: &StabilizationManager, additional_data: &str, render_options: &RenderOptions) -> Option<String> {
         if let Some(url) = stab.input_file.read().project_file_url.as_ref() {
             if filesystem::exists(url) {
+                // The project file can be saved again with another grade before this job renders
+                let color = serde_json::to_value(render_options).ok().and_then(|x| queued_color::snapshot(&x, create_lut_bookmark));
                 #[cfg(any(target_os = "macos", target_os = "ios"))]
                 {
-                    return Some(serde_json::json!({ "project_file": url, "project_file_bookmark": filesystem::apple::create_bookmark(&url, false, None) }).to_string());
+                    return Some(serde_json::json!({ "project_file": url, "project_file_bookmark": filesystem::apple::create_bookmark(&url, false, None), "queued_color": color }).to_string());
                 }
                 #[cfg(not(any(target_os = "macos", target_os = "ios")))]
                 {
-                    return Some(serde_json::json!({ "project_file": url }).to_string());
+                    return Some(serde_json::json!({ "project_file": url, "queued_color": color }).to_string());
                 }
             }
         }
@@ -1199,6 +1212,10 @@ impl RenderQueue {
     }
 
     pub fn add_file(&mut self, url: String, gyro_url: String, additional_data: String) -> u32 {
+        self.add_file_with_color(url, gyro_url, additional_data, None)
+    }
+
+    fn add_file_with_color(&mut self, url: String, gyro_url: String, additional_data: String, job_color: Option<serde_json::Value>) -> u32 {
         let job_id = fastrand::u32(1..2147483640);
 
         let is_gf_data = url.starts_with('{');
@@ -1347,6 +1364,7 @@ impl RenderQueue {
                             match result {
                                 Ok(obj) => {
                                     if let Some(out) = obj.get("output") {
+                                        let out = &queued_color::restore(out, job_color.as_ref(), resolve_lut_bookmark);
                                         if let Ok(mut render_options2) = serde_json::from_value(out.clone()) as serde_json::Result<RenderOptions> {
                                             render_options2.update_from_json(out);
                                             loaded(render_options2);

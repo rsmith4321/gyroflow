@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #[path = "../../../src/rendering/basic_grade.rs"]
 pub mod basic_grade;
+#[path = "../../../src/rendering/queued_color.rs"]
+pub mod queued_color;
+#[cfg(test)]
+mod queue_restore_color;
 #[cfg(feature = "ocio-runtime")]
 #[path = "../../../src/rendering/ocio_runtime.rs"]
 pub mod ocio_runtime;

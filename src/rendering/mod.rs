@@ -6,6 +6,7 @@ mod ffmpeg_video;
 mod ffmpeg_video_converter;
 mod ffmpeg_encoder_color;
 mod export_lut;
+mod queued_color;
 #[cfg(feature = "ocio-runtime")]
 pub mod ocio_runtime;
 pub mod tone_curve;

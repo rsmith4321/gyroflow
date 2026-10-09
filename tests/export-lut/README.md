@@ -28,7 +28,7 @@ suite also checks reused converters, unchanged neutral output, unchanged
 unknown-tag behavior, and unchanged YUV converter configuration.
 
 These tests do not run the complete `VideoTranscoder`, MDK preview, hardware
-encoding, queue/project persistence or real camera clips. Unknown matrix tags
+encoding, the actual app's queue restart or real camera clips. Unknown matrix tags
 retain the previous policies: the YUV filter path defaults to BT.601, while
 the encoder-target RGB path defaults to BT.709. A deliberate product policy
 for untagged footage remains open.
@@ -70,3 +70,19 @@ against independent tagged-SDR equations; see
 Qt binding candidate, private settings and bilinear stabilization. It does
 not establish unchanged-dependency release, debug Lanczos4 or Windows
 acceptance.
+
+## Queued color snapshots, 2026-10-09
+
+Seven regressions import the production `queued_color` helper and exercise
+independent jobs referencing the same project, all nine color fields, explicit
+neutral values, older queues, partial or damaged records, JSON round trips and
+per-job LUT bookmark resolution. They also assert that non-color output fields
+are retained. The bookmark callbacks are fixtures; they do not prove sandbox
+access to real moved files.
+
+The full arm64 Mac suites passed **42 default tests** and **50 with official
+OpenColorIO 2.4.2**, with zero failures, ignored tests or filtered tests.
+The app's actual Rust/C++ wiring passed `cargo check --profile deploy --locked
+--offline` with both feature configurations, including the Apple bookmark
+branch. This is compile and helper coverage; app restart/UI and Windows
+acceptance remain separate checks.

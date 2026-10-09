@@ -968,3 +968,38 @@ The recorded numerical differences remain diagnostic evidence and are not
 proof of a visible defect. This human check does not replace current native
 preview/processor agreement, Windows tests, other-camera checks or portable
 package validation. Retained report: `HUMAN-VISUAL-CHECK.json` in the root packet.
+
+### Graded visual acceptance and queued color repair
+
+Ryan also compared the older and current four-second exports with the selected
+DJI LUT and all eight controls. He reported no visible difference and could see
+matching shadow detail in the trees. Both test grades looked overexposed;
+positive exposure, brightness and highlights were intentional stress settings,
+not a recommended grade. This accepts that segment's visual comparison only.
+Additional human testing is not a continuation gate.
+
+A requested darker pair uses the same stabilization and LUT, exposure -0.75
+and neutral other controls. Both hardware-required 4K HEVC ten-bit exports
+completed with 242 frames. Its human comparison is not confirmed. The legacy
+CLI replaced the application's diagnostic `gyroflow.log`; authored settings,
+media, LUT, projects and binaries remained unchanged. The failed broad
+preservation assertion is retained rather than reported as a whole-run pass.
+Reports: `HUMAN-GRADED-VISUAL-CHECK.json` and
+`human-shadow-pair-v1/RESULT.json` in the root packet.
+
+Review found that saved project-backed queue entries held only a project URL,
+so a later save could replace earlier jobs' LUT and adjustments after restart.
+They now also store a color-only snapshot, with explicit neutral values and
+an Apple LUT bookmark where available. Restore overlays those nine fields
+before constructing the job's render options. Older queue records and other
+output fields retain their existing behavior. A missing/non-object project
+output still follows the old queue behavior; the queue Edit UI continues to
+load the project's last-saved settings. Neither is claimed fixed here.
+
+Root verified Claude's versioned candidate, then ran the actual production
+helper tests on arm64 Mac: 42 default and 50 OCIO tests pass with no failures,
+ignored or filtered tests. Both actual app feature configurations pass the
+deploy-profile Rust/C++ compile check, including Apple bookmark calls. Test
+locks and production source hashes remain unchanged through execution.
+Evidence: `_dev/root-queue-color-review-20261009/`. This is not a native app
+restart, Windows or portable-release acceptance.

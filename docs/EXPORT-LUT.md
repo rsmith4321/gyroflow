@@ -56,6 +56,12 @@ already has the LUT applied, so avoid applying the same conversion again.
   display color management. A size-128 atlas needs a 1536×8192 GPU texture;
   large LUT performance and GPU limits on other platforms remain untested.
 - Projects, render jobs, presets, and Apply to all include the selected LUT.
+- Saved queues also retain each project job's own LUT and eight adjustments,
+  including explicit neutral values. Reopening a project with a different grade
+  therefore does not replace the colors of earlier queued jobs after a restart.
+  Apple queues attempt to retain a bookmark for each job's LUT. This snapshot
+  covers colors only; other output fields still follow the referenced project.
+  The queue's **Edit** action still opens the project's last-saved settings.
 - Apple project export attempts to save a security-scoped bookmark for the LUT,
   using the existing bookmark mechanism. Sandboxed persistence remains untested.
 - The renderer reads the selected file at render start and uses a private
