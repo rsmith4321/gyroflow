@@ -2066,27 +2066,70 @@
   },
   "opencl": {
    "name": "OpenCL loader and utilities",
-   "version": "unknown",
+   "version": "OpenCL SDK 2024.10.24#1",
    "required": true,
    "identity": {
-    "staged_dll_count": 3
+    "staged_dll_count": 3,
+    "provider_package": "opencl:x64-windows",
+    "installed_version": "2024.10.24",
+    "port_version": 1,
+    "dlls": {
+     "OpenCL.dll": {
+      "bytes": 57344,
+      "sha256": "1fe479702ef9a9bf49881d7f2ebd4bf5e8000fd6a53d85ed528e8acca4f719c7",
+      "installed_provider_same_bytes": true
+     },
+     "OpenCLUtils.dll": {
+      "bytes": 25088,
+      "sha256": "bb1293dc4f40c060cf40d8139093df0b1ba98742da75ebef655719b691ec4481",
+      "installed_provider_same_bytes": true
+     },
+     "OpenCLUtilsCpp.dll": {
+      "bytes": 68096,
+      "sha256": "85019b95cae9fc38ac67551f6f73de913a7c46f3abd2bf921c5156e8929441f7",
+      "installed_provider_same_bytes": true
+     }
+    },
+    "copyright_sha256": "b8b41526b31a0672d7a994749de038aad0bcfd03dee6ef332860588aa8c0268c"
    },
-   "notice_members": [],
+   "notice_members": [
+    "opencl/COPYRIGHT.txt"
+   ],
    "provenance_members": [
-    "opencl/PROVENANCE.json"
+    "opencl/PROVENANCE.json",
+    "opencl/provider/installed-status.txt",
+    "opencl/provider/port-vcpkg.json",
+    "opencl/provider/portfile.cmake",
+    "opencl/provider/001-remove-extra-install-rules.patch",
+    "opencl/provider/icd-loader-pkgconfig.diff",
+    "opencl/provider/vcpkg.spdx.json",
+    "opencl/provider/vcpkg-spdx-resources.json",
+    "opencl/provider/OpenCLConfigVersion.cmake",
+    "opencl/provider/OpenCLICDLoaderConfigVersion.cmake",
+    "opencl/provider/OpenCLICDLoaderTargets-release.cmake",
+    "opencl/provider/OpenCLUtilsConfigVersion.cmake",
+    "opencl/provider/OpenCLUtilsTargets-release.cmake",
+    "opencl/provider/OpenCLUtilsCppConfigVersion.cmake",
+    "opencl/provider/OpenCLUtilsCppTargets-release.cmake",
+    "opencl/CURRENT-PROVIDER.json"
    ],
    "reused_repo_paths": [],
    "release_provenance": {
-    "status": "INCOMPLETE",
+    "status": "COMPLETE",
     "gaps": [
      {
-      "id": "opencl-notice",
-      "class": "blocker",
-      "text": "OpenCL.dll, OpenCLUtils.dll and OpenCLUtilsCpp.dll are staged (the exe imports opencl.dll) and no notice text for them is in the package; their provider and version are not established by the facts.",
-      "needed_artifact": "The installed provider's copyright/licence file for these DLLs (e.g. vcpkg share/opencl/copyright) with its hash and package version."
+      "id": "opencl-build-revision",
+      "class": "advisory",
+      "text": "The installed status, CMake versions, exact provider copyright and byte-identical installed DLLs are retained. Current port metadata is not independent proof of the historical build revision."
      }
     ],
-    "resolved": []
+    "resolved": [
+     {
+      "id": "opencl-notice",
+      "class": "resolved",
+      "text": "Installed vcpkg opencl:x64-windows 2024.10.24#1 status/SPDX and imported DLL targets are retained. All three installed DLL sizes and SHA256 identities match the staged inventory. The exact installed copyright carries Apache-2.0 and the whereami MIT alternative. See opencl/CURRENT-PROVIDER.json."
+     }
+    ]
    }
   },
   "unattributed": {
@@ -5491,9 +5534,121 @@
    "role": "provenance"
   },
   {
+   "path": "opencl/COPYRIGHT.txt",
+   "bytes": 12880,
+   "sha256": "b8b41526b31a0672d7a994749de038aad0bcfd03dee6ef332860588aa8c0268c",
+   "component": "opencl",
+   "role": "notice"
+  },
+  {
+   "path": "opencl/CURRENT-PROVIDER.json",
+   "bytes": 2573,
+   "sha256": "d4343a3818bd45a41ea8ec57b1f247c6e25af09245dcbb8588ce885d76c801f9",
+   "component": "opencl",
+   "role": "provenance"
+  },
+  {
    "path": "opencl/PROVENANCE.json",
    "bytes": 1041,
    "sha256": "865a7a34b67f73cce545334a61250f9613e47cfb8b9f25e60ac40eec72f6f12b",
+   "component": "opencl",
+   "role": "provenance"
+  },
+  {
+   "path": "opencl/provider/001-remove-extra-install-rules.patch",
+   "bytes": 1056,
+   "sha256": "73cce382b93535cc76ab42dd71d05a5cd2340cac212cd98ee24da482473c6b87",
+   "component": "opencl",
+   "role": "provenance"
+  },
+  {
+   "path": "opencl/provider/OpenCLConfigVersion.cmake",
+   "bytes": 1906,
+   "sha256": "429459604e137143df7d98910ebc4edb7a633f2118d652e4239b1af6555cab17",
+   "component": "opencl",
+   "role": "provenance"
+  },
+  {
+   "path": "opencl/provider/OpenCLICDLoaderConfigVersion.cmake",
+   "bytes": 1899,
+   "sha256": "f61e48935ed7c46d8c362655adabc57ecbecc169880c68875d9be9dfa7739d67",
+   "component": "opencl",
+   "role": "provenance"
+  },
+  {
+   "path": "opencl/provider/OpenCLICDLoaderTargets-release.cmake",
+   "bytes": 906,
+   "sha256": "b49de241f74e004778337781586c7e1e2bd9706dc6bcd9ab90079708558295ab",
+   "component": "opencl",
+   "role": "provenance"
+  },
+  {
+   "path": "opencl/provider/OpenCLUtilsConfigVersion.cmake",
+   "bytes": 1906,
+   "sha256": "429459604e137143df7d98910ebc4edb7a633f2118d652e4239b1af6555cab17",
+   "component": "opencl",
+   "role": "provenance"
+  },
+  {
+   "path": "opencl/provider/OpenCLUtilsCppConfigVersion.cmake",
+   "bytes": 1906,
+   "sha256": "429459604e137143df7d98910ebc4edb7a633f2118d652e4239b1af6555cab17",
+   "component": "opencl",
+   "role": "provenance"
+  },
+  {
+   "path": "opencl/provider/OpenCLUtilsCppTargets-release.cmake",
+   "bytes": 948,
+   "sha256": "90d1a969381f39ec5b54e120f3f2dd33ba01fd4e3f10f85962ace13cd9d64a86",
+   "component": "opencl",
+   "role": "provenance"
+  },
+  {
+   "path": "opencl/provider/OpenCLUtilsTargets-release.cmake",
+   "bytes": 921,
+   "sha256": "ad53f4be5a79c888b2b1227100f31968b4e2a74560d59ce9673a3f043e1ab7d1",
+   "component": "opencl",
+   "role": "provenance"
+  },
+  {
+   "path": "opencl/provider/icd-loader-pkgconfig.diff",
+   "bytes": 2149,
+   "sha256": "0404a0ee469757409982d32e57de958b30e8ea351ba32980b5ce4e8d1552c7dd",
+   "component": "opencl",
+   "role": "provenance"
+  },
+  {
+   "path": "opencl/provider/installed-status.txt",
+   "bytes": 197,
+   "sha256": "15cc204f286a2a65641f261a42152647163523aa64ce108f550211b1e2e905a1",
+   "component": "opencl",
+   "role": "provenance"
+  },
+  {
+   "path": "opencl/provider/port-vcpkg.json",
+   "bytes": 383,
+   "sha256": "24ab49d758ebf68890b0697902775260850f24c5afda3ee7b9ca5534d2326051",
+   "component": "opencl",
+   "role": "provenance"
+  },
+  {
+   "path": "opencl/provider/portfile.cmake",
+   "bytes": 4062,
+   "sha256": "cb08bdf72fda19197d8c6de28eb3a65335cd6b556f77b6603a3bf8ce6a4a1d87",
+   "component": "opencl",
+   "role": "provenance"
+  },
+  {
+   "path": "opencl/provider/vcpkg-spdx-resources.json",
+   "bytes": 2618,
+   "sha256": "664fa430c96804f00a211aeb748993ead263580c7f3e6eb0ed941a2041315115",
+   "component": "opencl",
+   "role": "provenance"
+  },
+  {
+   "path": "opencl/provider/vcpkg.spdx.json",
+   "bytes": 43315,
+   "sha256": "ffcc0338971080e8dcb09ad6272c070480c39162a24b472961327d7056ac2b84",
    "component": "opencl",
    "role": "provenance"
   },
