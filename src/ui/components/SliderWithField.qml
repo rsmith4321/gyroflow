@@ -120,7 +120,9 @@ Row {
         onValueChanged: {
             slider.preventChange = true;
             slider.value = value;
-            Qt.callLater(() => { if (slider) slider.preventChange = false; });
+            // valueChanged is synchronous. Keep the guard local so a later
+            // pointer update in this event-loop turn still reaches the model.
+            slider.preventChange = false;
 
             if (!root.preventChange) {
                 root.preventChange = true;
