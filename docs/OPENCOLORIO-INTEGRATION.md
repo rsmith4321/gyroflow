@@ -842,3 +842,38 @@ Evidence: `_dev/root-ffmpeg-sys-integration-20261009/`, including
 The scoped consumer executable SHA-256 is
 `58193ee24686cebb933588a609297e9d964bfd188fbae1918bc5afb859664096`.
 Windows and Claude work remain held until renewed direct human go-ahead.
+
+
+### Current app with public binding dependencies and static FFmpeg
+
+A fresh private application built from public source
+`80dad105a5312e24a151985cf0ec66fc140eadb2` completes the normal `deploy` profile
+with `ocio-runtime,ffmpeg-next/static`, a locked/offline arm64 build, two jobs,
+and no private dependency override. Build time is **291.524 seconds**, exit zero,
+with the owned process group terminal. All **670 source files** were compared
+to the committed archive: only the required private settings-location seam
+changes. Manifest, lock, both retained binding crates and all runtime/color code
+match public source. The private and canonical lock files remain exact.
+
+The executable links official OCIO 2.4.2, the retained Qt/MDK runtime and static
+FFmpeg/OpenCV. Its actual binding output requests neither obsolete framework;
+its direct imports contain neither framework, dynamic FFmpeg/OpenCV nor Homebrew
+paths. Absolute development runtime paths remain; it is not a portable package.
+
+The current app passes the unchanged three RGB export cases with default
+Lanczos: neutral PNG, LUT PNG and LUT EXR. All **nine full decoded frames** are
+byte-identical to the earlier deploy reference, including edges. The original
+2/255 PNG and 3/255 EXR matrix tolerances remain unchanged. All **15 bounded
+commands** exit zero with terminal owned groups, and the complete protected
+settings/log tree is unchanged. This is actual startup and fixture-export proof
+for the current static OCIO app; it does not establish native preview parity,
+real-camera stabilization, hardware-frame export, Windows behavior, package
+relocation, older-OS execution or public-release acceptance.
+
+Evidence: `app-build-v1/` and `exports-current-static-v1/` under
+`_dev/root-ffmpeg-sys-integration-20261009/`, including the input/result,
+670-file source comparison, linkage verification and protected-tree receipts.
+The executable SHA-256 is
+`ab1c0314b77fcdcff6cf2ee3d004da08106c9ceebf4cf1ea01f2434eba4da479`
+(**65,212,160 bytes**). No installed app, engine-default or release change;
+Windows and Claude remain held until renewed direct human go-ahead.
