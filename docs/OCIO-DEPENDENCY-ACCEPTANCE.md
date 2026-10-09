@@ -16,6 +16,12 @@ exact build/stage identities, completed checks and remaining gates. Later
 acceptance and installation do not change the identities or scope of the
 individual dependency checks below.
 
+The later [current Windows application acceptance](OCIO-WINDOWS-ACCEPTANCE.md)
+records a successful selected-feature build, directly observed hardware export,
+complete decoded-output comparison and private notice assembly. Native Windows
+preview and public distribution remain separate open gates; historical Windows
+limitations below describe the earlier dependency checks.
+
 ## Compiled runtime closure
 
 The shared OCIO library includes private static Imath, yaml-cpp, pystring and

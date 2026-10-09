@@ -9,6 +9,11 @@ The [current installed Mac candidate](OCIO-MAC-ACCEPTANCE.md#current-installed-c
 supersedes the earlier Homebrew-dependent installation. The separately rebuilt
 dependency inputs are described in [dependency acceptance](OCIO-DEPENDENCY-ACCEPTANCE.md).
 
+The [current Windows acceptance](OCIO-WINDOWS-ACCEPTANCE.md) separately records
+the later Windows build, hardware export and complete private notice assembly.
+Windows-unavailable statements in this historical Mac report describe those
+earlier checkpoints; current Windows native preview remains unverified.
+
 ## Build and stage identities
 
 The frozen source snapshot is `a8e5dc1dcbfe361bffd623c0ed61199b5cc1fc83`;

@@ -244,7 +244,10 @@ Both platform stages add the original MIT license, pin and patch description to
 `Notices/qmetaobject-rs/`; the committed source archive contains the complete
 retained crate with its original source headers. This is a downstream correction,
 not a new upstream release. Mac app tests and notice-copy tests do not establish
-current Windows execution or portable-package readiness.
+Windows execution or portable-package readiness. The later
+[private Windows acceptance](OCIO-WINDOWS-ACCEPTANCE.md) records a current build,
+hardware CLI export and complete notice assembly while keeping native preview
+and public-release requirements open.
 
 ## Retained FFmpeg binding source
 
