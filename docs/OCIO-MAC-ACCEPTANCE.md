@@ -87,10 +87,17 @@ The official runtime is an opt-in development build with real official CPU proce
 and generated GPU preview code; the application still supplies validated integration,
 parameter mapping, decoding, stabilization, RGB/YUV conversion and encoding.
 
-Current Windows native execution/install, portable dependency closure, honest minimum
-OS targets, dependency notices/source provenance, signing/notarization and clean-machine
-execution are still open. The development bundle depends on Homebrew and the local
-OCIO prefix; it must not be offered as a portable download. Packaging validation
-rejects that closure for public use. The inherited DMG retry loop no longer disables
+Current Windows native execution/install, dependency notices/source provenance,
+distribution signing/notarization and clean-machine execution are still open.
+The development bundle used for the performance and full native app checks above
+depends on Homebrew and the local OCIO prefix; it must not be offered as a portable
+download. Packaging validation rejects that closure for public use. A subsequent
+clean `0b5ba007` Mac candidate has passed the production packaging audit with no
+external runtime dependencies, signature verification and a hardware-required
+4K export matching all 242 decoded reference frames and timestamps. Its explicit
+crash-reporter opt-out, identities and remaining distribution gates are recorded
+in [the integration report](OPENCOLORIO-INTEGRATION.md#clean-crash-reporter-opt-out-candidate).
+Minimum macOS 11 metadata has been checked, but execution on an older OS has not.
+The inherited DMG retry loop no longer disables
 Spotlight globally or terminates XProtect; no machine settings were changed during
 these checks.

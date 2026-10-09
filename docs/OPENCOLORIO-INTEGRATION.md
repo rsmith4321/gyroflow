@@ -1099,3 +1099,45 @@ This supported opt-out avoids vendoring or rewriting an inherited crash reporter
 It does not establish a legal conclusion about the default-enabled reporter's
 compiled units or replace full redistribution review. The color processor,
 stabilization and encoding algorithms are unchanged by this correction.
+
+### Clean crash-reporter opt-out candidate
+
+The clean `0b5ba007bfad303f88c143615a9d2baf384de4cb` source now also has an
+actual Mac arm64 deploy build using `--no-default-features` and explicit
+`opencv,ocio-runtime,ffmpeg-next/static` features. The production build-receipt
+helper completed in 293.57 seconds with two compiler jobs. Its receipt records
+defaults disabled; the normal dependency graph excludes `breakpad-sys`, and an
+actual `nm` check found no named Breakpad symbols in the resulting executable.
+
+The production packaging helper completed in 7.19 seconds. The runtime audit
+reported no external dependencies or errors, and the ad-hoc signature passed
+`codesign --verify --deep --strict`. The signed executable SHA-256 is
+`babfd6a79ab69cd11682fb970db12ebe0b1d5b488b00d41b6c32bef231353585`.
+
+That exact staged executable passed native CLI startup and a saved stabilization
+export with the DJI O4 LUT and all eight nonzero controls. Hardware VideoToolbox
+encoding was required (`allow_sw=0`). The export completed in 9.89 seconds and
+produced 242 frames of 3840x2160 HEVC, 10-bit 4:2:0, BT.709 limited range at
+60000/1001 fps. All decoded frames and timestamps match the accepted clean
+`9ea94fb1` reference exactly. These timings describe correctness runs, not a new
+performance benchmark. Original media, LUT, projects and complete application
+settings remain unchanged; the installed application was not replaced.
+
+Evidence: `_dev/root-release-mac-0b5ba007-20261009/`, including the build receipt,
+`NO-BREAKPAD.json`, `package-audit/RESULT.json`, and
+`clean-graded-export/RESULT.json`. This is technical candidate acceptance on the
+tested Mac, separate from the earlier `5a400b6b` GUI smoke. Complete dependency
+notices/source distribution, current Windows native behavior, signing and
+notarization for distribution, and clean-machine acceptance remain open. No
+public release or default color-runtime switch is implied.
+
+### Windows CPU component check
+
+On the Windows laptop, exact `9ea94fb15575219133a5f2777b5a3c6f6687ef81`
+source passed 42 default tests and 50 `ocio-runtime` tests. Both Cargo commands
+and the worker exited successfully. The supervisor subsequently failed its
+three-second natural job-drain check. The failure remains recorded; cleanup
+confirmed zero active owned processes, all 39,970 protected files matched, and
+the final process census passed. The retained evidence does not identify the
+process that delayed natural drain. This accepts the test results as component
+evidence, not the whole supervisor run or current Windows app/package behavior.
