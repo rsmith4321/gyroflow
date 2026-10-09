@@ -14,10 +14,11 @@ verifier:
 ```sh
 python3 -I _scripts/notices/verify_native_notices.py \
   resources/notices/native/windows-x64 --repo-root . \
-  --manifest-sha256 ecba5b051c8d9c1df59d8f90f3ad3e8db0b614979d41034173af56e7bf4976b7
+  --manifest-sha256 53ba3583fb02dea1581b0fb9d9107bbdaed3af2c43ce3907ef2cb4906016d398
 ```
 
-Content integrity currently passes. Add `--require-release-complete` to check the
+The Qt GPL-2.0-or-later alias is retained as the full upstream target text,
+rather than the literal Git symbolic-link target name. Content integrity currently passes. Add `--require-release-complete` to check the
 recorded release gaps; it currently returns **3**, because ten blockers or
 obligations remain. A normal integrity exit of zero is not distribution approval.
 The manifest pin prevents an edited gap classification from silently passing.
@@ -29,6 +30,21 @@ the Rust notice output. The packager also retains the tracked OpenColorIO notice
 Keep corresponding-source and provider-term records with the release evidence;
 this snapshot does not establish license compatibility or satisfy those open
 obligations by itself.
+
+## Qt source artifacts
+
+The Qt snapshot records five official mirror archives in
+`qt-6.7.3/source-artifacts.json`: four modules at verified `v6.7.3` commits and
+the exact test262 submodule omitted from GitHub's module archives. All 86 selected
+Qt notice files match these sources after resolving the upstream license alias.
+`qt-6.7.3/source-bundle.sha256` identifies the prepared source bundle.
+
+Keep `Qt-6.7.3-source-bundle.tar` with the release artifacts and deliver it with the
+matching package. Its `SOURCE-README.txt` describes extraction into a new empty
+directory, including the test-suite submodule placement. The large source archive
+is a release artifact, not a Git source file. These retained sources do not close
+the recorded source obligation until delivery and provider/build-provenance
+checks are complete. No written source offer or release approval is implied.
 
 ## Rust collector
 

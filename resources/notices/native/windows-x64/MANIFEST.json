@@ -1006,7 +1006,9 @@
    ],
    "provenance_members": [
     "qt-6.7.3/PROVENANCE.json",
-    "qt-6.7.3/provenance/qt-attribution-selection.json"
+    "qt-6.7.3/provenance/qt-attribution-selection.json",
+    "qt-6.7.3/source-artifacts.json",
+    "qt-6.7.3/source-bundle.sha256"
    ],
    "reused_repo_paths": [],
    "release_provenance": {
@@ -1028,7 +1030,7 @@
       "id": "qt-source",
       "class": "obligation",
       "text": "LGPL-3.0 Qt libraries are shipped as separate DLLs; the corresponding source for the shipped modules (qtbase, qtdeclarative, qtsvg, qtshadertools 6.7.3) must accompany or be offered with the package.",
-      "needed_artifact": "Qt 6.7.3 source archives for the shipped modules with hashes, or a written source offer.",
+      "needed_artifact": "The verified Qt-6.7.3-source-bundle.tar identified in qt-6.7.3/source-artifacts.json and source-bundle.sha256 must accompany the matching public package; provider/build provenance must be checked before closing this obligation.",
       "v4_gap": "qt-5"
      },
      {
@@ -5277,10 +5279,16 @@
   },
   {
    "path": "qt-6.7.3/modules/qtbase/LICENSES/GPL-2.0-or-later.txt",
-   "bytes": 16,
-   "sha256": "ad80f2e4afb947abdca7f1c00fc36e5aca71b2bb20f0842581ee101731e4acc7",
+   "bytes": 18092,
+   "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643",
    "component": "qt",
-   "role": "notice"
+   "role": "notice",
+   "upstream_alias": {
+    "module_commit": "92b685784960eea6eb353688cf0edeb94d69c6cd",
+    "path": "LICENSES/GPL-2.0-or-later.txt",
+    "target": "GPL-2.0-only.txt",
+    "materialized": "verbatim target bytes; notice bundle contains regular files"
+   }
   },
   {
    "path": "qt-6.7.3/modules/qtbase/LICENSES/GPL-3.0-only.txt",
@@ -5573,6 +5581,20 @@
    "path": "qt-6.7.3/provenance/qt-attribution-selection.json",
    "bytes": 45043,
    "sha256": "730c608c5ce7813cc708f6f055ce16ec432485a5e1aaa23ad23ee086a0fe7cb3",
+   "component": "qt",
+   "role": "provenance"
+  },
+  {
+   "path": "qt-6.7.3/source-artifacts.json",
+   "bytes": 3443,
+   "sha256": "ceeb3dea6633b4ce419763d97012fde4e46364abfd991dbcb41bc05fe758a92d",
+   "component": "qt",
+   "role": "provenance"
+  },
+  {
+   "path": "qt-6.7.3/source-bundle.sha256",
+   "bytes": 93,
+   "sha256": "9dcfd93a7a6c985c24abedd57f14dc42df120d4f4fcca5cc0b544e350391c5e8",
    "component": "qt",
    "role": "provenance"
   },
