@@ -1231,3 +1231,43 @@ with Cargo invoked from the child. The parent source-only and child target-only
 configs can then merge under Cargo's documented hierarchy. The archive-generation
 implementation is unchanged. Actual current-source offline graph resolution and
 full source-preservation checks for this layout are pending in the existing review.
+
+### Offline source availability and local Mac notice stage
+
+The parent/child layout was subsequently checked for exact application source
+`0b5ba007`. With a newly empty Cargo home, both selected offline graphs match
+the frozen C3 lists byte for byte: 321 Mac arm64 and 331 Windows x64 crates.
+All 672 public source files, modes and Git blob identities match before and
+after, including the tracked target config. This establishes dependency-source
+availability and preservation, not a new application build or compiler observation
+of merged linker flags. The ten-member C6 report packet was independently hashed
+and bound to the public Git tree and both complete graph lists.
+
+One local `cargo vendor --frozen` invocation then completed from the Mac's
+existing cache without a refetch. Its 30,761-file content manifest and generated
+config match the reviewed tree exactly. The locally generated archive matches
+the full SHA-256 and measured size above; all 30,762 members are unique, regular
+files with safe paths. It is retained on the project's SSD, so delivery no longer
+depends on the temporary review container.
+
+The production packaging helper ran from a clean, isolated `0b5ba007` checkout
+using its actual build receipt and the combined native/Rust notices. Source,
+target, features and disabled defaults match the Rust notice receipt. Staging
+completed in 5.86 seconds with zero runtime-audit errors or required external
+Mac dependencies, and the ad-hoc signature passed strict verification. All 9,151
+supplied notice files match their staged copies. The staged directory retains
+the Git source archive and matching Rust archive beside the application.
+
+The new signed executable SHA-256 is
+`0b4669323894a4a0a3906f3b42c31bdb29625c0d97da045d34890ec85de3b5c0`.
+After signatures were removed from owned comparison copies, its executable
+payload matches the earlier tested `0b5ba007` stage exactly (SHA-256
+`51d0918643668c185eff9462cdf2856923031beb9a5e1ab9cd8c7828233a0531`).
+No application was rebuilt, started or installed during this notice-only stage.
+
+Evidence: `_dev/root-rust-source-delivery-20261009/`, especially
+`ARCHIVE-RESULT.json`, `FINAL-TECHNICAL-STAGE.json` and
+`stage-with-rust-notices/SOURCE-BUNDLE.json`. This remains a local technical
+candidate: current Windows native/app validation, final redistribution/source
+review, supported-OS checks and distribution signing/notarization remain open.
+No download was published and the default color runtime was not switched.
