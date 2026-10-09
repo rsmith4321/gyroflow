@@ -83,3 +83,14 @@ package License and nuspec recorded as provenance. The historical dependency
 download is supported by workflow timing and archive size; its original checksum
 is absent from the FFmpeg log. This closes the missing header-notice text, while
 the download-identity advisory and broader source obligations remain open.
+
+## Software OpenGL source notice inventory
+
+The v10 review adds a conservative superset of 668 version-matched source
+attribution excerpts, with 23 build-input and six flagged contexts retained as
+provenance. All 697 excerpts and the declared source accounting were independently
+checked against the official Mesa and LLVM archives. Files use content hashes to
+keep Windows paths short; source paths, byte/line ranges and the canonical mapping
+are in `unattributed/SOURCE-HEADER-DELTA-v10.json` and
+`unattributed/SOURCE-COVERAGE-REVIEW-v10.json`. These records preserve the unknown
+Qt patch/build/linkage and source-license limits. The provider blocker remains.

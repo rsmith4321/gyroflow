@@ -14,7 +14,7 @@ verifier:
 ```sh
 python3 -I _scripts/notices/verify_native_notices.py \
   resources/notices/native/windows-x64 --repo-root . \
-  --manifest-sha256 902892ca20a1d876b33dbbb9dcb0a9c9665cac746b4f7fa6cee8e303f41d7e76
+  --manifest-sha256 5007cec5608c3c44daf4fd5ac02cf3cb512dac7c56412643b981ba799daf37ed
 ```
 
 The Qt GPL-2.0-or-later alias is retained as the full upstream target text,
@@ -190,3 +190,9 @@ The MDK FFmpeg source recipe must preserve actual vendor patch outcomes:
 skipped or failed hunks and the final time patch partially applies. The retained
 MDK `bundled/evidence/FFMPEG-PATCH-OUTCOMES.json` records every patch identity
 and log lines. It does not prove a reproduced DLL or close source delivery.
+
+The software OpenGL v10 inventory retains all 668 attribution excerpts and
+29 supplementary contexts after independent source-byte/range checks. The
+original proposed paths map to shorter content-hash paths in the root review
+record. This is a source superset, with parser, copyright-only, no-header and Qt
+compiled-coverage limits retained; the provider blocker remains unchanged.
