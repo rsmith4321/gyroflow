@@ -56,6 +56,9 @@ separately from these gap classes.
   match and static Mesa/LLVM version strings. `NOTICE-SOURCES.json` records the
   accepted version-matched text review and remaining binary coverage gap.
   `ACKNOWLEDGMENTS.txt` retains the supplementary regex documentation credits.
+  `unattributed/source-artifacts.json` and `source-bundle.sha256` identify the
+  original version-matched upstream archives retained with an unpublished
+  source-only GitHub draft. They do not establish the Qt build/patch source.
   These records preserve the notice/source gap;
   the earlier unknown-version snapshots remain unchanged.
 - Corresponding-source routes, acceptance of the MDK and Microsoft terms, and codec

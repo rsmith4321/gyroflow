@@ -2169,7 +2169,9 @@
     "unattributed/PROVENANCE.json",
     "unattributed/CURRENT-PROVIDER.json",
     "unattributed/REFERENCE-ATTRIBUTION.json",
-    "unattributed/NOTICE-SOURCES.json"
+    "unattributed/NOTICE-SOURCES.json",
+    "unattributed/source-artifacts.json",
+    "unattributed/source-bundle.sha256"
    ],
    "reused_repo_paths": [],
    "release_provenance": {
@@ -2196,8 +2198,8 @@
   },
   {
    "path": "README.md",
-   "bytes": 4380,
-   "sha256": "fc47e09e6bb67e8f3e0e80a4f3e92f767682c41740b4318ff7a5091d85db24c6",
+   "bytes": 4610,
+   "sha256": "238906d526f04770ec276737c9675a5c6a065e4995e96f03e066c2d66797ef36",
    "component": "packet",
    "role": "packet"
   },
@@ -6539,6 +6541,20 @@
    "sha256": "190e8bb984aad826f974af7831afc193856265fa536c098022f19bf7a107773c",
    "component": "unattributed",
    "role": "notice"
+  },
+  {
+   "path": "unattributed/source-artifacts.json",
+   "bytes": 4413,
+   "sha256": "83a824e97966402d4f4c5ddaf7181575305ac79e487136dd1b89d3eebe59c9bc",
+   "component": "unattributed",
+   "role": "provenance"
+  },
+  {
+   "path": "unattributed/source-bundle.sha256",
+   "bytes": 319,
+   "sha256": "b22616413f650e45eb92a9ea1ed21f7f9b8237166299890ac41e8b7c4db7baba",
+   "component": "unattributed",
+   "role": "provenance"
   }
  ]
 }

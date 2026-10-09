@@ -14,7 +14,7 @@ verifier:
 ```sh
 python3 -I _scripts/notices/verify_native_notices.py \
   resources/notices/native/windows-x64 --repo-root . \
-  --manifest-sha256 cbc3bc65e710a1585df9607a8eedf17a9919fb73f29db6d2dbda8f41d6858baa
+  --manifest-sha256 9b70da5849028d2dfc51082d6338d6d650c4e3a2b1e84982be51aed9ca73cffe
 ```
 
 The Qt GPL-2.0-or-later alias is retained as the full upstream target text,
@@ -54,8 +54,11 @@ and an older Qt-published attribution, with source and excerpt identities in
 complete binary copyright-holder coverage remains
 open, and the original provider gap remains blocking. Supplementary Gallium and
 Unicode notices and explicit regex documentation credits are retained.
-These additions do not
-change the staged DLL inventory or establish complete corresponding source.
+`unattributed/source-artifacts.json` indexes the retained original Mesa and LLVM
+source archives and their unpublished source-only GitHub draft. The accompanying
+`source-bundle.sha256` pins its archive, review record and extraction README.
+These additions do not change the staged DLL inventory or establish complete
+corresponding source.
 
 ## Qt source artifacts
 
