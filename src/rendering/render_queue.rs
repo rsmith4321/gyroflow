@@ -51,6 +51,11 @@ fn create_lut_bookmark(_url: &str) -> Option<String> { None }
 #[cfg(not(any(target_os = "macos", target_os = "ios")))]
 fn resolve_lut_bookmark(_bookmark: &str) -> Option<String> { None }
 
+/// A project imported for the queue's Edit, with that job's own colour laid over its output
+pub(crate) fn with_queued_color(project: serde_json::Value, queued_color: Option<&serde_json::Value>) -> serde_json::Value {
+    queued_color::restore_project(project, queued_color, resolve_lut_bookmark)
+}
+
 #[derive(Default, Clone, Debug, Eq, PartialEq)]
 pub enum JobStatus {
     #[default]

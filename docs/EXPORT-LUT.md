@@ -61,7 +61,11 @@ already has the LUT applied, so avoid applying the same conversion again.
   therefore does not replace the colors of earlier queued jobs after a restart.
   Apple queues attempt to retain a bookmark for each job's LUT. This snapshot
   covers colors only; other output fields still follow the referenced project.
-  The queue's **Edit** action still opens the project's last-saved settings.
+  The queue's **Edit** action opens the project with that job's own colors;
+  saving the edit writes them to the project file, as any save does.
+  Each queued color snapshot travels with its own import result. This does
+  not change the existing handling of stale whole-project import completions.
+  Projects without an object `output` retain the existing import behavior.
 - Apple project export attempts to save a security-scoped bookmark for the LUT,
   using the existing bookmark mechanism. Sandboxed persistence remains untested.
 - The renderer reads the selected file at render start and uses a private

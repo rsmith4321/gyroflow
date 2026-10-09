@@ -56,3 +56,12 @@ pub fn restore(project_output: &Value, color: Option<&Value>, resolve_bookmark: 
     }
     output
 }
+
+/// An imported project with `color` laid over its `output` by `restore`.
+/// Without colour, or without an object `output`, it is returned unchanged.
+pub fn restore_project(mut project: Value, color: Option<&Value>, resolve_bookmark: impl Fn(&str) -> Option<String>) -> Value {
+    if let (Some(color), Some(output)) = (color, project.get_mut("output").filter(|x| x.is_object())) {
+        *output = restore(output, Some(color), resolve_bookmark);
+    }
+    project
+}

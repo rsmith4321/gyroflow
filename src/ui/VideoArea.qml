@@ -102,6 +102,9 @@ Item {
         if (obj.toString() != '[object Object]') {
             // obj is url
             controller.import_gyroflow_file(obj);
+        } else if (obj.project_file && obj.queued_color) {
+            // A queued job: the project file may have been saved with another grade since
+            controller.import_queued_project(obj.project_file, JSON.stringify(obj.queued_color));
         } else if (obj.project_file) {
             controller.import_gyroflow_file(obj.project_file);
         } else {

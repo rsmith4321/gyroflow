@@ -227,6 +227,7 @@ pub struct Controller {
     get_urls_from_gyroflow_file: qt_method!(fn(&mut self, url: QUrl) -> QStringList),
     get_version_from_gyroflow_file: qt_method!(fn(&mut self, url: QUrl) -> u32),
     import_gyroflow_file: qt_method!(fn(&mut self, url: QUrl)),
+    import_queued_project: qt_method!(fn(&mut self, url: QUrl, queued_color: QString)),
     import_gyroflow_data: qt_method!(fn(&mut self, data: QString)),
     gyroflow_file_loaded: qt_signal!(obj: QJsonObject),
     export_gyroflow_file: qt_method!(fn(&self, url: QUrl, typ: QString, additional_data: QJsonObject)),
@@ -1480,6 +1481,13 @@ impl Controller {
     }
 
     fn import_gyroflow_file(&mut self, url: QUrl) {
+        self.import_gyroflow_file_with_color(url, None);
+    }
+    /// Edit on a queued project job: the job's own colour travels with this import only
+    fn import_queued_project(&mut self, url: QUrl, queued_color: QString) {
+        self.import_gyroflow_file_with_color(url, serde_json::from_str(&queued_color.to_string()).ok());
+    }
+    fn import_gyroflow_file_with_color(&mut self, url: QUrl, queued_color: Option<serde_json::Value>) {
         let url = util::qurl_to_encoded(url);
         let progress = util::qt_queued_callback_mut(QPointer::from(self as &Self), move |this, progress: f64| {
             this.loading_gyro_in_progress = progress < 1.0;
@@ -1505,7 +1513,8 @@ impl Controller {
                 std::thread::sleep(std::time::Duration::from_millis(200));
             }
             cancel_flag.store(false, SeqCst);
-            finished(stab.import_gyroflow_file(&url, false, progress, cancel_flag, false));
+            let result = stab.import_gyroflow_file(&url, false, progress, cancel_flag, false);
+            finished(result.map(|obj| rendering::render_queue::with_queued_color(obj, queued_color.as_ref())));
         });
     }
     fn import_gyroflow_data(&mut self, data: QString) {

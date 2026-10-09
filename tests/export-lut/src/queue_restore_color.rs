@@ -174,3 +174,61 @@ fn each_job_resolves_its_own_lut_bookmark_like_a_project_does() {
     // An empty bookmark from the platform is not stored.
     assert!(snapshot(&render_options("file:///luts/b.cube", GRADE_X), |_| Some(String::new())).unwrap().get("lut_bookmark").is_none());
 }
+
+/// A project as `import_gyroflow_file` returns it, with the given output.
+fn imported_project(output: Option<Value>) -> Value {
+    let mut project = json!({
+        "version": 3, "videofile": "file:///media/clip.mp4", "project_file_bookmark": "",
+        "calibration_data": { "name": "lens" }, "stabilization": { "fov": 1.2 }, "trim_ranges_ms": [[0.0, 1000.0]],
+    });
+    if let Some(output) = output {
+        project["output"] = output;
+    }
+    project
+}
+
+/// Edit on a queued project job (controller import_queued_project): the job's
+/// colour is laid over the output of the very import it was passed with.
+#[test]
+fn edit_import_carries_the_job_colour_and_changes_nothing_else() {
+    use crate::queued_color::restore_project;
+    let project = imported_project(Some(render_options("file:///luts/y.cube", GRADE_Y)));
+    for job in [render_options("file:///luts/x.cube", GRADE_X), render_options("", [0.0; 8])] {
+        // The colour arrives as text: JSON.stringify in QML, serde_json::from_str in the controller.
+        let color: Value = serde_json::from_str(&snapshot(&job, no_bookmarks).unwrap().to_string()).unwrap();
+        let shown = restore_project(project.clone(), Some(&color), no_bookmarks);
+        assert_eq!(color_of(&shown["output"]), color_of(&job));
+        let mut expected = project.clone();
+        expected["output"] = shown["output"].clone();
+        assert_eq!(shown, expected, "only output may change");
+        assert_eq!(without_color(&shown["output"]), without_color(&project["output"]));
+    }
+    // Direct imports pass no colour; projects without an object output are left alone.
+    assert_eq!(restore_project(project.clone(), None, |_| panic!("no colour")), project);
+    let color = snapshot(&render_options("file:///luts/x.cube", GRADE_X), no_bookmarks).unwrap();
+    for p in [imported_project(None), imported_project(Some(Value::Null))] {
+        assert_eq!(restore_project(p.clone(), Some(&color), no_bookmarks), p);
+    }
+    // Per-job Mac bookmark, as on restart.
+    let color = snapshot(&render_options("file:///old/a.cube", GRADE_X), |u| Some(format!("bm:{u}"))).unwrap();
+    let shown = restore_project(project.clone(), Some(&color), |b| Some(b.trim_start_matches("bm:").replace("/old/", "/moved/")));
+    assert_eq!(shown["output"]["lut_url"], json!("file:///moved/a.cube"));
+}
+
+/// Edit A, then Edit B before A's import finishes: each import owns the colour
+/// it was started with, whatever order they complete in.
+#[test]
+fn late_completion_of_an_older_edit_import_keeps_its_own_colour() {
+    use crate::queued_color::restore_project;
+    let project = imported_project(Some(render_options("", [0.0; 8])));
+    let job_a = render_options("file:///luts/a.cube", GRADE_X);
+    let job_b = render_options("file:///luts/b.cube", GRADE_Y);
+    // As in import_gyroflow_file_with_color: the colour moves into the worker closure.
+    let start = |color: Value| { let project = project.clone(); move || restore_project(project, Some(&color), no_bookmarks) };
+    let import_a = start(snapshot(&job_a, no_bookmarks).unwrap());
+    let import_b = start(snapshot(&job_b, no_bookmarks).unwrap());
+    let shown_b = import_b();
+    let shown_a = import_a(); // A completes after B
+    assert_eq!(color_of(&shown_a["output"]), color_of(&job_a));
+    assert_eq!(color_of(&shown_b["output"]), color_of(&job_b));
+}
