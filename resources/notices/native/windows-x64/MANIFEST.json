@@ -1955,7 +1955,8 @@
     "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/PROVENANCE.json",
     "mdk-0.39.0-e89bc0b/bundled/evidence/FFMPEG-PATCH-OUTCOMES.json",
     "mdk-0.39.0-e89bc0b/bundled/evidence/FFMPEG-PATCH-STAGE.json",
-    "mdk-0.39.0-e89bc0b/bundled/evidence/LIBASS-BUILD-INPUTS.json"
+    "mdk-0.39.0-e89bc0b/bundled/evidence/LIBASS-BUILD-INPUTS.json",
+    "mdk-0.39.0-e89bc0b/bundled/evidence/LIBASS-OFFLINE-CONFIGURE-INPUTS.json"
    ],
    "reused_repo_paths": [],
    "release_provenance": {
@@ -2973,8 +2974,8 @@
   },
   {
    "path": "README.md",
-   "bytes": 8236,
-   "sha256": "ec8e041bfd60587a2c1db5428a17e09f8ba0c787774e6bb9b76d22ddc9dc1298",
+   "bytes": 8978,
+   "sha256": "d7a475a397b6dfec288565e16498b9b96516f92ca52c76fe115ed36cb9ba12e2",
    "component": "packet",
    "role": "packet"
   },
@@ -12676,6 +12677,13 @@
    "path": "mdk-0.39.0-e89bc0b/bundled/evidence/LIBASS-BUILD-INPUTS.json",
    "bytes": 14162,
    "sha256": "f10861b82703b209ea62f530a16633158c49066482d35e854fdac80b1ecda0ac",
+   "component": "mdk",
+   "role": "provenance"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/evidence/LIBASS-OFFLINE-CONFIGURE-INPUTS.json",
+   "bytes": 5022,
+   "sha256": "e7104950d1ee4c36c71d584ec2c8d1f662cb761264dd1d9111793380f9885861",
    "component": "mdk",
    "role": "provenance"
   }

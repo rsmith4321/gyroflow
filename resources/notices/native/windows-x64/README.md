@@ -123,3 +123,15 @@ logged, but raw shipped DLL identity remains limited by PE header/padding
 differences. Generated outputs, an offline rebuild/relink procedure and complete
 public source delivery remain open. The eight distribution requirements are
 unchanged; these records do not approve a public release.
+
+## Supplementary libass configure inputs
+
+`LIBASS-OFFLINE-CONFIGURE-INPUTS.json` records the logged Snappy and GLFW
+checkout pins reached by devpkgs's top-level configuration. Their source
+archives are retained in the same unpublished draft. All 218 regular Git blobs
+match, including six GLFW files restored from exact Git blobs after the official
+archive omitted them through `export-ignore`. Snappy's two test gitlinks are
+listed and omitted; the original parent build disables tests and benchmarks.
+This does not assert that Snappy or GLFW is linked into libass, or establish a
+full recursive Snappy source snapshot. The top-level configuration also reaches
+other projects; offline rebuild/relink and public source delivery remain open.
