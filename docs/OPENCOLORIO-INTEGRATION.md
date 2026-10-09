@@ -653,7 +653,7 @@ configuration; it does not replace direct acceptance of an unchanged-dependency
 release build.
 
 The debug Lanczos4 run separately aborts at the existing CPU undistortion
-edge-index calculation with integer overflow. That failure is retained and
+edge-index calculation with integer overflow. At that observation the failure was retained and
 unfixed. Choosing bilinear for this color observation does not establish
 Lanczos4 acceptance. A prior MKV fixture also lacked a usable stream duration
 and was rejected before rendering; its bounded failed run remains retained.
@@ -673,7 +673,7 @@ A fresh Mac application build at `d23695a9` uses the normal **deploy** profile
 (`inherits = "release"`, LTO, one codegen unit), `ocio-runtime`, and the original
 pinned qmetaobject dependency. It does **not** use the candidate binding patch.
 The canonical and private root lockfiles are byte-identical and unchanged.
-All 453 compared source/resource/configuration files match the current checkout
+All 453 compared source/resource/configuration files match that checkout
 except `src/core/settings.rs`, whose private seam changes only the settings
 location. The OCIO processor and GPU preview source files also match the earlier
 Mac acceptance source at `479419e9`.
@@ -695,8 +695,8 @@ unsuccessful attempt to update the sequence pattern's file times; all individual
 images were created and decoded. No timing or file-time guarantee is inferred.
 
 An optimized run that finishes does not make the Qt null-reference offset pattern
-valid, and it does not fix the separate debug Lanczos integer overflow. Both
-findings and the earlier failed runs remain retained. No installed app, default
+valid, and it does not fix the separate debug Lanczos integer overflow. At that run, both
+findings were unfixed; the earlier failed runs remain retained. No installed app, default
 feature or public release changed; current Windows acceptance remains held at
 Ryan's request.
 
@@ -704,3 +704,42 @@ Evidence: `_dev/root-current-rgb-app-20261009/deploy-pinned-binding-v5/ACCEPTANC
 `SOURCE-VERIFICATION.json`, `RESULT.json`, and
 `exports-v5-deploy-default/RESULT.json`. The deploy binary SHA-256 is
 `918148aca654990cf352cfc5d37779dfef02c4e08450d884fe9b37d7e07e82df`.
+
+
+### Debug edge-index correction and dependency review follow-through
+
+The CPU interpolation loop now sums its signed footprint base and signed
+pixel offset **before** converting the guarded, in-bounds pixel index to
+`usize`. Previously, a footprint beginning left of the image cast its negative
+base to an unsigned integer before adding the offset, which could overflow in
+debug builds even when the final pixel was in bounds. The correction changes
+only integer addressing inside the existing bounds checks; coordinates,
+interpolation coefficients and color processing are unchanged.
+
+Before adopting that exact source change, a private debug app at `a8f249fc`
+with the index correction, the already described binding candidate and private
+settings location completed all three default-Lanczos export cases. All nine
+**full decoded images**, including their edges, are byte-identical to the
+retained deploy-profile reference. All 15 bounded commands exit zero with
+terminal owned groups, and authored Plus settings hashes remain exact. The
+adopted CPU source SHA-256 is
+`ec3d76ff45b54c5031ca33bb2fc4a232845079c395cc8410cb39f7daa1cab906`.
+This resolves the observed debug indexing failure in the tested synthetic cases;
+it does not establish every stabilization configuration or real-camera motion.
+
+The separate binding candidate also passes three exact pinned upstream test
+functions: typed Rust signals, C++ signals, and lifetime/generic derive
+compilation. The original dependency passes the C++ test but aborts in the
+Rust typed-signal test. The generic compilation test does not instantiate its
+objects. That dependency correction is still **unintegrated**, and the canonical
+app's dependency lock is unchanged. Fixing the CPU index therefore does not by
+itself make a canonical debug app start successfully.
+
+Evidence is in `private-lanczos-index-v6/`, `exports-v6-debug-index/`, and
+`binding-upstream-signals-v3/` under
+`_dev/root-current-rgb-app-20261009/`. The debug candidate app SHA-256 is
+`da031892cb7d7d74c56c8d882e8af4aea296b3d595754d1b4d91f654dcd5e2d5`.
+The exact upstream test functions and their license header are retained in
+`tests/qobject-signal-offset/tests/upstream_signals.rs` for manual reproduction.
+Installed apps, the engine default and public releases are unchanged. Windows and Claude work remain held
+until renewed direct human go-ahead.

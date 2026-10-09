@@ -47,3 +47,30 @@ Windows or broader binding acceptance and has not been integrated.
 The copied upstream MIT notice is retained in `UPSTREAM-LICENSE`. Source:
 [pinned offset implementation](https://github.com/AdrianEddy/qmetaobject-rs/blob/ff1e23dcdd722a0c335bbd51f7dcfdb722384db2/qmetaobject_impl/src/qobject_impl.rs#L901),
 [Rust field-offset macro](https://doc.rust-lang.org/std/mem/macro.offset_of.html).
+
+
+## Pinned upstream signal tests
+
+`tests/upstream_signals.rs` preserves three test functions verbatim from the
+same pinned upstream revision, with their MIT header:
+
+- `connect_rust_signal`: two distinct typed signals, argument delivery and
+  disconnect behavior.
+- `connect_cpp_signal`: an existing C++ QObject signal.
+- `with_life_time`: compilation of QObject derives with lifetime/type parameters;
+  this upstream test does not instantiate those generic objects.
+
+Run this additional manual diagnostic with the same configured Qt environment:
+
+```sh
+cargo test --locked --offline --manifest-path tests/qobject-signal-offset/Cargo.toml --test upstream_signals -- --test-threads=1
+```
+
+On the observed baseline, the C++ signal test passes and the Rust typed-signal
+test aborts with `null reference produced`; Cargo exits 101. With the existing
+private `qmetaobject_impl` override, all three tests pass, with zero failed,
+ignored or filtered tests. The test functions are byte-identical between the
+observed baseline and candidate. This adds typed-signal and generic compilation
+coverage; it does not establish the entire upstream suite, instantiated generic
+signal delivery or Windows acceptance. The baseline diagnostic remains outside
+the normal passing suite and the dependency patch remains unintegrated.
