@@ -1077,3 +1077,25 @@ seeking into the saved trim; this observation is retained without attributing
 a cause. This smoke check does not replace numerical GPU/CPU parity or Windows
 acceptance. Evidence: `native-gui-smoke/RESULT.json`, `OBSERVATION.json` and
 `native.log` within the same candidate packet.
+
+
+### Local crash diagnostics and build opt-out
+
+The inherited startup routine scanned the current working directory for `.dmp`
+files and automatically sent readable dumps to the upstream Gyroflow service.
+Gyroflow+ removes that upload loop. It no longer reads or deletes working-directory
+dumps at startup; the existing local crash-dump handler remains enabled by default.
+
+Breakpad is now an optional, default-on `crash-reporting` Cargo feature. An explicit
+`--no-default-features --features opencv,ocio-runtime` build omits it. The Mac build
+receipt helper accepts `--no-default-features` and records whether Cargo defaults
+were enabled. Actual locked/offline Mac arm64 and Windows x64 dependency graphs
+show that this opt-out removes only `breakpad-sys`; `Cargo.lock` is unchanged.
+The build-helper suite passes 14 tests, including opt-out command and receipt
+checks. These graph/helper checks are not a new application compile or runtime
+acceptance. Existing signed candidates retain their original source identities.
+
+This supported opt-out avoids vendoring or rewriting an inherited crash reporter.
+It does not establish a legal conclusion about the default-enabled reporter's
+compiled units or replace full redistribution review. The color processor,
+stabilization and encoding algorithms are unchanged by this correction.

@@ -64,9 +64,17 @@ class BuildReceiptTests(unittest.TestCase):
         self.assertEqual(receipt['exe_sha256'],hashlib.sha256(self.binary.read_bytes()).hexdigest())
         self.assertEqual(receipt,json.loads(self.output.read_text()))
         self.assertIn('--locked',command);self.assertIn('--offline',command)
+        self.assertNotIn('--no-default-features',command)
+        self.assertIs(receipt['default_features'],True)
         self.assertEqual(command[command.index('--manifest-path')+1],str(self.root/'Cargo.toml'))
         self.assertEqual(command[command.index('--target-dir')+1],str(self.binary.parents[1]))
         self.assertEqual(receipt['executable'],str(self.binary))
+
+    def test_explicit_default_feature_opt_out_is_passed_and_recorded(self):
+        receipt,command=self.run_build(no_default_features=True)
+        self.assertEqual(command.count('--no-default-features'),1)
+        self.assertEqual(command[command.index('--features')+1],'ocio-runtime')
+        self.assertIs(receipt['default_features'],False)
 
     def test_failed_build_never_writes_receipt(self):
         with self.assertRaises(subprocess.CalledProcessError):

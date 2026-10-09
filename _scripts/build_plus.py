@@ -59,7 +59,7 @@ def lens_identity(root, mode, pin, supplied):
 
 
 def build(output, profile='deploy', features='', target=None, jobs=4, offline=False,
-          lens_profiles='pinned', lens_profiles_file=None):
+          lens_profiles='pinned', lens_profiles_file=None, no_default_features=False):
     if sys.platform != 'darwin':
         raise RuntimeError('Use this build receipt helper on Mac; Windows uses just deploy')
     output = output.resolve()
@@ -89,6 +89,7 @@ def build(output, profile='deploy', features='', target=None, jobs=4, offline=Fa
                '--bin', 'gyroflow', '--profile', profile, '--jobs', str(jobs),
                '--target-dir', str(target_dir),
                '--message-format', 'json-render-diagnostics']
+    if no_default_features: command.append('--no-default-features')
     if features: command += ['--features', features]
     if target: command += ['--target', target]
     if offline: command.append('--offline')
@@ -114,7 +115,7 @@ def build(output, profile='deploy', features='', target=None, jobs=4, offline=Fa
     if source_identity() != commit:
         raise RuntimeError('Source commit changed during the build; no receipt written')
     receipt = dict(platform='mac', commit=commit, dirty=False,
-                   features=features, target=target, profile=profile,
+                   features=features, default_features=not no_default_features, target=target, profile=profile,
                    target_directory=str(target_dir),
                    command=command, executable=str(binary), exe_sha256=binary_hash,
                    lens_profiles=lens, public_release_approved=False)
@@ -130,6 +131,8 @@ def main():
     parser.add_argument('--output', type=Path, required=True, help='new build receipt, preferably under ignored _dev/')
     parser.add_argument('--profile', default='deploy')
     parser.add_argument('--features', default='')
+    parser.add_argument('--no-default-features', action='store_true',
+                        help='pass through to Cargo; select opencv explicitly when required')
     parser.add_argument('--target')
     parser.add_argument('--jobs', type=int, default=4)
     parser.add_argument('--offline', action='store_true', help='also forbids the core build script\'s lens profile fetch')
@@ -139,7 +142,7 @@ def main():
     args = parser.parse_args()
     if args.jobs < 1: parser.error('--jobs must be positive')
     print(json.dumps(build(args.output, args.profile, args.features, args.target, args.jobs, args.offline,
-                           args.lens_profiles, args.lens_profiles_file), indent=2))
+                           args.lens_profiles, args.lens_profiles_file, args.no_default_features), indent=2))
 
 
 if __name__ == '__main__': main()
