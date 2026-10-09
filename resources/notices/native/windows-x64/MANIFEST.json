@@ -1949,7 +1949,8 @@
     "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/PACKAGE-LICENSE.txt",
     "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/PACKAGE.nuspec",
     "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/PROVENANCE.json",
-    "mdk-0.39.0-e89bc0b/bundled/evidence/FFMPEG-PATCH-OUTCOMES.json"
+    "mdk-0.39.0-e89bc0b/bundled/evidence/FFMPEG-PATCH-OUTCOMES.json",
+    "mdk-0.39.0-e89bc0b/bundled/evidence/FFMPEG-PATCH-STAGE.json"
    ],
    "reused_repo_paths": [],
    "release_provenance": {
@@ -1970,8 +1971,8 @@
      {
       "id": "mdk-ffmpeg9-source",
       "class": "obligation",
-      "text": "ffmpeg-9.dll is LGPL-2.1-or-later. Its corresponding source must account for FFmpeg 590fb407b09bbf19aac0ea2fbd0ba16f93494601 and the recorded avbuild configuration. The matching VS2026 lite Actions build attempted 35 master patches with no logged failure and five common patches with skipped/failed hunks, including one partially successful common time.c patch. FFMPEG-PATCH-OUTCOMES.json records all 40 patch identities and actual logged outcomes. Retaining patch inputs alone does not establish the resulting source or satisfy corresponding-source delivery; those remain open.",
-      "needed_artifact": "A corresponding-source route for FFmpeg 590fb407, all 40 avbuild d91e8a95 patch inputs, the recorded partial application outcomes and embedded configuration, with required dependency/build records."
+      "text": "ffmpeg-9.dll is LGPL-2.1-or-later. Its corresponding source must account for FFmpeg 590fb407b09bbf19aac0ea2fbd0ba16f93494601 and the recorded avbuild configuration. The matching VS2026 lite Actions build attempted 35 master patches with no logged failure and five common patches with skipped/failed hunks, including one partially successful common time.c patch. FFMPEG-PATCH-OUTCOMES.json records all 40 patch identities and actual logged outcomes. Retaining patch inputs alone does not establish the resulting source or satisfy corresponding-source delivery; those remain open. The 40 ordered patch-stage transformations are now reconstructed and independently byte-verified against 169 recorded hunk outcomes for 10,714 source files; FFMPEG-PATCH-STAGE.json indexes the retained source-only archive. Later conditional/sed/configuration/generated-file and dependency requirements remain outside that proof.",
+      "needed_artifact": "A corresponding-source route for FFmpeg 590fb407, all 40 avbuild d91e8a95 patch inputs, the recorded partial application outcomes and embedded configuration, with required dependency/build records. Preserve the verified patch-stage archive and review alongside the original source and patch inputs; complete the later source transformations and delivery route before closing this obligation."
      },
      {
       "id": "mdk-ffmpeg9-build-revision",
@@ -2962,8 +2963,8 @@
   },
   {
    "path": "README.md",
-   "bytes": 6451,
-   "sha256": "5700f760366d3f8366263e710118b8b08f66eb6665bf9cb0cca60202352cadcb",
+   "bytes": 7197,
+   "sha256": "2862f6c8d59e3470e309805782c9cf57e007be540451c4f59f58d28272c183dd",
    "component": "packet",
    "role": "packet"
   },
@@ -12624,6 +12625,13 @@
    "bytes": 326325,
    "sha256": "72e37fa7c2b81ca7bfa90808c33a0182c1375d839dd5f917768e6b7bc20fdf2c",
    "component": "unattributed",
+   "role": "provenance"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/evidence/FFMPEG-PATCH-STAGE.json",
+   "bytes": 50523,
+   "sha256": "d6c41c3f6682103f614bc780f4a3ebb43c87a131bd6cfd07a66b1f05ac1dcb16",
+   "component": "mdk",
    "role": "provenance"
   }
  ]

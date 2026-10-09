@@ -94,3 +94,15 @@ keep Windows paths short; source paths, byte/line ranges and the canonical mappi
 are in `unattributed/SOURCE-HEADER-DELTA-v10.json` and
 `unattributed/SOURCE-COVERAGE-REVIEW-v10.json`. These records preserve the unknown
 Qt patch/build/linkage and source-license limits. The provider blocker remains.
+
+## Bundled FFmpeg patch-stage source
+
+`mdk-0.39.0-e89bc0b/bundled/evidence/FFMPEG-PATCH-STAGE.json` indexes a
+retained source-only archive after the 40 ordered patch attempts. Two installed
+Apple patch runs and an independent replay of 169 vendor-recorded hunk outcomes
+agree for all 10,714 source files. The independent replay retains exact EOF
+markers and rejects/skip outcomes; tool diagnostic positions alone were not
+treated as equivalent. Backup/reject files are excluded from the source archive.
+Later conditional patches, sed edits, configuration, generated files, dependency
+closure and complete corresponding-source delivery remain open. The source-only
+draft remains unpublished and the eight distribution requirements are unchanged.
