@@ -14,12 +14,12 @@ verifier:
 ```sh
 python3 -I _scripts/notices/verify_native_notices.py \
   resources/notices/native/windows-x64 --repo-root . \
-  --manifest-sha256 53ba3583fb02dea1581b0fb9d9107bbdaed3af2c43ce3907ef2cb4906016d398
+  --manifest-sha256 d6b2106540a2434f3ebca6f4e25f70c1c6fbd0dbb860439dfdd7ebcbaef39c7f
 ```
 
 The Qt GPL-2.0-or-later alias is retained as the full upstream target text,
 rather than the literal Git symbolic-link target name. Content integrity currently passes. Add `--require-release-complete` to check the
-recorded release gaps; it currently returns **3**, because ten blockers or
+recorded release gaps; it currently returns **3**, because twelve blockers or
 obligations remain. A normal integrity exit of zero is not distribution approval.
 The manifest pin prevents an edited gap classification from silently passing.
 
@@ -30,6 +30,24 @@ the Rust notice output. The packager also retains the tracked OpenColorIO notice
 Keep corresponding-source and provider-term records with the release evidence;
 this snapshot does not establish license compatibility or satisfy those open
 obligations by itself.
+
+## MDK bundled dependency notices
+
+The MDK snapshot includes 23 original notice texts for the bundled FFmpeg and
+libass dependencies, plus their source and binary provenance. Seventeen are full
+upstream files and six are license comment excerpts with recorded line ranges.
+`mdk-0.39.0-e89bc0b/bundled/evidence/NOTICE-SOURCES.json` records each upstream
+repository, commit, path, blob identity and whether the DLL build pin is exact
+or inferred. All 23 delivered texts were independently compared with those
+upstream commits.
+
+An embedded library version does not establish an exact source commit. The
+HarfBuzz version is exact, while its source pin and other documented build pins
+remain inferred pending provider build records. The two former broad MDK notice
+gaps now have narrower records for missing AMF/libva header provenance, source
+delivery and the FreeType credit/license choice. This makes twelve recorded
+blockers or obligations across the complete native tree. These additions do not
+change the staged DLL inventory or establish complete corresponding source.
 
 ## Qt source artifacts
 

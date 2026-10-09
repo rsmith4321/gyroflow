@@ -1852,10 +1852,43 @@
     "staged_mdk_dll_sha256": "5d2e5151184dc137a1a0d29f28a6f20cb517164c4a1b5ce83203339b3a65630c"
    },
    "notice_members": [
-    "mdk-0.39.0-e89bc0b/README.md"
+    "mdk-0.39.0-e89bc0b/README.md",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/avbuild-d91e8a95/LICENSE",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/ffmpeg-590fb407/COPYING.LGPLv2.1",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/ffmpeg-590fb407/LICENSE.md",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva_loader-7d814d7b/LICENSE",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libvpl-2.17.0-wang-bin-oneVPL-3a3ca48d/LICENSE",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libvpl-2.17.0-wang-bin-oneVPL-3a3ca48d/third-party-programs.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/nv-codec-headers-eddcea9e/dynlink_cuda.h.licence-lines-1-26.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/nv-codec-headers-eddcea9e/dynlink_cuviddec.h.licence-lines-1-26.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/nv-codec-headers-eddcea9e/dynlink_loader.h.licence-lines-1-26.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/nv-codec-headers-eddcea9e/dynlink_nvcuvid.h.licence-lines-1-26.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/nv-codec-headers-eddcea9e/nvEncodeAPI.h.licence-lines-1-26.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/vulkan-headers-1.4.337-450bd223/LICENSE.md",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/vulkan-headers-1.4.337-450bd223/LICENSES/Apache-2.0.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/vulkan-headers-1.4.337-450bd223/LICENSES/MIT.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/zlib-1.3.2-da607da7/LICENSE",
+    "mdk-0.39.0-e89bc0b/bundled/libass.dll/freetype-2.14.3-0a0221a1/LICENSE.TXT",
+    "mdk-0.39.0-e89bc0b/bundled/libass.dll/freetype-2.14.3-0a0221a1/docs/FTL.TXT",
+    "mdk-0.39.0-e89bc0b/bundled/libass.dll/freetype-2.14.3-0a0221a1/docs/GPLv2.TXT",
+    "mdk-0.39.0-e89bc0b/bundled/libass.dll/freetype-2.14.3-0a0221a1/src-gzip-zlib.h.licence-lines-1-29.txt",
+    "mdk-0.39.0-e89bc0b/bundled/libass.dll/fribidi-1.0.17-b93119f5/AUTHORS",
+    "mdk-0.39.0-e89bc0b/bundled/libass.dll/fribidi-1.0.17-b93119f5/COPYING",
+    "mdk-0.39.0-e89bc0b/bundled/libass.dll/harfbuzz-14.5.0-863d3f77/COPYING",
+    "mdk-0.39.0-e89bc0b/bundled/libass.dll/libass-wang-bin-af5f116d/COPYING"
    ],
    "provenance_members": [
-    "mdk-0.39.0-e89bc0b/PROVENANCE.json"
+    "mdk-0.39.0-e89bc0b/PROVENANCE.json",
+    "mdk-0.39.0-e89bc0b/bundled/evidence/NOTICE-SOURCES.json",
+    "mdk-0.39.0-e89bc0b/bundled/evidence/avbuild-d91e8a95-patch-set.tsv",
+    "mdk-0.39.0-e89bc0b/bundled/evidence/ffmpeg-9.dll.pe.txt",
+    "mdk-0.39.0-e89bc0b/bundled/evidence/ffmpeg-9.dll.strings-evidence.tsv",
+    "mdk-0.39.0-e89bc0b/bundled/evidence/libass.dll.pe.txt",
+    "mdk-0.39.0-e89bc0b/bundled/evidence/libass.dll.strings-evidence.tsv",
+    "mdk-0.39.0-e89bc0b/bundled/evidence/official-mdk-v0.39.0-archive-members.tsv",
+    "mdk-0.39.0-e89bc0b/bundled/evidence/repository-facts.tsv",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/PROVENANCE.json",
+    "mdk-0.39.0-e89bc0b/bundled/libass.dll/PROVENANCE.json"
    ],
    "reused_repo_paths": [],
    "release_provenance": {
@@ -1864,32 +1897,56 @@
      {
       "id": "mdk-archive-origin",
       "class": "advisory",
-      "text": "Original filename and download URL of archive 5620e05359f692f6d9ecabc6e49bf62adf4e061f568a18355210bfac70f716a5 remain unknown.",
-      "v4_gap": "mdk-1"
+      "v4_gap": "mdk-1",
+      "text": "Original filename and download URL of archive 5620e05359f692f6d9ecabc6e49bf62adf4e061f568a18355210bfac70f716a5 remain unknown."
      },
      {
       "id": "mdk-build-identity",
       "class": "advisory",
-      "text": "Staged mdk.dll, mdk-braw.dll and mdk-r3d.dll (git e89bc0b) differ from the official v0.39.0 release (git eed59da) and the 2026-10-09 nightly (git 474d079); only mdk.lib matches and it is identical across both.",
-      "v4_gap": "mdk-3"
-     },
-     {
-      "id": "mdk-ffmpeg9-notice",
-      "class": "blocker",
-      "text": "Staged ffmpeg-9.dll (12207104 B) is the official MDK v0.39.0 bundled FFmpeg runtime: embedded strings report \"FFmpeg version git-2026-09-17-590fb40-avbuild\" and \"LGPL version 2.1 or later\" for every library, built with --enable-libvpl. No notice text for it or for libvpl is in the package.",
-      "needed_artifact": "FFmpeg LGPL-2.1 licence text for that build and the libvpl licence text, at the versions used by avbuild."
+      "v4_gap": "mdk-3",
+      "text": "Staged mdk.dll, mdk-braw.dll and mdk-r3d.dll (git e89bc0b) differ from the official v0.39.0 release (git eed59da) and the 2026-10-09 nightly (git 474d079); only mdk.lib matches and it is identical across both."
      },
      {
       "id": "mdk-ffmpeg9-source",
       "class": "obligation",
-      "text": "LGPL-2.1-or-later: the corresponding source for ffmpeg-9.dll (FFmpeg 590fb40 plus the avbuild configuration) must accompany or be offered with the package.",
-      "needed_artifact": "Source archive or written offer for FFmpeg 590fb40 as built by avbuild."
+      "text": "ffmpeg-9.dll is LGPL-2.1-or-later. Its corresponding source is FFmpeg 590fb407b09bbf19aac0ea2fbd0ba16f93494601 with the avbuild patch set applied (patches/master 0001-0035 and patches/common, 40 files, at avbuild d91e8a95, inferred) and the avbuild default configuration recorded in bundled/evidence/ffmpeg-9.dll.strings-evidence.tsv. That source must accompany or be offered with the package; not done here.",
+      "needed_artifact": "A source archive (or root's chosen source route) for FFmpeg 590fb407 plus the avbuild d91e8a95 patch files listed in bundled/evidence/avbuild-d91e8a95-patch-set.tsv."
      },
      {
-      "id": "mdk-libass-notice",
+      "id": "mdk-ffmpeg9-amf-headers",
       "class": "blocker",
-      "text": "Staged libass.dll (1766400 B) is the official MDK v0.39.0 bundled libass; embedded strings name FreeType, FriBidi 1.0.13 and HarfBuzz. No notice text for libass or those libraries is in the package; versions other than FriBidi are not established.",
-      "needed_artifact": "Licence texts for libass and the FreeType, FriBidi and HarfBuzz versions built into it, from the MDK/avbuild provider or upstream at those versions."
+      "text": "ffmpeg-9.dll compiles AMD AMF encoder code against AMF headers downloaded as AMF-headers-v$AMF_VER.tar.gz, where AMF_VER is a private avbuild repository variable. The version, and so the exact notice text, is not established; no AMF notice is in the package.",
+      "needed_artifact": "AMF_VER for the avbuild run that built ffmpeg-9.dll (public Actions log of wang-bin/avbuild for d91e8a95, VS2026 windows-desktop default job), then License.txt from GPUOpen-LibrariesAndSDKs/AMF at that tag."
+     },
+     {
+      "id": "mdk-ffmpeg9-libva-headers",
+      "class": "blocker",
+      "text": "ffmpeg-9.dll compiles VA-API code (VA 1.19.0) against libva headers that devpkgs takes from the latest Microsoft.Direct3D.VideoAccelerationCompatibilityPack NuGet package at run time. The package version, and so the exact notice text, is not established; no libva-header notice is in the package.",
+      "needed_artifact": "The NuGet package version used by the devpkgs run that produced the avbuild dep-av input, and the licence file inside that package."
+     },
+     {
+      "id": "mdk-ffmpeg9-build-revision",
+      "class": "advisory",
+      "text": "avbuild d91e8a95, nv-codec-headers eddcea9e and the devpkgs dep-av revision (oneVPL 3a3ca48d, zlib da607da7, libva_loader 7d814d7b, pins unchanged 2026-07-12 to 2026-09-29) are inferred from link time and repository history, not from embedded ids. The texts at those pins are exact.",
+      "needed_artifact": null
+     },
+     {
+      "id": "mdk-libass-fribidi-source",
+      "class": "obligation",
+      "text": "libass.dll statically links FriBidi (LGPL-2.1-or-later, b93119f5, 1.0.17). Its corresponding source, and what LGPL-2.1 requires for relinking a statically linked library, must accompany or be offered with the package; not done here.",
+      "needed_artifact": "Root's source route for FriBidi b93119f5 together with the libass af5f116d, HarfBuzz 863d3f77, FreeType 0a0221a1 and devpkgs ce43c819 build files used for libass.dll."
+     },
+     {
+      "id": "mdk-libass-freetype-credit",
+      "class": "obligation",
+      "text": "FreeType is dual-licensed (FTL or GPLv2+, LICENSE.TXT). If the FTL is the elected licence, FTL.TXT asks that distribution documentation acknowledge use of FreeType code; the texts are included, the acknowledgement and the election are not.",
+      "needed_artifact": "Root's licence election for FreeType and, under the FTL, the credit line in distribution documentation."
+     },
+     {
+      "id": "mdk-libass-build-revision",
+      "class": "advisory",
+      "text": "devpkgs ce43c819 (FriBidi b93119f5, FreeType 0a0221a1) is inferred from the embedded HarfBuzz version 14.5.0 and the 2026-09-29T12:36:56Z link time; libass af5f116d is exact from its embedded commit id. HarfBuzz 14.5.0 is embedded exactly, but its source commit 863d3f77 remains inferred from the devpkgs pin; a matching version alone is not an exact commit identity.",
+      "needed_artifact": null
      }
     ],
     "resolved": [
@@ -1904,6 +1961,21 @@
       "class": "resolved",
       "text": "The terms text is now in hand (README.md:109-110). Whether Gyroflow+ distribution fits its stated free-use condition is a root/owner determination, not a missing artifact.",
       "v4_gap": "mdk-4"
+     },
+     {
+      "id": "mdk-ffmpeg9-notice",
+      "class": "resolved",
+      "text": "FFmpeg 590fb407 LICENSE.md and COPYING.LGPLv2.1, and the libvpl, zlib, libva_loader, Vulkan-Headers and nv-codec-headers texts at their pins, are in bundled/ffmpeg-9.dll/. The AMF and libva header notices remain open as separate blockers."
+     },
+     {
+      "id": "mdk-libass-notice",
+      "class": "resolved",
+      "text": "libass af5f116d COPYING, HarfBuzz 14.5.0 COPYING, FriBidi 1.0.17 COPYING and AUTHORS, FreeType 2.14.3 LICENSE.TXT, FTL.TXT, GPLv2.TXT and the gzip zlib licence lines are in bundled/libass.dll/."
+     },
+     {
+      "id": "mdk-libass-fribidi-version-lead",
+      "class": "resolved",
+      "text": "The embedded \"FriBidi 1.0.13\" is a version hard-coded in devpkgs projects/fribidi/CMakeLists.txt; the source pin is FriBidi 1.0.17 (b93119f5)."
      }
     ]
    }
@@ -5155,6 +5227,237 @@
    "path": "mdk-0.39.0-e89bc0b/README.md",
    "bytes": 7106,
    "sha256": "56c34a138306e25611c897714d61cc95b49c719767b1833650cf732c61585317",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/evidence/NOTICE-SOURCES.json",
+   "bytes": 24302,
+   "sha256": "18f232b9563518a6b7bb82580ef8557e8f6c8c36483f1976d133c8c67d1270b9",
+   "component": "mdk",
+   "role": "provenance"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/evidence/avbuild-d91e8a95-patch-set.tsv",
+   "bytes": 7680,
+   "sha256": "a930f43d42c744ad9f2a0cba24a62a14f837a4d72d368c1522c877b9c0b00bd8",
+   "component": "mdk",
+   "role": "provenance"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/evidence/ffmpeg-9.dll.pe.txt",
+   "bytes": 2004,
+   "sha256": "253fa4dc963a769b7ef9dffc56bcb1f060d073614f43a547895b9c5e25aadd90",
+   "component": "mdk",
+   "role": "provenance"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/evidence/ffmpeg-9.dll.strings-evidence.tsv",
+   "bytes": 4594,
+   "sha256": "220637fc111462ed4fb60099fbb32a8cc475ba4c72c188c7e38ed2897c126812",
+   "component": "mdk",
+   "role": "provenance"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/evidence/libass.dll.pe.txt",
+   "bytes": 793,
+   "sha256": "567345d609e00855b6b665ccfca25eb7bc68c2679814bffe1f91e300d57da0c4",
+   "component": "mdk",
+   "role": "provenance"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/evidence/libass.dll.strings-evidence.tsv",
+   "bytes": 351,
+   "sha256": "69dd2f3c632178bf16963d4d30e890809aa9e19e164c7b06b64ca135507d357b",
+   "component": "mdk",
+   "role": "provenance"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/evidence/official-mdk-v0.39.0-archive-members.tsv",
+   "bytes": 629,
+   "sha256": "223b45bb1a58a9c1d8f3998a965604426307919fc28e523ab27113c84738b9a9",
+   "component": "mdk",
+   "role": "provenance"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/evidence/repository-facts.tsv",
+   "bytes": 7172,
+   "sha256": "c4820b5028dafa110875af4814414e5f3670b1fb42bb7995ee0ef0b468f1d5f0",
+   "component": "mdk",
+   "role": "provenance"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/PROVENANCE.json",
+   "bytes": 4636,
+   "sha256": "867688fb94b4ad5ef34434fac23a86041ee9b7d0cbd9f801aadb0c1022704765",
+   "component": "mdk",
+   "role": "provenance"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/avbuild-d91e8a95/LICENSE",
+   "bytes": 7652,
+   "sha256": "97628afebc60f026f5c2b25d7491c46a5c4ee61f693e7cfa07fbd2c03605979b",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/ffmpeg-590fb407/COPYING.LGPLv2.1",
+   "bytes": 26517,
+   "sha256": "246041b6ecf9bc32d718a62c57877c78b5eb397b6467e74ed7ae2626ab189c30",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/ffmpeg-590fb407/LICENSE.md",
+   "bytes": 4358,
+   "sha256": "8c880fa51b7e1d8dbc09a92685da98c129532f3b0a766a9a58a2321ad67bab6c",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva_loader-7d814d7b/LICENSE",
+   "bytes": 1064,
+   "sha256": "ea1bbbd3fc730b4aab3ac40e254ab2952e71d47fad677510768c5f57af67d30e",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libvpl-2.17.0-wang-bin-oneVPL-3a3ca48d/LICENSE",
+   "bytes": 1074,
+   "sha256": "bf1cfac2e2792b6e1e995ce103d70796aecaf2ec7e4c5fe5474f7acec7b4a677",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libvpl-2.17.0-wang-bin-oneVPL-3a3ca48d/third-party-programs.txt",
+   "bytes": 14142,
+   "sha256": "e3c92992b1df02b467ac086d7d3730f4c1fc2c2a1f2c520657c4c9f2085305a3",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/nv-codec-headers-eddcea9e/dynlink_cuda.h.licence-lines-1-26.txt",
+   "bytes": 1175,
+   "sha256": "6f0d5ad2609c6fda3e0fb07fa286e7b46c2ea7b87ab12d926ab7a82c69ffe09d",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/nv-codec-headers-eddcea9e/dynlink_cuviddec.h.licence-lines-1-26.txt",
+   "bytes": 1199,
+   "sha256": "8f115901902ad05ce3a1ba48ae15393a1853ac0a3e7835ebe986cc80e1039b19",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/nv-codec-headers-eddcea9e/dynlink_loader.h.licence-lines-1-26.txt",
+   "bytes": 1175,
+   "sha256": "6f0d5ad2609c6fda3e0fb07fa286e7b46c2ea7b87ab12d926ab7a82c69ffe09d",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/nv-codec-headers-eddcea9e/dynlink_nvcuvid.h.licence-lines-1-26.txt",
+   "bytes": 1199,
+   "sha256": "8f115901902ad05ce3a1ba48ae15393a1853ac0a3e7835ebe986cc80e1039b19",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/nv-codec-headers-eddcea9e/nvEncodeAPI.h.licence-lines-1-26.txt",
+   "bytes": 1199,
+   "sha256": "8f115901902ad05ce3a1ba48ae15393a1853ac0a3e7835ebe986cc80e1039b19",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/vulkan-headers-1.4.337-450bd223/LICENSE.md",
+   "bytes": 458,
+   "sha256": "ac24e5ea920e4318e4d02c4086ae51f53cfb03feed06c18df1019e7ada1ec7bc",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/vulkan-headers-1.4.337-450bd223/LICENSES/Apache-2.0.txt",
+   "bytes": 11358,
+   "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/vulkan-headers-1.4.337-450bd223/LICENSES/MIT.txt",
+   "bytes": 1084,
+   "sha256": "1ca3502222d967f3be5751c55f6b7ee735b5383909c3b501495f54b216dbf227",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/zlib-1.3.2-da607da7/LICENSE",
+   "bytes": 1002,
+   "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/libass.dll/PROVENANCE.json",
+   "bytes": 3115,
+   "sha256": "1292c0a66db70f2645bac07371de87cd8a2396f0c691524494a9365ee3181229",
+   "component": "mdk",
+   "role": "provenance"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/libass.dll/freetype-2.14.3-0a0221a1/LICENSE.TXT",
+   "bytes": 2149,
+   "sha256": "bd36c8b474855fa294c2ec5c184544478ef3720aad37d65a6296a4f264fd2d3b",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/libass.dll/freetype-2.14.3-0a0221a1/docs/FTL.TXT",
+   "bytes": 6743,
+   "sha256": "5a5ee54c5001bbad1cdc1a57cc3dd4c42199b2da09d39c7ee41fab002d02967f",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/libass.dll/freetype-2.14.3-0a0221a1/docs/GPLv2.TXT",
+   "bytes": 17994,
+   "sha256": "c4120c6752c910c299e3bd9cb3a46ff262c268303ca2069b61f92f10a5656c18",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/libass.dll/freetype-2.14.3-0a0221a1/src-gzip-zlib.h.licence-lines-1-29.txt",
+   "bytes": 1328,
+   "sha256": "02421fcfbfb1d656ef0b6ff4cd3c39f2946f08c3219fa42db482add7ce1f53ea",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/libass.dll/fribidi-1.0.17-b93119f5/AUTHORS",
+   "bytes": 1640,
+   "sha256": "cb173f55c9514c8f38f4647ac3fedd5f8611358d331e65ab955da931e826861c",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/libass.dll/fribidi-1.0.17-b93119f5/COPYING",
+   "bytes": 26419,
+   "sha256": "20e50fe7aae3e56378ebf0417d9de904f55a0e61e4df315333e632a4d3555d95",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/libass.dll/harfbuzz-14.5.0-863d3f77/COPYING",
+   "bytes": 1971,
+   "sha256": "ba8f810f2455c2f08e2d56bb49b72f37fcf68f1f4fade38977cfd7372050ad64",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/libass.dll/libass-wang-bin-af5f116d/COPYING",
+   "bytes": 755,
+   "sha256": "f7e30699d02798351e7f839e3d3bfeb29ce65e44efa7735c225464c4fd7dfe9c",
    "component": "mdk",
    "role": "notice"
   },
