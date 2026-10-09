@@ -3,15 +3,18 @@
 Verified 2026-10-08 on Apple M4 Max / macOS 27.0.1. This is an official
 OpenColorIO **2.4.2 dependency candidate**, independently reviewed and exercised
 with production fixtures. It is not a complete portable app or a public download.
-The installed development app still uses the OCIO prefix recorded in
-[Mac app acceptance](OCIO-MAC-ACCEPTANCE.md); this new prefix has not replaced it.
+This section records the dependency candidate as tested on that date. The
+[current installed Mac candidate](OCIO-MAC-ACCEPTANCE.md#current-installed-candidate-2026-10-09)
+now bundles its runtime dependencies; the older installed development app used
+the local OCIO prefix recorded in the historical Mac acceptance section.
 
-A later separately linked, relocated and locally signed full app candidate now
-has current-Mac native preview/hardware export evidence. Its color outputs differ
-from the earlier b9 development build, so the private candidate is held for
-investigation. See [private app acceptance](OCIO-PRIVATE-APP-CANDIDATE.md) for the
-exact build/stage identities, completed checks and remaining gates. The individual
-dependency sections below retain their original, narrower proof boundaries.
+A later separately linked, relocated and locally signed full app candidate had
+current-Mac native preview/hardware export evidence. Its initial color-output
+comparison with the earlier b9 development build required investigation. See
+[private app acceptance](OCIO-PRIVATE-APP-CANDIDATE.md) for that investigation, the
+exact build/stage identities, completed checks and remaining gates. Later
+acceptance and installation do not change the identities or scope of the
+individual dependency checks below.
 
 ## Compiled runtime closure
 

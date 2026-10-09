@@ -2,12 +2,12 @@
 
 Checked 2026-10-08 on Apple M4 Max / macOS 27.0.1. The separately built and
 staged application uses official OpenColorIO 2.4.2 for CPU color processing and
-generated GPU preview. It is a private candidate, not the installed app or a
-public download. The Cargo default and public release remain unchanged.
+generated GPU preview. This report describes a historical private candidate,
+not a public download. The Cargo default and public release remain unchanged.
 
-The earlier installed development build remains the one described in
-[Mac acceptance](OCIO-MAC-ACCEPTANCE.md). The separately rebuilt dependency
-inputs are described in [dependency acceptance](OCIO-DEPENDENCY-ACCEPTANCE.md).
+The [current installed Mac candidate](OCIO-MAC-ACCEPTANCE.md#current-installed-candidate-2026-10-09)
+supersedes the earlier Homebrew-dependent installation. The separately rebuilt
+dependency inputs are described in [dependency acceptance](OCIO-DEPENDENCY-ACCEPTANCE.md).
 
 ## Build and stage identities
 

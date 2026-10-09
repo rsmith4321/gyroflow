@@ -1,5 +1,24 @@
 # Official OpenColorIO Mac development acceptance
 
+## Current installed candidate: 2026-10-09
+
+The installed `/Applications/Gyroflow Plus.app` is now the self-contained arm64
+candidate built from `427a6ca40670a8ad9902fa7f15fa9677792ccde2`, displayed as
+`dev248436`. Its packaged executable SHA-256 is
+`0ffa7cf753b9a24d7b6eb234202e2f0f8db7585074ab01b10a0e078cbf3753a7`.
+The package receipt records `development_runtime: false`, no required external
+runtime dependencies and no runtime-audit errors. Local signature verification
+passed. Native inspection confirmed the blue slider accents and reopened the
+saved beach project with all eight adjustments at zero and no selected LUT.
+
+This installation supersedes the earlier Homebrew-dependent development app.
+It does not establish Developer ID signing, notarization, older-OS execution,
+clean-machine execution or permission to publish a binary. Public release is
+still unapproved. The measurements below retain their original executable and
+dependency identities; a UI-only rebuild does not create new timing evidence.
+
+## Earlier development-runtime acceptance: 2026-10-07
+
 Tested 2026-10-07 on Apple M4 Max / macOS 27, official OCIO 2.4.2,
 Qt 6.11.2, FFmpeg 9.0.1. Implementation under test is
 `b9f744a3e09c38e5ca0a19f933739cbb28277df6` with `ocio-runtime` enabled.
@@ -10,7 +29,8 @@ A later separately rebuilt dependency/app candidate is recorded in
 [private app acceptance](OCIO-PRIVATE-APP-CANDIDATE.md). It has current-Mac native
 preview/hardware export checks and later bounded full-sequence pipeline acceptance.
 Matched timing, platform and public-package checks remain open.
-It has not replaced the installed development app described here.
+That statement describes the historical candidate at the time of those checks;
+the current installed candidate is identified above.
 
 ## Matched hardware export timing
 
