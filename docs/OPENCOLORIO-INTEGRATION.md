@@ -955,3 +955,16 @@ unchanged. Every owned command is terminal. Evidence under the same root packet:
 `hardware-saved-preferences-neutral-v1/`, `hardware-matched-runtime-neutral-v1/`
 and `NEUTRAL-DISCRIMINATION.json`. The runtime-copy test is an isolated
 comparison artifact, not a new portable-package or native-preview acceptance.
+
+
+### Human visual comparison of current neutral export
+
+Ryan compared the hash-verified older-reference and current neutral exports
+from Desktop copies in QuickTime and reported that they look exactly the same
+as judged by his professional photography experience. This accepts the visual
+comparison of that four-second stabilized segment. The earlier border flicker
+was observed in the Codex preview; its cause was not independently confirmed.
+The recorded numerical differences remain diagnostic evidence and are not
+proof of a visible defect. This human check does not replace current native
+preview/processor agreement, Windows tests, other-camera checks or portable
+package validation. Retained report: `HUMAN-VISUAL-CHECK.json` in the root packet.
