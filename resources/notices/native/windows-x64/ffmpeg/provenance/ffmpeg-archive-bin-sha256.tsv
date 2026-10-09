@@ -1,0 +1,12 @@
+bytes	sha256	archive_member
+35147	8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903	ffmpeg-n9.0.2-22-g46d8f462ee-win64-gpl-shared-9.0/LICENSE.txt
+119067648	241bc0cf8ba585e01c133f249bfce333fde3e5a06b714e76d5089dcc624d9423	ffmpeg-n9.0.2-22-g46d8f462ee-win64-gpl-shared-9.0/bin/avcodec-63.dll
+4948480	7bdf84c5d3f97bb1ca94d2586afca218b4220ff3cac2b31be5c1dc008ccd5236	ffmpeg-n9.0.2-22-g46d8f462ee-win64-gpl-shared-9.0/bin/avdevice-63.dll
+37342208	5b84392ae0a2c4d2767b72288380962bf271b7838e700ba07e0c78131f1859ba	ffmpeg-n9.0.2-22-g46d8f462ee-win64-gpl-shared-9.0/bin/avfilter-12.dll
+23015936	89f6dbd2b83407f0e8db3a004d8f7d2ff0bdba54632f3bab987c3a9cbf4fbe41	ffmpeg-n9.0.2-22-g46d8f462ee-win64-gpl-shared-9.0/bin/avformat-63.dll
+3016704	422114340663bf42477f26ea5d684c166fa9d72e15a6b507c1477606f770de48	ffmpeg-n9.0.2-22-g46d8f462ee-win64-gpl-shared-9.0/bin/avutil-61.dll
+540160	6c03ed874bf9c219d3ba865339b48a106eef11fac07e8e53bb599ac59214469d	ffmpeg-n9.0.2-22-g46d8f462ee-win64-gpl-shared-9.0/bin/ffmpeg.exe
+19133440	db3438177ebd9cadcc9f712a49fda582bd487968f24cfdbfc6b3501f7c436900	ffmpeg-n9.0.2-22-g46d8f462ee-win64-gpl-shared-9.0/bin/ffplay.exe
+229888	fb41be6f4386df4625d13eec932ec926be4744853759c7c100947edc7b917096	ffmpeg-n9.0.2-22-g46d8f462ee-win64-gpl-shared-9.0/bin/ffprobe.exe
+734720	3b51f83011743c6dd4c8816e8b06169a649d4c27ecde7df31ee8b61fa20d49a3	ffmpeg-n9.0.2-22-g46d8f462ee-win64-gpl-shared-9.0/bin/swresample-7.dll
+2332160	25e335fc85561d3cbfeefce4c2b4b638e7ac4e5bd9779775425511197e0637b1	ffmpeg-n9.0.2-22-g46d8f462ee-win64-gpl-shared-9.0/bin/swscale-10.dll

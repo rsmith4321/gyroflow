@@ -1,5 +1,37 @@
 # Rust dependency notices
 
+## Windows native notice snapshot
+
+The reviewed native snapshot is in
+[`resources/notices/native/windows-x64`](../../resources/notices/native/windows-x64).
+Its manifest describes the frozen `ab680a27` Windows stage: 120 DLL identities,
+verbatim notice texts, provider provenance and explicit remaining gaps. A new
+stage must be compared with those identities before reusing the snapshot.
+
+Check content and the 25 reused repository files with the offline standard-library
+verifier:
+
+```sh
+python3 -I _scripts/notices/verify_native_notices.py \
+  resources/notices/native/windows-x64 --repo-root . \
+  --manifest-sha256 ecba5b051c8d9c1df59d8f90f3ad3e8db0b614979d41034173af56e7bf4976b7
+```
+
+Content integrity currently passes. Add `--require-release-complete` to check the
+recorded release gaps; it currently returns **3**, because ten blockers or
+obligations remain. A normal integrity exit of zero is not distribution approval.
+The manifest pin prevents an edited gap classification from silently passing.
+
+For a Windows package, combine the reviewed native tree and the matching Rust
+notice output in the prepared directory supplied to `package_plus.py --licenses`.
+That option copies the supplied tree; the native snapshot alone does not contain
+the Rust notice output. The packager also retains the tracked OpenColorIO notices.
+Keep corresponding-source and provider-term records with the release evidence;
+this snapshot does not establish license compatibility or satisfy those open
+obligations by itself.
+
+## Rust collector
+
 This is a release-preparation recipe, separate from application compilation.
 It uses the official `cargo-about` 0.9.2 collector. The Python gate checks that
 its output covers the selected Cargo graph and copies checksum-pinned extra
