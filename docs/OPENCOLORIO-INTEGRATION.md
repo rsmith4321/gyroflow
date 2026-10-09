@@ -1169,3 +1169,20 @@ Its successor needs a separately reviewed build deadline and resource slot;
 the 300-second standalone preview limit is not a measured full-app build budget.
 Current native/app execution remains pending. Source-review evidence is retained
 in `_dev/root-windows-native-0b-review-20261009/WINDOWS-APP-INPUT-REVIEW.json`.
+
+### Independent crash-reporting source review
+
+The independent successor review of `0b5ba007` found no blocking source defect.
+The owner verified all three delivered manifest members and six pinned source
+hashes, and independently confirmed that the retained desktop handler body is
+unchanged from `de8bd219`. This accepts source review; it adds no platform compile
+or runtime claim beyond the Mac evidence above.
+
+The removed startup dump scan/upload is distinct from unrelated directory reads
+and network features. Three legitimate core directory reads remain, as does the
+automatic lens-checksum usage request. With default features on mobile, startup
+still calls `current_dir()` before the desktop-only handler block is removed by
+conditional compilation. An optional patch moving that call into the desktop
+block is deferred because mobile compilation was not exercised and it is outside
+this desktop release scope. Default-build Breakpad linkage and redistribution
+remain separate from acceptance of the opted-out Mac candidate.
