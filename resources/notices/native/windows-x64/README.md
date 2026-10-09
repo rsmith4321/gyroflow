@@ -1,12 +1,18 @@
-# Windows x64 native dependency notices (candidate v5)
+# Windows x64 native dependency notices (candidate)
 
 Status: CANDIDATE for `resources/notices/native/windows-x64`. Not a legal review and
 not a release approval (`public_release_approved: false`).
 
-v5 adds the owner's exact installed-provider facts to the accepted v4 tree. Every v4
+The original v5 snapshot added exact installed-provider facts to the accepted v4 tree. Every v4
 file is kept byte for byte except this README and the per-component PROVENANCE.json
 files. Notice texts are verbatim copies of official upstream files at exact pins, or
 of original installed provider files. `.gitattributes` keeps those bytes unchanged.
+
+Later additions retain MDK bundled notices, the FreeType license choice and
+acknowledgment, and the byte-matched OpenCL SDK provider's copyright and metadata.
+The current `427a6ca4` private Windows stage has the same 120 DLL identities as
+the frozen inventory. Ten blocking requirements remain; consult the manifest
+for the current component records. A copied notice tree does not close them.
 
 `MANIFEST.json` lists:
 - every file with its size and SHA-256
@@ -28,11 +34,11 @@ separately from these gap classes.
 | `ocio-2.4.2/` | OpenColorIO_2_4.dll | None here. The tracked `resources/color` notices are staged by `package_plus.py` |
 | `rust-windows-x64-ocio/` | Gyroflow's Rust crates | None here. Include the tracked `resources/notices/rust/windows-x64-ocio` in the same `--licenses` input |
 | `msvc-crt-14.51.36247.0/` | Microsoft C/C++ runtime: 10 DLLs | None. The installed `Redist.txt` is kept as provenance |
-| `mdk-0.39.0-e89bc0b/` | MDK 0.39.0 git e89bc0b, plus its bundled `ffmpeg-9.dll` and `libass.dll` | The original installed SDK `README.md` |
+| `mdk-0.39.0-e89bc0b/` | MDK 0.39.0 git e89bc0b, plus its bundled `ffmpeg-9.dll` and `libass.dll` | Original SDK `README.md`, bundled dependency notices and FreeType acknowledgment |
 | `d3dcompiler_47/` | D3Dcompiler_47.dll 6.3.9600.16384 | None. Windows SDK 10.0.26100.0 terms are kept as provenance only, because they cover a different copy |
 | `zlib-for-z.dll/` | zlib 1.3.2#2 (z.dll) | The upstream v1.3.2 `LICENSE`, which is byte-identical to the installed `copyright` |
-| `opencl/` | OpenCL loader and utilities: 3 DLLs | None supplied |
-| `unattributed/` | opengl32sw.dll | None. Its provider is unknown |
+| `opencl/` | OpenCL SDK 2024.10.24#1 loader and utilities: 3 DLLs | Exact installed provider copyright: Apache-2.0 and the whereami MIT alternative |
+| `unattributed/` | opengl32sw.dll, byte-matched to the Qt 6.7.3 provider | Implementation version and applicable notices remain unestablished |
 
 **shaderc** is omitted. No `shaderc*.dll` is in the accepted stage.
 
@@ -43,5 +49,8 @@ separately from these gap classes.
   are used for byte comparison only.
 - A component's directory does not prove the shipped binaries were built from the
   cited sources. Each PROVENANCE.json says what was compared.
+- Original incomplete `opencl/PROVENANCE.json` and `unattributed/PROVENANCE.json`
+  are retained as historical records. Their `CURRENT-PROVIDER.json` files record
+  the later byte comparisons and their remaining limits.
 - Corresponding-source routes, acceptance of the MDK and Microsoft terms, and codec
   policy are decisions for root and the owner.

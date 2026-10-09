@@ -2133,15 +2133,19 @@
    }
   },
   "unattributed": {
-   "name": "Unattributed staged files",
+   "name": "Software OpenGL (implementation attribution pending)",
    "version": "n/a",
    "required": true,
    "identity": {
-    "staged_dll_count": 1
+    "staged_dll_count": 1,
+    "immediate_provider": "Qt 6.7.3 msvc2019_64 bin",
+    "installed_provider_same_bytes": true,
+    "opengl32sw_dll_sha256": "b04de4541863bc7d8879040a78889c4849c1b1da2784c4630f734c146c2998ce"
    },
    "notice_members": [],
    "provenance_members": [
-    "unattributed/PROVENANCE.json"
+    "unattributed/PROVENANCE.json",
+    "unattributed/CURRENT-PROVIDER.json"
    ],
    "reused_repo_paths": [],
    "release_provenance": {
@@ -2150,8 +2154,8 @@
      {
       "id": "opengl32sw-provider",
       "class": "blocker",
-      "text": "opengl32sw.dll (20639888 B, b04de454...) is staged with no provider, version or notice evidence.",
-      "needed_artifact": "Its provider and licence texts, or removal from the package if unused."
+      "text": "opengl32sw.dll (20639888 B, b04de454...) is byte-identical to the Qt 6.7.3 provider bin copy. Its implementation version/source and applicable notice texts remain unestablished; no matching local attribution was found.",
+      "needed_artifact": "Applicable license/copyright texts and implementation source/version attribution for this exact Qt-distributed DLL. Immediate package-provider identity alone does not satisfy this requirement."
      }
     ],
     "resolved": []
@@ -2168,8 +2172,8 @@
   },
   {
    "path": "README.md",
-   "bytes": 2940,
-   "sha256": "38f5a303488493a968bb419f530afdf686372cc96e9366c7fbd1849d8fae6c13",
+   "bytes": 3763,
+   "sha256": "9fdc538a642d33a7f3231ed1e5fc58162961dca3133a7cad10a68eb79dac3c4d",
    "component": "packet",
    "role": "packet"
   },
@@ -6328,6 +6332,13 @@
    "bytes": 2128,
    "sha256": "50b9d439f72a3967c69267dbf92dc6b55b0ef726aa2fdb1730e263547822db6c",
    "component": "rust",
+   "role": "provenance"
+  },
+  {
+   "path": "unattributed/CURRENT-PROVIDER.json",
+   "bytes": 1279,
+   "sha256": "a600168a736a1ad6593e611cfef51112b061aa852f7f4d4171c878ff463c2033",
+   "component": "unattributed",
    "role": "provenance"
   },
   {

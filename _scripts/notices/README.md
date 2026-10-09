@@ -14,12 +14,12 @@ verifier:
 ```sh
 python3 -I _scripts/notices/verify_native_notices.py \
   resources/notices/native/windows-x64 --repo-root . \
-  --manifest-sha256 d6b2106540a2434f3ebca6f4e25f70c1c6fbd0dbb860439dfdd7ebcbaef39c7f
+  --manifest-sha256 fe2e3e0a457cba28b38f2a9333ca3d3eaef7d72ae79c3c66079c91edc3ed5a25
 ```
 
 The Qt GPL-2.0-or-later alias is retained as the full upstream target text,
 rather than the literal Git symbolic-link target name. Content integrity currently passes. Add `--require-release-complete` to check the
-recorded release gaps; it currently returns **3**, because twelve blockers or
+recorded release gaps; it currently returns **3**, because ten blockers or
 obligations remain. A normal integrity exit of zero is not distribution approval.
 The manifest pin prevents an edited gap classification from silently passing.
 
@@ -45,8 +45,10 @@ An embedded library version does not establish an exact source commit. The
 HarfBuzz version is exact, while its source pin and other documented build pins
 remain inferred pending provider build records. The two former broad MDK notice
 gaps now have narrower records for missing AMF/libva header provenance, source
-delivery and the FreeType credit/license choice. This makes twelve recorded
-blockers or obligations across the complete native tree. These additions do not
+delivery. The FreeType credit/license choice and OpenCL notice gaps have since
+been resolved with retained documentation and exact installed provider files.
+Ten recorded blockers or obligations remain across the complete native tree.
+These additions do not
 change the staged DLL inventory or establish complete corresponding source.
 
 ## Qt source artifacts
