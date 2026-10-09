@@ -152,11 +152,13 @@ MenuItem {
                 objectName: "color-lut-selector";
                 width: parent.width;
                 enabled: root.availableLuts.length > 0;
-                model: root.availableLuts.map(url => {
-                    const filename = filesystem.get_filename(url);
-                    const duplicate = root.availableLuts.some(x => x !== url && filesystem.get_filename(x) === filename);
-                    return duplicate ? filename + " — " + filesystem.url_to_path(filesystem.get_folder(url)) : filename;
-                });
+                model: {
+                    const names = root.availableLuts.map(url => filesystem.get_filename(url));
+                    const counts = Object.create(null);
+                    names.forEach(name => counts[name] = (counts[name] || 0) + 1);
+                    return root.availableLuts.map((url, index) => counts[names[index]] > 1
+                        ? names[index] + " — " + filesystem.url_to_path(filesystem.get_folder(url)) : names[index]);
+                }
                 currentIndex: -1;
                 displayText: currentIndex >= 0 ? currentText : qsTr("Choose a saved LUT…");
                 tooltip: currentIndex >= 0 ? filesystem.url_to_path(root.availableLuts[currentIndex]) : "";
