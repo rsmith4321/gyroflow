@@ -7,19 +7,30 @@ It keeps Gyroflow's existing stabilization workflow and adds user-selected `.cub
 LUT preview/export and eight basic grading controls: exposure, temperature,
 tint, brightness, contrast, highlights, shadows and saturation, plus supporting
 compatibility fixes. The controls are in a separate **Color settings** section.
-**Recent LUTs** remembers up to eight files across restarts, with the last-used
-LUT first. A local LUT-folder dropdown and remembered camera/profile choices link
-to official DJI, GoPro and Insta360 downloads; manufacturer files are not bundled.
+One **LUT** dropdown combines the active file, up to eight recent selections
+remembered across restarts, and files in your chosen folder. Selecting another
+LUT replaces the active conversion. **Find & organize LUTs** provides folder
+management and remembered camera/profile choices with links to official DJI,
+GoPro and Insta360 downloads; manufacturer files are not bundled.
 See [LUT library usage](docs/LUT-LIBRARY.md). Source footage and embedded motion data are preserved.
 
 Gyroflow Plus combines **Gyroflow stabilization with LUTs and simple color
 correction** to help you finish drone and action-camera clips in one place.
-We built a lightweight color implementation based on
-[OpenColorIO](https://opencolorio.org/): Highlights/Shadows use sampled curves
-derived from its grading transforms, while exposure, relative color balance
-and saturation use small native math tested against its processors. The
-full OpenColorIO runtime and configurable color-management workflow are not
-integrated. OpenColorIO copyright and license notices are retained.
+The optional `ocio-runtime` build integrates pinned official
+[OpenColorIO](https://opencolorio.org/) **2.4.2** for both CPU export and generated
+GPU preview. OpenColorIO evaluates the selected LUT and grading operations;
+our integration maps the controls, validates frame layouts and connects the
+processor to Gyroflow's preview, stabilization and encoding. For faster CPU
+export, Highlights/Shadows use a sampled curve generated and evaluated by
+OpenColorIO. A general OCIO configuration/color-space workflow is not included.
+
+The installed development Mac build and private Windows validation build use
+this official runtime. **Cargo's default features still select the earlier
+lightweight implementation** while platform and distribution checks remain
+open. Native Mac checks and Windows build/CLI export checks are recorded;
+Windows interactive preview and project persistence still need acceptance.
+There is no public packaged release of this runtime yet. OpenColorIO copyright
+and license notices are retained.
 See the [implementation and library integration notes](docs/OPENCOLORIO-INTEGRATION.md)
 and the processing order, native Mac acceptance and measured limits in the
 [basic grading report](docs/BASIC-GRADING-PLAN.md).

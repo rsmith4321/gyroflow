@@ -1,12 +1,21 @@
 # OpenColorIO basis and direct library integration
 
-Reviewed 2026-10-07. This describes the current implementation and a possible
-replacement. The Cargo default and public renderer remain the accepted lightweight path;
-an optional `ocio-runtime` development feature now exercises the official library.
-[Mac development acceptance](OCIO-MAC-ACCEPTANCE.md) records matched hardware
-timings and full-app preview/save/export checks.
+Current status, 2026-10-09: the optional `ocio-runtime` feature integrates pinned
+official OCIO 2.4.2 for CPU export and generated GPU preview. It is used by the
+installed development Mac build and the private Windows validation build.
+Cargo's default features still select the earlier lightweight path; no public
+packaged release has switched to the official runtime. A general OCIO
+configuration/color-space workflow is not implemented.
 
-## Current implementation
+[Mac development acceptance](OCIO-MAC-ACCEPTANCE.md) records matched hardware
+timings and full-app preview/save/export checks. The
+[Windows testing notes](WINDOWS-LUT-TESTING.md) distinguish component tests,
+native builds and CLI exports from outstanding interactive preview and project
+persistence checks. Native dependency-notice integration and distribution
+acceptance also remain open. Sections below retain dated implementation and
+test history; their original candidate identities are not current release claims.
+
+## Earlier lightweight implementation (Cargo default)
 
 Gyroflow Plus has a lightweight color implementation based on OpenColorIO.
 Highlights/Shadows use sampled curves generated with pinned OCIO 2.4.2.
@@ -44,7 +53,7 @@ a pinned official library and its
 
 The CPU API can process float images with explicit layout and stride. The GPU
 API can generate shader code, uniforms and textures; Gyroflow Plus must still
-bind those resources through Qt's preview renderer. An integration would need:
+bind those resources through Qt's preview renderer. The integration must provide:
 
 1. A small C++/Rust bridge using the public API, with exceptions contained on
    the C++ side and validated frame layouts at the boundary.
@@ -65,15 +74,17 @@ on the existing decoder and on correctly handling pixel formats and color
 metadata. An OCIO configuration would be a separate feature with explicit
 input/working/output color-space choices.
 
-## Acceptance before replacing the current path
+## Acceptance before changing the default or public release
 
-Prototype the official processor behind a separate development option. Compare
+Keep the official processor behind the separate development option. Compare
 it with the accepted path using neutral/no-LUT, LUT-only and combined grades;
 8/10-bit, full/limited range and supported RGB/YUV formats; odd widths/strides;
 malformed or unsupported LUTs; and actual Mac/Windows preview and hardware
 encoded exports. Measure matched real-clip timings and preview/export agreement.
 Do not replace the working path based solely on library maturity or synthetic
-CPU results. No production runtime change is made by this documentation update.
+CPU results. The dated evidence below records completed checks and their limits;
+remaining platform and package gates must pass before changing the default or
+publishing a release.
 
 ## Initial standalone runtime prototype: 2026-10-07
 

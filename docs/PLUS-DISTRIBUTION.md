@@ -10,7 +10,7 @@ BSD 3-clause copyright/license; see `resources/color/OCIO-LICENSE.txt`.
 
 | Surface | Fork identity |
 | --- | --- |
-| Application/UI | Gyroflow Plus, explicitly marked Community fork |
+| Application/UI | Gyroflow+; subtitle “Stabilize · Color correct · Export”; community-fork attribution retained in documentation and notices |
 | Application version | `0.1.0-dev`; upstream core retains its own version |
 | Mac bundle | `com.ryansmith.gyroflow-plus`, `Gyroflow Plus.app` |
 | Windows portable executable | `Gyroflow Plus` directory; executable keeps `Gyroflow.exe` for the embedded MDK key |
