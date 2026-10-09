@@ -80,6 +80,33 @@ CPU/GPU difference 2.384185791015625e-7, including live resource eviction, scene
 recreation and software-renderer rejection. The CPU and stabilized moving-frame
 references are recorded in [the integration report](OPENCOLORIO-INTEGRATION.md).
 
+## Current native LUT interface and persistence: 2026-10-09
+
+The arm64 Qt 6.7.3 candidate built from `df7a7549` (`dev248427`, executable
+SHA256 `8cbe08e6f06ed3fee5be93648281fedf1ceaac62b6d9f4057fc3dda2ca01248b`)
+passed a native GUI check in a separate `GYROFLOW_PLUS_DATA_DIR` profile:
+
+- The single LUT menu showed the active project file and the recent/folder test
+  file without a duplicate entry. Choosing the test file replaced the active LUT.
+- Clear removed the active LUT and preserved the grade. Reselection restored the
+  filename/status card and the preview/export indication.
+- A real double-click at a nonneutral exposure-track position reset exposure
+  from 0.37 to zero; both the field and centered thumb agreed.
+- Native Save wrote the selected LUT and all eight grade values. After clearing
+  the LUT and changing exposure to 0.91 without saving, reopening the saved
+  project restored its LUT, zero exposure and the other seven grade values.
+- The candidate exited normally after 274.959 seconds. Its process group,
+  launcher and temporary power assertion were closed. Original video, original
+  LUT, source fixture and candidate executable hashes were unchanged. The
+  installed `dd3e49c4` app was not replaced.
+
+The preview was inspected inside the retained trim, near 46 seconds. These
+interface checks do not repeat or broaden the numerical parity and hardware
+export measurements above. Four bookmark-creation errors were logged during
+the guarded save; reopening existing plain file paths succeeded. Security-scoped
+bookmark portability is not established by this test. This candidate is not a
+public, notarized or clean-machine release.
+
 ## Remaining gates
 
 The Cargo default and public release remain the accepted lightweight implementation.
@@ -87,7 +114,7 @@ The official runtime is an opt-in development build with real official CPU proce
 and generated GPU preview code; the application still supplies validated integration,
 parameter mapping, decoding, stabilization, RGB/YUV conversion and encoding.
 
-Current Windows native execution/install, dependency notices/source provenance,
+Current Windows interactive preview/project persistence, dependency notices/source provenance,
 distribution signing/notarization and clean-machine execution are still open.
 The development bundle used for the performance and full native app checks above
 depends on Homebrew and the local OCIO prefix; it must not be offered as a portable
