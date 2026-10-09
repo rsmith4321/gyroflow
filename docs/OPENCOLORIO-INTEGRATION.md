@@ -877,3 +877,52 @@ The executable SHA-256 is
 `ab1c0314b77fcdcff6cf2ee3d004da08106c9ceebf4cf1ea01f2434eba4da479`
 (**65,212,160 bytes**). No installed app, engine-default or release change;
 Windows and Claude remain held until renewed direct human go-ahead.
+
+
+### Current real-drone hardware export checks and reference hold
+
+On 2026-10-09 UTC the same private `80dad105` executable completed three
+saved-stabilization DJI O4 checks: neutral, LUT only, and LUT plus all eight
+controls. Each uses the retained 45–49 second range, 3840×2160 HEVC 10-bit,
+`-allow_sw 0`, and one render job. Each output decodes to 242 frames with
+limited-range BT.709 metadata and 60000/1001 fps. The render logs initialize
+OpenCL stabilization; these checks do not establish a Metal preview path.
+Copied source media, original saved project, selected LUT and the complete
+user settings/log tree retain their original bytes and file identities.
+
+These exports pass completion and format checks, **not reference parity**.
+Against the older isolated OCIO-family application outputs, timestamps and
+frame sizes match, but 241 of 242 decoded frame hashes differ in every case.
+Full-sequence PSNR averages are 44.971443 dB neutral, 43.460890 dB LUT, and
+40.083949 dB grade. No acceptance tolerance has been relaxed. A single repeat
+with the current executable produces all 242 decoded frames and timestamps
+exactly matching its first neutral run, despite a different container hash.
+This control does not establish universal encoder determinism.
+
+The current private development runtime is a material comparison difference:
+its MDK runtime loads Homebrew FFmpeg shared libraries even though the main
+executable's direct imports contain no Homebrew or dynamic FFmpeg dependency.
+A system-only `PATH` control still observes those loaded libraries. The older
+packaged reference's retained library samples contain no Homebrew images.
+Thus direct-import inspection alone does not establish runtime closure, and
+these observations do not yet attribute the image differences to color code,
+stabilization, settings, or library resolution. The comparison remains open.
+Single-run durations are not a matched performance benchmark.
+
+The system-PATH control's initial postprocessing failed because library-load
+diagnostics also contaminated the FFprobe JSON stream. Its original failure
+receipt is retained; export completion must not be reported as a whole-run
+pass. Decode-only follow-up uses a clean diagnostic environment.
+
+Evidence under `_dev/root-ffmpeg-sys-integration-20261009/`:
+`hardware-current-v1/`, `hardware-current-compare-v1/`,
+`hardware-repeat-neutral-v1/`, and `hardware-system-path-neutral-v1/`.
+The prior real-output, native preview, Windows, relocation, older-OS and
+public-release gates remain open. No installed application, default engine,
+user settings or published binary changed.
+
+Ryan has renewed Windows and Claude work. The Windows laptop
+`LAPTOP-OQ24VVBH` is the only Windows machine in scope; no gaming desktop was
+used. Easy Eject's existing generated-fixture test has the next laptop slot,
+followed by separately reviewed current-source Gyroflow CPU checks. Historical
+pause text above records earlier state and is superseded by this go-ahead.
