@@ -1142,6 +1142,32 @@ the final process census passed. The retained evidence does not identify the
 process that delayed natural drain. This accepts the test results as component
 evidence, not the whole supervisor run or current Windows app/package behavior.
 
+### Current Windows native preview component check
+
+On 2026-10-09, the exact seven-source fixture from `0b5ba007` configured,
+built and passed all three native CTest cases on the Windows laptop:
+`native-float32-preview`, `software-renderer-rejection` and
+`shader-exception-lock-recovery`. The actual backend was D3D11 on the NVIDIA
+GeForce RTX 5070 Ti Laptop GPU. All 82 GPU/CPU comparisons passed; the maximum
+absolute error was `2.384185791015625e-7`, below the `1e-5` gate. Resource/cache
+assertions passed, the fetched source stayed unchanged, and the observer
+captured the expected OCIO/Qt runtime module paths inside the owned test job.
+The single CTest invocation took 12.31 seconds; this is a correctness fixture,
+not a video playback or export throughput measurement.
+
+The supervisor still failed its original three-second natural-drain gate.
+This time its diagnostic identified two remaining processes in the exact owned
+job: MSVC `vctip.exe` and `mspdbsrv.exe`. Cleanup terminated that job and confirmed
+zero active owned processes. All 23,092 protected files matched afterward and
+the final process census passed. The whole supervisor result remains failed;
+the native component results are accepted separately. No tests were repeated
+to replace the failed wrapper result, and this does not establish current
+full-app, installer or package acceptance.
+
+Evidence: `_dev/root-windows-native-0b-review-20261009/`, including the reviewed
+plan (`6b94db30`), wrapper manifest (`7a9d7f5d`) and retained remote terminal
+record. The laptop worker retains the raw CTest output, pixels and source pins.
+
 ### Current Windows application preflight
 
 Source review of the locked dependencies identifies two requirements for the
@@ -1167,7 +1193,8 @@ tested Windows file-preservation guard.
 The retained full `9fab4b58` Windows application build took 8 minutes 22 seconds.
 Its successor needs a separately reviewed build deadline and resource slot;
 the 300-second standalone preview limit is not a measured full-app build budget.
-Current native/app execution remains pending. Source-review evidence is retained
+The native component check above passed; current full-app execution remains
+pending. Source-review evidence is retained
 in `_dev/root-windows-native-0b-review-20261009/WINDOWS-APP-INPUT-REVIEW.json`.
 
 ### Independent crash-reporting source review
@@ -1268,6 +1295,6 @@ No application was rebuilt, started or installed during this notice-only stage.
 Evidence: `_dev/root-rust-source-delivery-20261009/`, especially
 `ARCHIVE-RESULT.json`, `FINAL-TECHNICAL-STAGE.json` and
 `stage-with-rust-notices/SOURCE-BUNDLE.json`. This remains a local technical
-candidate: current Windows native/app validation, final redistribution/source
+candidate: current Windows full-app/package validation, final redistribution/source
 review, supported-OS checks and distribution signing/notarization remain open.
 No download was published and the default color runtime was not switched.
