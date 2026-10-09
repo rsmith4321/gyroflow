@@ -1948,7 +1948,8 @@
     "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/PROVENANCE.json",
     "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/PACKAGE-LICENSE.txt",
     "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/PACKAGE.nuspec",
-    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/PROVENANCE.json"
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/PROVENANCE.json",
+    "mdk-0.39.0-e89bc0b/bundled/evidence/FFMPEG-PATCH-OUTCOMES.json"
    ],
    "reused_repo_paths": [],
    "release_provenance": {
@@ -1969,8 +1970,8 @@
      {
       "id": "mdk-ffmpeg9-source",
       "class": "obligation",
-      "text": "ffmpeg-9.dll is LGPL-2.1-or-later. Its corresponding source is FFmpeg 590fb407b09bbf19aac0ea2fbd0ba16f93494601 with the avbuild patch set applied (patches/master 0001-0035 and patches/common, 40 files, at avbuild d91e8a95, inferred) and the embedded avbuild configuration recorded in bundled/evidence/ffmpeg-9.dll.strings-evidence.tsv. That source must accompany or be offered with the package; not done here.",
-      "needed_artifact": "A source archive (or root's chosen source route) for FFmpeg 590fb407 plus the avbuild d91e8a95 patch files listed in bundled/evidence/avbuild-d91e8a95-patch-set.tsv."
+      "text": "ffmpeg-9.dll is LGPL-2.1-or-later. Its corresponding source must account for FFmpeg 590fb407b09bbf19aac0ea2fbd0ba16f93494601 and the recorded avbuild configuration. The matching VS2026 lite Actions build attempted 35 master patches with no logged failure and five common patches with skipped/failed hunks, including one partially successful common time.c patch. FFMPEG-PATCH-OUTCOMES.json records all 40 patch identities and actual logged outcomes. Retaining patch inputs alone does not establish the resulting source or satisfy corresponding-source delivery; those remain open.",
+      "needed_artifact": "A corresponding-source route for FFmpeg 590fb407, all 40 avbuild d91e8a95 patch inputs, the recorded partial application outcomes and embedded configuration, with required dependency/build records."
      },
      {
       "id": "mdk-ffmpeg9-build-revision",
@@ -7023,6 +7024,13 @@
    "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/libva-headers-nuget-1.0.2/PROVENANCE.json",
    "bytes": 18083,
    "sha256": "733b5c1d6a4d0319a0d860160e311cb04191fee43a08365c3457e9774c126081",
+   "component": "mdk",
+   "role": "provenance"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/evidence/FFMPEG-PATCH-OUTCOMES.json",
+   "bytes": 32449,
+   "sha256": "8d12d37bbf5d0ad8f76dfaa55a8ac6097571d867157886f930b7536c946c5b29",
    "component": "mdk",
    "role": "provenance"
   }

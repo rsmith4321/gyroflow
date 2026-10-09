@@ -14,7 +14,7 @@ verifier:
 ```sh
 python3 -I _scripts/notices/verify_native_notices.py \
   resources/notices/native/windows-x64 --repo-root . \
-  --manifest-sha256 efb50bf94c2123ec241f5e644bab0e8033547b1d5fe200e13f94f4af82adb933
+  --manifest-sha256 902892ca20a1d876b33dbbb9dcb0a9c9665cac746b4f7fa6cee8e303f41d7e76
 ```
 
 The Qt GPL-2.0-or-later alias is retained as the full upstream target text,
@@ -184,3 +184,9 @@ The libva header notice gap is resolved by exact comparison of all 28 retained
 historical headers with official NuGet package 1.0.2. All 17 distinct verbatim
 header comments and the full package NOTICE are retained. Package License and
 nuspec are provenance; original download identity remains explicitly unproven.
+
+The MDK FFmpeg source recipe must preserve actual vendor patch outcomes:
+35 master patches have no logged failures, while all five common patches have
+skipped or failed hunks and the final time patch partially applies. The retained
+MDK `bundled/evidence/FFMPEG-PATCH-OUTCOMES.json` records every patch identity
+and log lines. It does not prove a reproduced DLL or close source delivery.
