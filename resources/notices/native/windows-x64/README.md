@@ -135,3 +135,17 @@ listed and omitted; the original parent build disables tests and benchmarks.
 This does not assert that Snappy or GLFW is linked into libass, or establish a
 full recursive Snappy source snapshot. The top-level configuration also reaches
 other projects; offline rebuild/relink and public source delivery remain open.
+
+## Bundled FFmpeg later source edits
+
+`FFMPEG-LATER-EDITS.json` qualifies deterministic edits after the ordered
+patch stage. The retained full vendor log proves that the initial NVIDIA
+header gitlink was replaced by `eddcea9e`; five optional-symbol substitutions
+and the two `mfplat` spellings are retained as independently reconstructed
+data-only diffs. The partial-availability deletion is a no-op for this source.
+
+Packaged x64 configuration text and all seven pkg-config prefixes are hashed
+as supporting evidence. Final source line endings, concurrent insertion counts,
+generated configuration and full dependency/rebuild delivery remain open.
+These source candidates do not reproduce or replace a DLL. All eight
+distribution requirements remain unchanged; no public release is approved.

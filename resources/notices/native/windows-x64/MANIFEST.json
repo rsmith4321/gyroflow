@@ -1956,7 +1956,10 @@
     "mdk-0.39.0-e89bc0b/bundled/evidence/FFMPEG-PATCH-OUTCOMES.json",
     "mdk-0.39.0-e89bc0b/bundled/evidence/FFMPEG-PATCH-STAGE.json",
     "mdk-0.39.0-e89bc0b/bundled/evidence/LIBASS-BUILD-INPUTS.json",
-    "mdk-0.39.0-e89bc0b/bundled/evidence/LIBASS-OFFLINE-CONFIGURE-INPUTS.json"
+    "mdk-0.39.0-e89bc0b/bundled/evidence/LIBASS-OFFLINE-CONFIGURE-INPUTS.json",
+    "mdk-0.39.0-e89bc0b/bundled/evidence/FFMPEG-LATER-EDITS.json",
+    "mdk-0.39.0-e89bc0b/bundled/evidence/ffmpeg-later/configure-mfplat.diff",
+    "mdk-0.39.0-e89bc0b/bundled/evidence/ffmpeg-later/nvcodec-optional-symbols.diff"
    ],
    "reused_repo_paths": [],
    "release_provenance": {
@@ -2974,8 +2977,8 @@
   },
   {
    "path": "README.md",
-   "bytes": 8978,
-   "sha256": "d7a475a397b6dfec288565e16498b9b96516f92ca52c76fe115ed36cb9ba12e2",
+   "bytes": 9772,
+   "sha256": "1aa7c02eca9c3de6cc4b2b23ea5147efc38302b066babd43002a4bbb4e23206d",
    "component": "packet",
    "role": "packet"
   },
@@ -6145,8 +6148,8 @@
   },
   {
    "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/PROVENANCE.json",
-   "bytes": 4636,
-   "sha256": "867688fb94b4ad5ef34434fac23a86041ee9b7d0cbd9f801aadb0c1022704765",
+   "bytes": 5058,
+   "sha256": "d315735b9707fdb2c29e8d048f99627620ffe92d9a9d54d456c5af6147289d10",
    "component": "mdk",
    "role": "provenance"
   },
@@ -12684,6 +12687,27 @@
    "path": "mdk-0.39.0-e89bc0b/bundled/evidence/LIBASS-OFFLINE-CONFIGURE-INPUTS.json",
    "bytes": 5022,
    "sha256": "e7104950d1ee4c36c71d584ec2c8d1f662cb761264dd1d9111793380f9885861",
+   "component": "mdk",
+   "role": "provenance"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/evidence/FFMPEG-LATER-EDITS.json",
+   "bytes": 13736,
+   "sha256": "c5270b30a20f6e48eec61943eb91976216997336fb5ec354de8d9daa0e19d724",
+   "component": "mdk",
+   "role": "provenance"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/evidence/ffmpeg-later/configure-mfplat.diff",
+   "bytes": 1325,
+   "sha256": "5360a7ee18329fe8ba98f139a1398d63e8858c494fb385e1318937b840d419c9",
+   "component": "mdk",
+   "role": "provenance"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/evidence/ffmpeg-later/nvcodec-optional-symbols.diff",
+   "bytes": 2882,
+   "sha256": "b969241969a3a5897a27a5223b3ff77a620e12834c33bd1ac645702c636798a2",
    "component": "mdk",
    "role": "provenance"
   }

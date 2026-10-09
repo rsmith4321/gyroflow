@@ -14,7 +14,7 @@ verifier:
 ```sh
 python3 -I _scripts/notices/verify_native_notices.py \
   resources/notices/native/windows-x64 --repo-root . \
-  --manifest-sha256 c22ea752162fa0159de9663404a10ac8a4e3a45ee4eb04de3de2c4cd353e7d51
+  --manifest-sha256 3acf46d11f872a612b8d9af3b0eab0168723e7159655d5da1d8b8c5578015b3e
 ```
 
 The Qt GPL-2.0-or-later alias is retained as the full upstream target text,
