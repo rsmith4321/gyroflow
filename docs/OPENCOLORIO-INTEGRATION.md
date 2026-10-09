@@ -1203,8 +1203,56 @@ App validation should set this variable to a fresh owned directory and copy
 only the intended test settings and lens inputs into it. Avoid changing the
 user's normal profile to create a test fixture. The standard-library resolver
 tests cover path rejection, real directory creation, existing settings/file
-preservation and non-UTF-8 paths without lossy substitution. Full application
-startup/export checks with the override remain required.
+preservation and non-UTF-8 paths without lossy substitution. Missing parent
+directories are created, so check the absolute path before setting the variable.
+The selected profile needs write permission for logs and saved settings; this
+option does not add a separate permission probe or change the existing logger's
+terminal fallback when opening a log fails. Validate copied settings as JSON
+and retain the original outside the test profile. A normal GUI save can add
+`exeLocation` and reformat settings, so compare the intended parsed keys when
+testing a session that saves preferences.
+
+### Packaged Mac profile and export check
+
+Exact source `ab680a27d75d1f109e92935b360c33e2d421758b` completed a clean,
+locked/offline Mac arm64 build in 276.05 seconds with
+`--no-default-features --features opencv,ocio-runtime,ffmpeg-next/static`.
+The resulting technical package passed its required-library audit with no
+external required dependencies or audit errors. All 9,151 dependency notice
+files matched the supplied notice tree byte for byte, and the source archive
+matched `git archive` for this exact commit. Existing Rust notice receipts retain
+their original source identity; their reuse is based on unchanged Cargo input
+hashes, selected features and target.
+
+The packaged executable then passed native CLI startup with
+`GYROFLOW_PLUS_DATA_DIR` pointing to a separate directory containing a copy of
+the test settings. Startup created the selected log and lens directory, and
+the export log confirmed the selected settings path. The saved DJI O4 project,
+including its LUT, eight color controls and stabilization settings, exported
+3840×2160 HEVC 10-bit video with `-allow_sw 0` in 9.41 seconds. All 242 decoded
+frames and timestamps matched the accepted `0b5ba007` export exactly. The
+normal user profile, input media, LUT and reference files remained unchanged.
+
+The first test script stopped after the successful export because it expected
+a preferred-lens-folder log line for an empty folder. The loader intentionally
+logs that path only for a nonempty folder. That failed test receipt was retained;
+analysis continued on the existing export without rerendering it. This result
+is packaged CLI/profile/export evidence, not a new GUI, Windows, performance
+matrix, notarization or public-release claim. The independent source review
+found no blocking override or default-fallback defect.
+
+### Windows dependency capture
+
+The bounded read-only capture completed in 12.06 seconds, with all 1,210
+protected/provider file pins unchanged and its owned job closed with zero active
+processes. The recorded lockfile hash matches the current application source.
+Its 155 missing registry sources describe the whole lockfile, including unused
+and other-platform packages: none appear in the accepted 331-crate selected
+Windows graph. This establishes focused presence, not complete Git payload
+integrity or successful offline Cargo resolution. The absent MDK `ffmpeg-5.dll`
+is an optional copy in the locked `qml-video-rs` build script; its absence does
+not require downloading an unverified replacement. Windows runtime dependency
+closure still needs the staged PE audit.
 
 The retained full `9fab4b58` Windows application build took 8 minutes 22 seconds.
 Its successor needs a separately reviewed build deadline and resource slot;
