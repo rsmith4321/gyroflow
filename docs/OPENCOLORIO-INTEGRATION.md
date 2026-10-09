@@ -1141,3 +1141,31 @@ confirmed zero active owned processes, all 39,970 protected files matched, and
 the final process census passed. The retained evidence does not identify the
 process that delayed natural drain. This accepts the test results as component
 evidence, not the whole supervisor run or current Windows app/package behavior.
+
+### Current Windows application preflight
+
+Source review of the locked dependencies identifies two requirements for the
+next full-app check. `qml-video-rs` at `855130d4f423321e60c4bb95b913dc1e22c1eb88`
+uses a supplied `MDK_SDK` only when its required `lib/x64/mdk.lib` exists. With a
+fresh build output and no valid supplied SDK, its build script downloads and
+extracts MDK directly; Cargo's `--offline` does not prevent that request. The
+candidate build therefore needs an explicitly verified existing SDK prefix,
+headers, import library and runtime DLLs before Cargo starts. The Windows app
+candidate should use `--no-default-features --features opencv,ocio-runtime`,
+consistent with the Mac candidate's crash-reporter opt-out. The three-case
+standalone native preview fixture does not use this dependency or Cargo.
+
+`app_dirs2` at `1137ee05d745c2d5fa3fd01aecb6e1300d6fc280` obtains Windows user
+data through `SHGetKnownFolderPath`; overriding `APPDATA` or `LOCALAPPDATA` does
+not isolate the application's settings. Application startup also opens its
+normal `gyroflow.log` with `File::create` before CLI argument handling, including
+`--help`. A future smoke runner must protect the actual settings/log directory
+and verify preservation. Environment overrides alone are insufficient. This
+review does not change the production data-directory contract or establish a
+tested Windows file-preservation guard.
+
+The retained full `9fab4b58` Windows application build took 8 minutes 22 seconds.
+Its successor needs a separately reviewed build deadline and resource slot;
+the 300-second standalone preview limit is not a measured full-app build budget.
+Current native/app execution remains pending. Source-review evidence is retained
+in `_dev/root-windows-native-0b-review-20261009/WINDOWS-APP-INPUT-REVIEW.json`.
