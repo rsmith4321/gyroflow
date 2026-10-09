@@ -1362,3 +1362,33 @@ Evidence: `_dev/root-rust-source-delivery-20261009/`, especially
 candidate: current Windows full-app/package validation, final redistribution/source
 review, supported-OS checks and distribution signing/notarization remain open.
 No download was published and the default color runtime was not switched.
+
+
+### Current Windows application build: 2026-10-09
+
+The complete Windows x64 application now builds successfully from exact source
+`ab680a27d75d1f109e92935b360c33e2d421758b`, with defaults disabled and features
+`opencv,ocio-runtime`, using the locked offline Cargo deploy build. The source
+was acquired as an exact commit archive, not a Git checkout; all 682 approved
+files matched before and after compilation. The resulting AMD64 executable is
+43,899,904 bytes, with SHA-256
+`cb9da6639f24a507e9e0b6a4f1b78c5c4ecd63392d25335077e160d507a0f954`.
+Cargo reported success and the expected feature set. Its preliminary PE audit
+found no debug CRT imports; full packaged runtime closure remains a separate check.
+
+The enclosing verification wrapper exited with a failure because its `/EHsc`
+check searched Cargo's top-level logs. Both actual compiler commands were instead
+retained in the application's build-script output, at lines 34 and 450: the OCIO
+bridge and generated preview translation unit each include `/EHsc`. Independent
+read-only reconciliation verified those commands and completed the source/cache
+comparisons skipped after the failed check. All 2,654 copied cache inputs and
+23,358 protected files matched. The owned build job reached zero active processes
+and closed; user settings and the existing applications remained unchanged.
+The original failed wrapper result is retained, rather than relabeled as a pass.
+
+This accepts the compiled application independently of that wrapper. It does
+not establish execution of the new app, interactive preview, saved-grade hardware
+exports, installation, or a portable Windows package. A fresh private package
+and those app-level checks are the next steps; no rebuild is needed solely to
+resolve the log-search error. The public download and default color runtime
+remain unchanged.
