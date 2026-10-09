@@ -6,6 +6,17 @@ copyright headers, GPLv3 source license and third-party notices are retained.
 New prototype source is GPL-3.0-or-later. OpenColorIO tone samples include its
 BSD 3-clause copyright/license; see `resources/color/OCIO-LICENSE.txt`.
 
+## FreeType acknowledgment
+
+This software uses the FreeType font engine, including FreeType code in
+MDK's `libass.dll`. For the FreeType 2.14.3 font-engine portion identified
+in the Windows notice packet, Gyroflow Plus elects the FreeType License
+(FTL). The original license-selection document, FTL, alternate GPLv2 text
+and separately licensed file notices remain intact. The acknowledgment
+is retained in `mdk-0.39.0-e89bc0b/bundled/DISTRIBUTION-CREDITS.txt` in the
+native notice tree and accompanies stages that include that tree. Other
+dependency source-delivery and provider requirements remain open.
+
 ## Independent identities
 
 | Surface | Fork identity |
