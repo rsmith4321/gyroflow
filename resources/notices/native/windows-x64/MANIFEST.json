@@ -1877,7 +1877,42 @@
     "mdk-0.39.0-e89bc0b/bundled/libass.dll/fribidi-1.0.17-b93119f5/AUTHORS",
     "mdk-0.39.0-e89bc0b/bundled/libass.dll/fribidi-1.0.17-b93119f5/COPYING",
     "mdk-0.39.0-e89bc0b/bundled/libass.dll/harfbuzz-14.5.0-863d3f77/COPYING",
-    "mdk-0.39.0-e89bc0b/bundled/libass.dll/libass-wang-bin-af5f116d/COPYING"
+    "mdk-0.39.0-e89bc0b/bundled/libass.dll/libass-wang-bin-af5f116d/COPYING",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/LICENSE.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/1e389c7b8f2e251c6b2d3dcd8094ebeadeb228459b4841b898f069389b2a43ba.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/2162672896311989ec30ca8cd389bea46ddf924b335fb662f817681bdaf8af30.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/251c6e80d2802ea90bd1b291351ac00e45ad4ed5e4a1dc573be5b47259b1cbf4.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/2603e95561749b2d5289655dc09cdda3de92fbf5824339a8c76fd1393c8fd7c1.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/26a8f4acc6a95f82f6801c986463152a58b480f28fd76049e267020cbeb7a710.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/2c5f725f8c49ec58496b2ce6a7964b9f999b4e016c29b338d4db2367337f1894.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/3a1462053635a930534b4a6a3831e87281d6fd5181c1c4139a48bd85bd369dd1.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/3cd69a91bd9c21eb9da4c0d3e2707114acd63389f7412169df6746882fa5cfa9.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/3e8ba57fb74b656f7a572670d0f6916fd723fc8911d97e3185852f7856e86cc2.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/45c144ede891b53c8b0d32bacb6330c3e1ed65dda14fbefd537f0cb3b8f51ece.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/486d5c5314348792dee36fde4686b1ee642115767aa05d2423b2cf64e007deec.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/50eef705458413ebaeb4e4f185612eb437e5d31a13a174eb2b742f211fc4c5df.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/513caa441b1b7e6711e071d578a0d054cdc5a4fee67722d908f1e9d32961b237.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/64a1bba4e7cb79697c547e5c57e0ef8194ae4c60b950496cfeeb6a9851be5ea0.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/6583d9e270085715dba55c164b0bbb9adb0d37b9609bc386ceac5729bf51147a.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/70389d93bc5363710d2f015d0e3f090ef098a2153509431b5c5837410d3016ac.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/7258f9e75dcddaf8c98b9297c7568137537a4a46ac3c360296d5b1edcb583666.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/72b76de65b858a8c883bc97f875c127707c7703ca487c4f9b55c8db980bacc3d.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/7d4ea6bf4a55d84e6cac931fcf55063cf65120a8d4616220a29ce89b8bb3a980.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/82fb87bf462a2277ab097c966bc7aa70649de08fcd70f51f4e4106576efd9dea.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/8dd8dfb337a5027c5be153a053854ee3cb7594b9726d0c6ab42e9cbb217e7086.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/9458b420bf2fc06e8de02afdbf1193dd642c878c05ba691a32b33f7fa1091235.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/9a21f01a31782f1b0e0c5b8187fe1a16e904f5612ab411b268e6b06983ebd296.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/9e83a68b5854261298f7ffde145a747fe4e8ac85a33421ae0d442a1a77d40075.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/a36bd6230b7a52aaad55cde681053778a4c82b8e307c8ecd2169895da06a4a0e.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/a5f38cc710e6502c5ac1e596b9feb3c94e8f85d05bb61938e9ae0deb575b22f1.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/a69af583386dac313f069e6af165d2c5a06dac458cc7a6f4103cacb436b90ae8.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/aefcbd2d280111045b1220ef7abe4d1ec13a3fef43e8f332b0e789caaf174dfd.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/b43a0c13133eeeb90068d6b8b767fd8e10488ad0ff61755c74dd9cabd03d429c.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/b91a907c8530e53c93b92683f8c2200811029e630214532a245e933e1a4a7cb7.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/c1e91487f1df88f1312a54f3d3e9905f82fcdb7a56f713d1752a76c3c1e3fec9.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/cd91ad948c33bdd42475168cbacf77cf46d56650f844bd0db09d2806c6013af2.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/e91106c84e56640ce2e841e57c29f5cb85c65bae67363b89797a472f77949ffa.txt",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/fd5384ba46f5aee151a59dd738e9f78e83e4410532a581bc8cee8fa519b4d750.txt"
    ],
    "provenance_members": [
     "mdk-0.39.0-e89bc0b/PROVENANCE.json",
@@ -1890,7 +1925,9 @@
     "mdk-0.39.0-e89bc0b/bundled/evidence/official-mdk-v0.39.0-archive-members.tsv",
     "mdk-0.39.0-e89bc0b/bundled/evidence/repository-facts.tsv",
     "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/PROVENANCE.json",
-    "mdk-0.39.0-e89bc0b/bundled/libass.dll/PROVENANCE.json"
+    "mdk-0.39.0-e89bc0b/bundled/libass.dll/PROVENANCE.json",
+    "mdk-0.39.0-e89bc0b/bundled/evidence/ACTIONS-BUILD-CONTENT.json",
+    "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/PROVENANCE.json"
    ],
    "reused_repo_paths": [],
    "release_provenance": {
@@ -1911,14 +1948,8 @@
      {
       "id": "mdk-ffmpeg9-source",
       "class": "obligation",
-      "text": "ffmpeg-9.dll is LGPL-2.1-or-later. Its corresponding source is FFmpeg 590fb407b09bbf19aac0ea2fbd0ba16f93494601 with the avbuild patch set applied (patches/master 0001-0035 and patches/common, 40 files, at avbuild d91e8a95, inferred) and the avbuild default configuration recorded in bundled/evidence/ffmpeg-9.dll.strings-evidence.tsv. That source must accompany or be offered with the package; not done here.",
+      "text": "ffmpeg-9.dll is LGPL-2.1-or-later. Its corresponding source is FFmpeg 590fb407b09bbf19aac0ea2fbd0ba16f93494601 with the avbuild patch set applied (patches/master 0001-0035 and patches/common, 40 files, at avbuild d91e8a95, inferred) and the embedded avbuild configuration recorded in bundled/evidence/ffmpeg-9.dll.strings-evidence.tsv. That source must accompany or be offered with the package; not done here.",
       "needed_artifact": "A source archive (or root's chosen source route) for FFmpeg 590fb407 plus the avbuild d91e8a95 patch files listed in bundled/evidence/avbuild-d91e8a95-patch-set.tsv."
-     },
-     {
-      "id": "mdk-ffmpeg9-amf-headers",
-      "class": "blocker",
-      "text": "ffmpeg-9.dll compiles AMD AMF encoder code against AMF headers downloaded as AMF-headers-v$AMF_VER.tar.gz, where AMF_VER is a private avbuild repository variable. The version, and so the exact notice text, is not established; no AMF notice is in the package.",
-      "needed_artifact": "AMF_VER for the avbuild run that built ffmpeg-9.dll (public Actions log of wang-bin/avbuild for d91e8a95, VS2026 windows-desktop default job), then License.txt from GPUOpen-LibrariesAndSDKs/AMF at that tag."
      },
      {
       "id": "mdk-ffmpeg9-libva-headers",
@@ -1977,6 +2008,12 @@
       "id": "mdk-libass-freetype-credit",
       "class": "resolved",
       "text": "Gyroflow Plus elects the FTL for the identified FreeType2.14.3 font-engine portion and acknowledges FreeType in bundled/DISTRIBUTION-CREDITS.txt, included as a notice member. The original FTL, alternateGPLv2, selection document and separate-file licenses are retained. Other source/provider obligations are unchanged."
+     },
+     {
+      "id": "mdk-ffmpeg9-amf-headers",
+      "class": "resolved",
+      "prior_text": "ffmpeg-9.dll compiles AMD AMF encoder code against AMF headers downloaded as AMF-headers-v$AMF_VER.tar.gz, where AMF_VER is a private avbuild repository variable. The version, and so the exact notice text, is not established; no AMF notice is in the package.",
+      "text": "AMF 1.5.2 established by public Actions log and defined binary section payload comparison. Exact release-header preambles from all 57 files (34 unique) and tag LICENSE.txt are retained under bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/. Raw binary postprocessing and broader source obligations remain separate."
      }
     ]
    }
@@ -2198,8 +2235,8 @@
   },
   {
    "path": "README.md",
-   "bytes": 4610,
-   "sha256": "238906d526f04770ec276737c9675a5c6a065e4995e96f03e066c2d66797ef36",
+   "bytes": 5210,
+   "sha256": "a2e457b8aecfe36235b891dfb5ec301ae7facfcf2c07061bbb02629ed3faebc0",
    "component": "packet",
    "role": "packet"
   },
@@ -6555,6 +6592,265 @@
    "sha256": "b22616413f650e45eb92a9ea1ed21f7f9b8237166299890ac41e8b7c4db7baba",
    "component": "unattributed",
    "role": "provenance"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/evidence/ACTIONS-BUILD-CONTENT.json",
+   "bytes": 6364,
+   "sha256": "e4e8c4e1ad14d673aee2793b0b02dba493b96c9fc3da1402ccf812f52ff8c843",
+   "component": "mdk",
+   "role": "provenance"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/LICENSE.txt",
+   "bytes": 1747,
+   "sha256": "eb297397aaa455b5668ab67d216b83828466152dab123fa92384c6ec16b74170",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/PROVENANCE.json",
+   "bytes": 28214,
+   "sha256": "e2fa6030d2171fa92b7576c4cce1b917db537d496ca18cb04ffb23b2c283c6fb",
+   "component": "mdk",
+   "role": "provenance"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/1e389c7b8f2e251c6b2d3dcd8094ebeadeb228459b4841b898f069389b2a43ba.txt",
+   "bytes": 1730,
+   "sha256": "1e389c7b8f2e251c6b2d3dcd8094ebeadeb228459b4841b898f069389b2a43ba",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/2162672896311989ec30ca8cd389bea46ddf924b335fb662f817681bdaf8af30.txt",
+   "bytes": 1976,
+   "sha256": "2162672896311989ec30ca8cd389bea46ddf924b335fb662f817681bdaf8af30",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/251c6e80d2802ea90bd1b291351ac00e45ad4ed5e4a1dc573be5b47259b1cbf4.txt",
+   "bytes": 1406,
+   "sha256": "251c6e80d2802ea90bd1b291351ac00e45ad4ed5e4a1dc573be5b47259b1cbf4",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/2603e95561749b2d5289655dc09cdda3de92fbf5824339a8c76fd1393c8fd7c1.txt",
+   "bytes": 1974,
+   "sha256": "2603e95561749b2d5289655dc09cdda3de92fbf5824339a8c76fd1393c8fd7c1",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/26a8f4acc6a95f82f6801c986463152a58b480f28fd76049e267020cbeb7a710.txt",
+   "bytes": 1960,
+   "sha256": "26a8f4acc6a95f82f6801c986463152a58b480f28fd76049e267020cbeb7a710",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/2c5f725f8c49ec58496b2ce6a7964b9f999b4e016c29b338d4db2367337f1894.txt",
+   "bytes": 1974,
+   "sha256": "2c5f725f8c49ec58496b2ce6a7964b9f999b4e016c29b338d4db2367337f1894",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/3a1462053635a930534b4a6a3831e87281d6fd5181c1c4139a48bd85bd369dd1.txt",
+   "bytes": 1730,
+   "sha256": "3a1462053635a930534b4a6a3831e87281d6fd5181c1c4139a48bd85bd369dd1",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/3cd69a91bd9c21eb9da4c0d3e2707114acd63389f7412169df6746882fa5cfa9.txt",
+   "bytes": 1155,
+   "sha256": "3cd69a91bd9c21eb9da4c0d3e2707114acd63389f7412169df6746882fa5cfa9",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/3e8ba57fb74b656f7a572670d0f6916fd723fc8911d97e3185852f7856e86cc2.txt",
+   "bytes": 1972,
+   "sha256": "3e8ba57fb74b656f7a572670d0f6916fd723fc8911d97e3185852f7856e86cc2",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/45c144ede891b53c8b0d32bacb6330c3e1ed65dda14fbefd537f0cb3b8f51ece.txt",
+   "bytes": 1730,
+   "sha256": "45c144ede891b53c8b0d32bacb6330c3e1ed65dda14fbefd537f0cb3b8f51ece",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/486d5c5314348792dee36fde4686b1ee642115767aa05d2423b2cf64e007deec.txt",
+   "bytes": 1969,
+   "sha256": "486d5c5314348792dee36fde4686b1ee642115767aa05d2423b2cf64e007deec",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/50eef705458413ebaeb4e4f185612eb437e5d31a13a174eb2b742f211fc4c5df.txt",
+   "bytes": 1991,
+   "sha256": "50eef705458413ebaeb4e4f185612eb437e5d31a13a174eb2b742f211fc4c5df",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/513caa441b1b7e6711e071d578a0d054cdc5a4fee67722d908f1e9d32961b237.txt",
+   "bytes": 1978,
+   "sha256": "513caa441b1b7e6711e071d578a0d054cdc5a4fee67722d908f1e9d32961b237",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/64a1bba4e7cb79697c547e5c57e0ef8194ae4c60b950496cfeeb6a9851be5ea0.txt",
+   "bytes": 1730,
+   "sha256": "64a1bba4e7cb79697c547e5c57e0ef8194ae4c60b950496cfeeb6a9851be5ea0",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/6583d9e270085715dba55c164b0bbb9adb0d37b9609bc386ceac5729bf51147a.txt",
+   "bytes": 1978,
+   "sha256": "6583d9e270085715dba55c164b0bbb9adb0d37b9609bc386ceac5729bf51147a",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/70389d93bc5363710d2f015d0e3f090ef098a2153509431b5c5837410d3016ac.txt",
+   "bytes": 1979,
+   "sha256": "70389d93bc5363710d2f015d0e3f090ef098a2153509431b5c5837410d3016ac",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/7258f9e75dcddaf8c98b9297c7568137537a4a46ac3c360296d5b1edcb583666.txt",
+   "bytes": 1736,
+   "sha256": "7258f9e75dcddaf8c98b9297c7568137537a4a46ac3c360296d5b1edcb583666",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/72b76de65b858a8c883bc97f875c127707c7703ca487c4f9b55c8db980bacc3d.txt",
+   "bytes": 1979,
+   "sha256": "72b76de65b858a8c883bc97f875c127707c7703ca487c4f9b55c8db980bacc3d",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/7d4ea6bf4a55d84e6cac931fcf55063cf65120a8d4616220a29ce89b8bb3a980.txt",
+   "bytes": 1734,
+   "sha256": "7d4ea6bf4a55d84e6cac931fcf55063cf65120a8d4616220a29ce89b8bb3a980",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/82fb87bf462a2277ab097c966bc7aa70649de08fcd70f51f4e4106576efd9dea.txt",
+   "bytes": 1736,
+   "sha256": "82fb87bf462a2277ab097c966bc7aa70649de08fcd70f51f4e4106576efd9dea",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/8dd8dfb337a5027c5be153a053854ee3cb7594b9726d0c6ab42e9cbb217e7086.txt",
+   "bytes": 1986,
+   "sha256": "8dd8dfb337a5027c5be153a053854ee3cb7594b9726d0c6ab42e9cbb217e7086",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/9458b420bf2fc06e8de02afdbf1193dd642c878c05ba691a32b33f7fa1091235.txt",
+   "bytes": 1402,
+   "sha256": "9458b420bf2fc06e8de02afdbf1193dd642c878c05ba691a32b33f7fa1091235",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/9a21f01a31782f1b0e0c5b8187fe1a16e904f5612ab411b268e6b06983ebd296.txt",
+   "bytes": 1975,
+   "sha256": "9a21f01a31782f1b0e0c5b8187fe1a16e904f5612ab411b268e6b06983ebd296",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/9e83a68b5854261298f7ffde145a747fe4e8ac85a33421ae0d442a1a77d40075.txt",
+   "bytes": 1969,
+   "sha256": "9e83a68b5854261298f7ffde145a747fe4e8ac85a33421ae0d442a1a77d40075",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/a36bd6230b7a52aaad55cde681053778a4c82b8e307c8ecd2169895da06a4a0e.txt",
+   "bytes": 1972,
+   "sha256": "a36bd6230b7a52aaad55cde681053778a4c82b8e307c8ecd2169895da06a4a0e",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/a5f38cc710e6502c5ac1e596b9feb3c94e8f85d05bb61938e9ae0deb575b22f1.txt",
+   "bytes": 1978,
+   "sha256": "a5f38cc710e6502c5ac1e596b9feb3c94e8f85d05bb61938e9ae0deb575b22f1",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/a69af583386dac313f069e6af165d2c5a06dac458cc7a6f4103cacb436b90ae8.txt",
+   "bytes": 2040,
+   "sha256": "a69af583386dac313f069e6af165d2c5a06dac458cc7a6f4103cacb436b90ae8",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/aefcbd2d280111045b1220ef7abe4d1ec13a3fef43e8f332b0e789caaf174dfd.txt",
+   "bytes": 1737,
+   "sha256": "aefcbd2d280111045b1220ef7abe4d1ec13a3fef43e8f332b0e789caaf174dfd",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/b43a0c13133eeeb90068d6b8b767fd8e10488ad0ff61755c74dd9cabd03d429c.txt",
+   "bytes": 1734,
+   "sha256": "b43a0c13133eeeb90068d6b8b767fd8e10488ad0ff61755c74dd9cabd03d429c",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/b91a907c8530e53c93b92683f8c2200811029e630214532a245e933e1a4a7cb7.txt",
+   "bytes": 1734,
+   "sha256": "b91a907c8530e53c93b92683f8c2200811029e630214532a245e933e1a4a7cb7",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/c1e91487f1df88f1312a54f3d3e9905f82fcdb7a56f713d1752a76c3c1e3fec9.txt",
+   "bytes": 1967,
+   "sha256": "c1e91487f1df88f1312a54f3d3e9905f82fcdb7a56f713d1752a76c3c1e3fec9",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/cd91ad948c33bdd42475168cbacf77cf46d56650f844bd0db09d2806c6013af2.txt",
+   "bytes": 1979,
+   "sha256": "cd91ad948c33bdd42475168cbacf77cf46d56650f844bd0db09d2806c6013af2",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/e91106c84e56640ce2e841e57c29f5cb85c65bae67363b89797a472f77949ffa.txt",
+   "bytes": 1978,
+   "sha256": "e91106c84e56640ce2e841e57c29f5cb85c65bae67363b89797a472f77949ffa",
+   "component": "mdk",
+   "role": "notice"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/ffmpeg-9.dll/amf-1.5.2-eadd0080/header-notices/fd5384ba46f5aee151a59dd738e9f78e83e4410532a581bc8cee8fa519b4d750.txt",
+   "bytes": 1974,
+   "sha256": "fd5384ba46f5aee151a59dd738e9f78e83e4410532a581bc8cee8fa519b4d750",
+   "component": "mdk",
+   "role": "notice"
   }
  ]
 }

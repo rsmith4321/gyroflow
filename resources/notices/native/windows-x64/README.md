@@ -11,7 +11,7 @@ of original installed provider files. `.gitattributes` keeps those bytes unchang
 Later additions retain MDK bundled notices, the FreeType license choice and
 acknowledgment, and the byte-matched OpenCL SDK provider's copyright and metadata.
 The current `427a6ca4` private Windows stage has the same 120 DLL identities as
-the frozen inventory. Ten blocking requirements remain; consult the manifest
+the frozen inventory. Nine blocking requirements remain; consult the manifest
 for the current component records. A copied notice tree does not close them.
 
 `MANIFEST.json` lists:
@@ -63,3 +63,13 @@ separately from these gap classes.
   the earlier unknown-version snapshots remain unchanged.
 - Corresponding-source routes, acceptance of the MDK and Microsoft terms, and codec
   policy are decisions for root and the owner.
+
+## AMD AMF header notices
+
+The AMF 1.5.2 tag LICENSE and verbatim preambles from all 57 released headers
+are retained with source and excerpt hashes. Public Actions logs identify AMF_VER
+1.5.2. The matching FFmpeg artifact has equal defined section payloads; its raw
+DLL differs from MDK in one PE size field and padding beyond the code section
+VirtualSize. `mdk-0.39.0-e89bc0b/bundled/evidence/ACTIONS-BUILD-CONTENT.json` records this limited
+comparison for FFmpeg and libass. No raw binary identity or complete corresponding
+source is inferred from it. Only the missing AMF notice gap is closed.

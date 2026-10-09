@@ -14,12 +14,12 @@ verifier:
 ```sh
 python3 -I _scripts/notices/verify_native_notices.py \
   resources/notices/native/windows-x64 --repo-root . \
-  --manifest-sha256 9b70da5849028d2dfc51082d6338d6d650c4e3a2b1e84982be51aed9ca73cffe
+  --manifest-sha256 14d8bde57281e613b62124bc93f0d14d613bfab71667bed8e1693dfee0ff8d31
 ```
 
 The Qt GPL-2.0-or-later alias is retained as the full upstream target text,
 rather than the literal Git symbolic-link target name. Content integrity currently passes. Add `--require-release-complete` to check the
-recorded release gaps; it currently returns **3**, because ten blockers or
+recorded release gaps; it currently returns **3**, because nine blockers or
 obligations remain. A normal integrity exit of zero is not distribution approval.
 The manifest pin prevents an edited gap classification from silently passing.
 
@@ -43,12 +43,14 @@ upstream commits.
 
 An embedded library version does not establish an exact source commit. The
 HarfBuzz version is exact, while its source pin and other documented build pins
-remain inferred pending provider build records. The two former broad MDK notice
-gaps now have narrower records for missing AMF/libva header provenance, source
-delivery. The FreeType credit/license choice and OpenCL notice gaps have since
+remain inferred in the historical provenance. The remaining MDK requirements
+cover libva header provenance and source delivery. The FreeType credit/license choice and OpenCL notice gaps have since
 been resolved with retained documentation and exact installed provider files.
-Ten recorded blockers or obligations remain across the complete native tree.
-The software OpenGL component now retains version-matched Mesa/LLVM notices
+Nine recorded blockers or obligations remain across the complete native tree.
+AMF 1.5.2 now has its tag LICENSE and all 57 release-header preambles retained
+with public Actions and limited binary section comparison evidence; the AMF
+notice gap is resolved. Raw binary identity and broader source requirements remain
+open. The software OpenGL component now retains version-matched Mesa/LLVM notices
 and an older Qt-published attribution, with source and excerpt identities in
 `unattributed/NOTICE-SOURCES.json`. The version-matched texts have been reviewed;
 complete binary copyright-holder coverage remains
