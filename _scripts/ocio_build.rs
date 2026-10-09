@@ -41,9 +41,13 @@ pub fn build_bridge(repository: &std::path::Path) {
     {
         // Development builds find the prepared prefix. Portable builds can
         // instead resolve the same library inside their packaged runtime.
-        let rpath = env::var("OCIO_RPATH")
-            .unwrap_or_else(|_| root.join("lib").to_string_lossy().into_owned());
-        assert!(!rpath.is_empty() && !rpath.contains(['\r', '\n']), "OCIO_RPATH must be a non-empty runtime library path");
+        let rpath = match env::var_os("OCIO_RPATH") {
+            None => root.join("lib").to_string_lossy().into_owned(),
+            Some(value) => value.into_string().expect("OCIO_RPATH must be UTF-8"),
+        };
+        // The compiler driver splits -Wl, at each comma.
+        assert!(!rpath.is_empty() && !rpath.contains(['\r', '\n', ',']),
+            "OCIO_RPATH must be a non-empty runtime library path without commas or line breaks");
         println!(
             "cargo:rustc-link-arg=-Wl,-rpath,{}",
             rpath
