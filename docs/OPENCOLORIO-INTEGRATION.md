@@ -1190,6 +1190,22 @@ and verify preservation. Environment overrides alone are insufficient. This
 review does not change the production data-directory contract or establish a
 tested Windows file-preservation guard.
 
+An opt-in `GYROFLOW_PLUS_DATA_DIR` override now selects an explicit profile
+directory before the platform's normal user-data lookup. It must be a nonempty
+absolute path; an invalid path or directory-creation failure stops startup
+instead of falling back to the saved user profile. The directory is resolved
+once per process. With the variable unset, the existing platform lookup is
+unchanged. Settings, `gyroflow.log` and the user lens-profile directory share
+this selected core data directory. The override does not redirect output media
+or promise a filesystem sandbox for dependencies and platform caches.
+
+App validation should set this variable to a fresh owned directory and copy
+only the intended test settings and lens inputs into it. Avoid changing the
+user's normal profile to create a test fixture. The standard-library resolver
+tests cover path rejection, real directory creation, existing settings/file
+preservation and non-UTF-8 paths without lossy substitution. Full application
+startup/export checks with the override remain required.
+
 The retained full `9fab4b58` Windows application build took 8 minutes 22 seconds.
 Its successor needs a separately reviewed build deadline and resource slot;
 the 300-second standalone preview limit is not a measured full-app build budget.

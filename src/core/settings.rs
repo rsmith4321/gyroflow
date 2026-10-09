@@ -7,10 +7,19 @@ use std::collections::HashMap;
 use std::sync::{ Arc, atomic::{ AtomicUsize, Ordering::SeqCst } };
 use std::path::PathBuf;
 
+#[path = "settings_location.rs"]
+mod settings_location;
+
 pub fn data_dir() -> PathBuf {
     static PATH: std::sync::OnceLock<PathBuf> = std::sync::OnceLock::new();
 
     PATH.get_or_init(|| {
+        if let Some(path) = settings_location::from_override(
+            std::env::var_os("GYROFLOW_PLUS_DATA_DIR")
+        ).expect("Cannot initialize GYROFLOW_PLUS_DATA_DIR profile") {
+            return path;
+        }
+
         let mut path = app_dirs2::get_app_dir(AppDataType::UserData, &AppInfo { name: "Gyroflow Plus", author: "Ryan Smith" }, "").unwrap();
         if path.file_name().unwrap() == path.parent().unwrap().file_name().unwrap() {
             path = path.parent().unwrap().to_path_buf();
