@@ -1186,3 +1186,30 @@ conditional compilation. An optional patch moving that call into the desktop
 block is deferred because mobile compilation was not exercised and it is outside
 this desktop release scope. Default-build Breakpad linkage and redistribution
 remain separate from acceptance of the opted-out Mac candidate.
+
+### Selected-feature Rust notice recipe
+
+The reviewed release-preparation recipe is now retained under `_scripts/notices/`.
+It uses pinned official `cargo-about` 0.9.2 output, a small validation gate and
+checksum-pinned upstream supplements. Its README gives the Linux collector
+requirements and corresponding-source procedure. The recipe is separate from
+application compilation and does not change color processing or the Cargo default.
+
+Frozen C3 evidence at exact application source `0b5ba007` covers the selected
+Mac arm64 `opencv,ocio-runtime,ffmpeg-next/static` and Windows x64
+`opencv,ocio-runtime` features, both with defaults disabled. The selected graphs
+contain 321 and 331 runtime crates respectively; each removes only
+`breakpad-sys 0.2.0` compared with its default control. Their notice text SHA-256s
+are `c2ef4af29a9d875f6cb1004d19d10c6c4f35d1900af87e12436c974ca5c20be1`
+and `8462c06460774dd7b7d78eff27f7f8830dc80792cece838b0164f504464ac845`.
+All 37 frozen packet members were independently checked against their manifest.
+These are Linux-generated target metadata/notices, not a Windows build result.
+
+Integration preserves the reviewed gate/config/supplement/archive-helper bytes.
+The runner now refuses unsupported old Bash before collection and redacts source
+paths literally; the template accurately labels overincluded build dependencies.
+Syntax checks, actual old-Bash refusal and the exact redaction code with special
+path characters passed. The full collector was not rerun for these changes, and
+the frozen C3 outputs retain their original template and receipt identities.
+Final package notice matching, corresponding-source delivery, attribution
+decisions and current Windows native/app acceptance remain open.
