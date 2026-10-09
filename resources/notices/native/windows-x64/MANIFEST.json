@@ -2147,11 +2147,24 @@
      "LLVM": "3.6.2"
     }
    },
-   "notice_members": [],
+   "notice_members": [
+    "unattributed/notices/MESA-MIT.txt",
+    "unattributed/notices/KHRONOS-GL.txt",
+    "unattributed/notices/KHRONOS-GLX.txt",
+    "unattributed/notices/C11-THREADS.txt",
+    "unattributed/notices/C11-THREADS-WIN32.txt",
+    "unattributed/notices/LLVM-LICENSE.txt",
+    "unattributed/notices/LLVM-REGEX.txt",
+    "unattributed/notices/LLVM-ARM.txt",
+    "unattributed/notices/LLVM-MD5-CPP.txt",
+    "unattributed/notices/LLVM-MD5-HEADER.txt",
+    "unattributed/notices/QT65-PUBLISHED-ATTRIBUTION.txt"
+   ],
    "provenance_members": [
     "unattributed/PROVENANCE.json",
     "unattributed/CURRENT-PROVIDER.json",
-    "unattributed/REFERENCE-ATTRIBUTION.json"
+    "unattributed/REFERENCE-ATTRIBUTION.json",
+    "unattributed/NOTICE-SOURCES.json"
    ],
    "reused_repo_paths": [],
    "release_provenance": {
@@ -2160,7 +2173,7 @@
      {
       "id": "opengl32sw-provider",
       "class": "blocker",
-      "text": "opengl32sw.dll is byte-identical to the Qt 6.7.3 provider and the published Qt software-renderer reference. Static strings establish Mesa 11.2.2 and LLVM 3.6.2. Applicable notice coverage and the Qt patch/build source revision remain unestablished.",
+      "text": "The exact Qt-distributed DLL is identified as Mesa 11.2.2 / LLVM 3.6.2. Version-matched upstream notices and older Qt-published attribution are retained with verified source identities, but complete coverage of the actual Qt binary and its patch/build source revision remain unestablished.",
       "needed_artifact": "Reviewed applicable copyright/license texts for the exact Qt-distributed Mesa/LLVM DLL, with the version-matched upstream sources distinguished from unknown Qt patches/build identity. Reference/version attribution alone does not satisfy the remaining requirement."
      }
     ],
@@ -2178,8 +2191,8 @@
   },
   {
    "path": "README.md",
-   "bytes": 4068,
-   "sha256": "c09428a6a793387e227403d298d0d57de1c2a7b0b27c3b84814642942e7eb9ed",
+   "bytes": 4104,
+   "sha256": "e1cd058e0a29587097486a9c2cffa26faa22ddf889189cd14b665d7f220c74e6",
    "component": "packet",
    "role": "packet"
   },
@@ -6400,6 +6413,90 @@
    "path": "unattributed/REFERENCE-ATTRIBUTION.json",
    "bytes": 1681,
    "sha256": "37136a8c3a3478650768c7434533b4e0979b13aedea99d416fbd5cb31f1a6dfe",
+   "component": "unattributed",
+   "role": "provenance"
+  },
+  {
+   "path": "unattributed/notices/MESA-MIT.txt",
+   "bytes": 1084,
+   "sha256": "bcba0444c8b216b0d4a9e17bc2dd9f339dd920aa954005dc13a34a74743ef384",
+   "component": "unattributed",
+   "role": "notice"
+  },
+  {
+   "path": "unattributed/notices/KHRONOS-GL.txt",
+   "bytes": 1147,
+   "sha256": "46659ccaa91abe9b4e48da4fdeb9514777e0cbf9d1f6d24689dc238506ab4208",
+   "component": "unattributed",
+   "role": "notice"
+  },
+  {
+   "path": "unattributed/notices/KHRONOS-GLX.txt",
+   "bytes": 1147,
+   "sha256": "22718916f6fbf89912e1fa03ea6c56ea308ea5cd70038272df20e2d64bb1bdb8",
+   "component": "unattributed",
+   "role": "notice"
+  },
+  {
+   "path": "unattributed/notices/C11-THREADS.txt",
+   "bytes": 1487,
+   "sha256": "8fe9dbd6650de3c8c8a47853ccbc71f0dba26554551fece8ff2e054dd4d67f99",
+   "component": "unattributed",
+   "role": "notice"
+  },
+  {
+   "path": "unattributed/notices/C11-THREADS-WIN32.txt",
+   "bytes": 1487,
+   "sha256": "8fe9dbd6650de3c8c8a47853ccbc71f0dba26554551fece8ff2e054dd4d67f99",
+   "component": "unattributed",
+   "role": "notice"
+  },
+  {
+   "path": "unattributed/notices/LLVM-LICENSE.txt",
+   "bytes": 3281,
+   "sha256": "e3bc36440fc927c62d5cc24efeefe225a14d4e34ffeb0c92e430625cce9ee444",
+   "component": "unattributed",
+   "role": "notice"
+  },
+  {
+   "path": "unattributed/notices/LLVM-REGEX.txt",
+   "bytes": 2718,
+   "sha256": "0424e57d4303164dc59a8509c20dae0518b853692e5c2b0e98b11816fdbc97c7",
+   "component": "unattributed",
+   "role": "notice"
+  },
+  {
+   "path": "unattributed/notices/LLVM-ARM.txt",
+   "bytes": 2764,
+   "sha256": "28cbd5f6dac844fc3d94e879dba83c3ca87328ece8e0d388284f8cec6a042a97",
+   "component": "unattributed",
+   "role": "notice"
+  },
+  {
+   "path": "unattributed/notices/LLVM-MD5-CPP.txt",
+   "bytes": 1686,
+   "sha256": "59a0d2fd71bea59e37b3284f962d2a5a7a0cb63290df174801a18212695b2130",
+   "component": "unattributed",
+   "role": "notice"
+  },
+  {
+   "path": "unattributed/notices/LLVM-MD5-HEADER.txt",
+   "bytes": 983,
+   "sha256": "cf269ed6534da78a943d14b258f988b9ff81e84cf2f505d701878412c9463d75",
+   "component": "unattributed",
+   "role": "notice"
+  },
+  {
+   "path": "unattributed/notices/QT65-PUBLISHED-ATTRIBUTION.txt",
+   "bytes": 3553,
+   "sha256": "ee372ae6403377880dd185490c67a6ea88fddcd4a3a700bfbde4bf29f3e5c2fe",
+   "component": "unattributed",
+   "role": "notice"
+  },
+  {
+   "path": "unattributed/NOTICE-SOURCES.json",
+   "bytes": 8940,
+   "sha256": "9a3ab8f226c5238be9603dcea0d9f4d8030842e2795c89d116e9900cb96bad97",
    "component": "unattributed",
    "role": "provenance"
   }

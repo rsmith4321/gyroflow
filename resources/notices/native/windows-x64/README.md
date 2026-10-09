@@ -38,7 +38,7 @@ separately from these gap classes.
 | `d3dcompiler_47/` | D3Dcompiler_47.dll 6.3.9600.16384 | None. Windows SDK 10.0.26100.0 terms are kept as provenance only, because they cover a different copy |
 | `zlib-for-z.dll/` | zlib 1.3.2#2 (z.dll) | The upstream v1.3.2 `LICENSE`, which is byte-identical to the installed `copyright` |
 | `opencl/` | OpenCL SDK 2024.10.24#1 loader and utilities: 3 DLLs | Exact installed provider copyright: Apache-2.0 and the whereami MIT alternative |
-| `unattributed/` | opengl32sw.dll, byte-matched to Qt 6.7.3 and its published Mesa 11.2.2 / LLVM 3.6.2 reference | Implementation versions are established; applicable notice coverage is still under review |
+| `unattributed/` | opengl32sw.dll, byte-matched to Qt 6.7.3 and its published Mesa 11.2.2 / LLVM 3.6.2 reference | Verbatim version-matched Mesa/LLVM notices and older Qt-published attributions; complete binary coverage remains under review |
 
 **shaderc** is omitted. No `shaderc*.dll` is in the accepted stage.
 
