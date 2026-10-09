@@ -410,7 +410,8 @@ def main():
         # Portable ZIP only; no Appx, installer identity or association registry.
         if any(p.suffix.lower() in ('.appx','.msix','.pfx') for p in app.rglob('*')):
             raise RuntimeError('Expected a portable Windows runtime, without Store packages or signing keys')
-        (app/'qt.conf').write_text('[Paths]\nPrefix=.\nPlugins=.\nQmlImports=.\n')
+        # windeployqt places QML modules under qml/, separately from plugins.
+        (app/'qt.conf').write_text('[Paths]\nPrefix=.\nPlugins=.\nQmlImports=qml\n')
         notices=app/'Notices';external=[]
         import windows_runtime_audit  # pinned pefile: _scripts/requirements-package.txt
         floor=args.msvc_redist_floor

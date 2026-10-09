@@ -153,7 +153,10 @@ notices, corresponding app source archive, source URL, input-build binary SHA256
 existing output. Mac auditing rejects absolute non-system dependencies. Windows
 auditing (on Windows) rejects unresolved imports or symbols, stale library
 versions and an incoherent or too-old C++ runtime; it is not a run on a clean
-machine. It
+machine. Windows `qt.conf` points `QmlImports` at the deployed `qml` directory;
+Qt plugins remain relative to the application directory. Static import auditing
+does not prove that QML modules load, so packaged interface startup is also a
+runtime gate. It
 ad-hoc signs local Mac stages; that does not establish Developer ID signing,
 notarization, Windows trust or public-release readiness. Supplying notices does
 not establish that every dependency's license/source obligations are satisfied;
