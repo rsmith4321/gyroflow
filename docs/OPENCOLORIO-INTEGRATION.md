@@ -1003,3 +1003,39 @@ deploy-profile Rust/C++ compile check, including Apple bookmark calls. Test
 locks and production source hashes remain unchanged through execution.
 Evidence: `_dev/root-queue-color-review-20261009/`. This is not a native app
 restart, Windows or portable-release acceptance.
+
+### Clean Mac export and matched-runtime control
+
+The clean committed `9ea94fb1` Mac deploy build has no private settings or
+dependency override. Its hardware-required four-second DJI O4 export with the
+LUT and all eight stress controls completes in 9.932 seconds: 3840×2160 HEVC
+10-bit, limited-range BT.709, 60000/1001 fps, 242 decoded frames. A read-only
+home sandbox preserves the complete application settings/log tree and source
+media, project, LUT and executable bytes. Repeating this clean build produces
+identical decoded pixels and timestamps for every frame.
+
+A control using the retained private `80dad105` executable in the same closed
+runtime, with saved settings and lens data copied byte-for-byte from the current
+inputs, also matches all 242 decoded frames and timestamps exactly. That private
+binary requires its test settings-path override; an initial attempt without it
+panicked before export and is retained as a failed attempt. The corrected control
+is not a clean public build of `80dad105`.
+
+This establishes cross-version agreement for the tested graded segment under
+comparable runtime and preference inputs. The earlier differently configured
+reference still has its recorded numerical differences; this result does not
+attribute those differences to a particular library or establish parity for all
+clips. Ryan reports matching tree shadow detail, and further human visual testing
+is not a continuation gate.
+
+The current packaging auditor separately passes the prepared Mac bundle's
+required-library and contained-path checks. Missing optional weak loads and absent
+contained search directories are recorded as diagnostics; present weak libraries
+still undergo architecture, minimum-OS and transitive dependency checks. This is a
+technical audit of a prepared stage, not a completed signed package or public
+release. Current-source native preview, Windows execution, complete redistribution
+inputs and final packaging remain separate acceptance checks.
+
+Evidence: `_dev/root-relocatable-mac-release-20261009/clean-graded-export/`,
+`clean-graded-repeat/`, `matched80-graded-control-v2/` and
+`package-audit/MAC-AUDIT-V10C-ROOT.json` under the same packet.
