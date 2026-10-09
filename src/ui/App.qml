@@ -179,28 +179,33 @@ Rectangle {
                                 width: parent.width;
                                 height: 4 * dpiScale;
                                 radius: height / 2;
-                                color: styleTextColor;
+                                color: styleAccentColor;
                             }
                             Rectangle {
                                 anchors.centerIn: parent;
                                 width: 4 * dpiScale;
                                 height: parent.width;
                                 radius: width / 2;
-                                color: styleTextColor;
+                                color: styleAccentColor;
                             }
                         }
                     }
                 }
                 BasicText {
                     width: parent.width;
-                    text: qsTr("Community fork");
+                    text: qsTr("Stabilize · Color correct · Export");
                     horizontalAlignment: Text.AlignHCenter;
-                    font.pixelSize: 10 * dpiScale;
+                    font.pixelSize: 11 * dpiScale;
+                    font.bold: true;
+                    color: styleAccentColor;
+                    wrapMode: Text.WordWrap;
+                    leftPadding: 12 * dpiScale;
+                    rightPadding: 12 * dpiScale;
                     bottomPadding: 5 * dpiScale;
                 }
                 BasicText {
                     width: parent.width;
-                    text: qsTr("Gyroflow stabilization with LUTs and simple color correction.");
+                    text: qsTr("Fine-tune your footage with LUTs and color correction.");
                     horizontalAlignment: Text.AlignHCenter;
                     wrapMode: Text.WordWrap;
                     font.pixelSize: 10 * dpiScale;

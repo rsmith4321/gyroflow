@@ -25,7 +25,7 @@ Window {
         onTriggered: main_window.safeAreaMargins = ui_tools.get_safe_area_margins(main_window);
     }
 
-    title: "Gyroflow+ v" + version + " — Community fork";
+    title: "Gyroflow+ v" + version + " — Stabilization & color";
 
     onVisibilityChanged: {
         Qt.callLater(() => {
@@ -46,7 +46,7 @@ Window {
     }
 
     Material.theme: Material.Dark;
-    Material.accent: Material.Blue;
+    Material.accent: styleAccentColor;
 
     function getApp(): App {
         for (let i = 0; i < contentItem.children.length; ++i) {
