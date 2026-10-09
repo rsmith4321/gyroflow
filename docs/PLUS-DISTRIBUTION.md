@@ -54,6 +54,21 @@ python3 _scripts/package_plus.py mac path/to/prepared/Gyroflow.app path/to/new-s
   --licenses path/to/dependency-notices
 ```
 
+## Mac runtime library paths
+
+For a prepared portable bundle, set `OCIO_RPATH=@loader_path/../Frameworks`
+before building. `OCIO_ROOT` still selects the pinned headers and link library;
+the override changes only where the executable searches at runtime. Without
+the override, development builds retain the install prefix as their runtime
+path. Windows does not use this ELF/Mach-O setting.
+
+The prepared linker flags must also use bundle-relative Qt/MDK runtime paths,
+such as `-Wl,-rpath,@loader_path/../Frameworks`, rather than absolute SDK or
+development-prefix paths. Link-search paths may still point at the prepared
+build dependencies. The package auditor rejects external runtime paths and
+checks the full bundled dependency closure; this option alone is not portable
+package or older-OS acceptance.
+
 ## Lens profile build input
 
 Portable builds explicitly select the tracked `src/core/lens_profiles.pin`: official lens-profile release v41, asset SHA256 `5b9136697b75ddf9cda20965f17e786b6c8530e3d59109f87505069602e7f676`. The Mac receipt helper defaults to this pinned mode. For Windows deploy, set `$Env:GYROFLOW_LENS_PROFILES = 'pinned'` before running the recipe. An existing different database is refused without replacement; use a fresh isolated build tree instead of modifying an authored/development database.

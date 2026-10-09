@@ -2,7 +2,7 @@
 // Shared app/fixture build configuration. The caller checks the Cargo feature.
 pub fn build_bridge(repository: &std::path::Path) {
     use std::{env, path::PathBuf};
-    for name in ["OCIO_ROOT", "OCIO_LINK_NAME"] {
+    for name in ["OCIO_ROOT", "OCIO_LINK_NAME", "OCIO_RPATH"] {
         println!("cargo:rerun-if-env-changed={name}");
     }
     let root = PathBuf::from(
@@ -39,9 +39,14 @@ pub fn build_bridge(repository: &std::path::Path) {
     if env::var("CARGO_CFG_TARGET_OS").as_deref() == Ok("macos")
         || env::var("CARGO_CFG_TARGET_OS").as_deref() == Ok("linux")
     {
+        // Development builds find the prepared prefix. Portable builds can
+        // instead resolve the same library inside their packaged runtime.
+        let rpath = env::var("OCIO_RPATH")
+            .unwrap_or_else(|_| root.join("lib").to_string_lossy().into_owned());
+        assert!(!rpath.is_empty() && !rpath.contains(['\r', '\n']), "OCIO_RPATH must be a non-empty runtime library path");
         println!(
             "cargo:rustc-link-arg=-Wl,-rpath,{}",
-            root.join("lib").display()
+            rpath
         );
     }
 }
