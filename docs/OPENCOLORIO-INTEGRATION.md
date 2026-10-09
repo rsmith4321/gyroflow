@@ -926,3 +926,32 @@ Ryan has renewed Windows and Claude work. The Windows laptop
 used. Easy Eject's existing generated-fixture test has the next laptop slot,
 followed by separately reviewed current-source Gyroflow CPU checks. Historical
 pause text above records earlier state and is superseded by this go-ahead.
+
+
+### Neutral export discrimination controls
+
+Two further bounded neutral checks narrow the current-versus-historical
+comparison without changing any acceptance threshold. Copying the user's
+saved preferences byte-for-byte into the private settings directory produces
+all 242 decoded frames and timestamps exactly matching the first current run.
+Thus the empty-versus-saved preferences difference does not explain this case.
+
+A separate private copy of the older runtime bundle uses the current
+`80dad105` executable. Only its copied Mach-O development rpaths and local
+ad-hoc signature change; source code, the original bundle, dependency prefixes
+and installed app are untouched. Its hardware-required export completes, with
+all eighteen observed non-Apple images inside that private bundle and no
+Homebrew images. This run also produces all 242 decoded frames and timestamps
+exactly matching the current development-runtime output. Removing those
+external runtime loads therefore does not explain the neutral reference
+difference in this control. Neither result establishes general encoder
+repeatability or old/new decoded parity.
+
+The four current neutral sequences have the same canonical decoded-row SHA-256
+`18bf2f3bcae7e5bf17e6ae3f704d0b26e1c46a119b4665e6602a53d8cd17a4bb`;
+each still differs from the historical reference in 241 frames. The complete
+original media/project/LUT/settings-log and runtime-template identities remain
+unchanged. Every owned command is terminal. Evidence under the same root packet:
+`hardware-saved-preferences-neutral-v1/`, `hardware-matched-runtime-neutral-v1/`
+and `NEUTRAL-DISCRIMINATION.json`. The runtime-copy test is an isolated
+comparison artifact, not a new portable-package or native-preview acceptance.
