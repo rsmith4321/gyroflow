@@ -124,6 +124,27 @@ class QtNoticeTests(unittest.TestCase):
             self.assertEqual(prior.read_bytes(),b'prior packet: preserve')
 
 
+class FfmpegSysNoticeTests(unittest.TestCase):
+    def test_published_license_declaration_and_patch_are_preserved(self):
+        with tempfile.TemporaryDirectory(prefix='plus-ffmpeg-sys-notices-') as temporary:
+            notices=Path(temporary)
+            stager.copy_ffmpeg_sys_notices(notices)
+            sources={'README.md':'ffmpeg-sys-next-9.0.0/README.md',
+                     'Cargo.toml.orig':'ffmpeg-sys-next-9.0.0/Cargo.toml.orig',
+                     'PROVENANCE.md':'README.md', 'PATCH.diff':'ffmpeg-sys-next-9.0.0.patch'}
+            for destination,source in sources.items():
+                self.assertEqual((notices/'ffmpeg-sys-next'/destination).read_bytes(),
+                                 (ROOT/'vendor'/source).read_bytes())
+            self.assertIn('license = "WTFPL"',(notices/'ffmpeg-sys-next/Cargo.toml.orig').read_text())
+
+    def test_existing_notice_packet_is_preserved_and_refused(self):
+        with tempfile.TemporaryDirectory(prefix='plus-ffmpeg-sys-existing-') as temporary:
+            notices=Path(temporary); target=notices/'ffmpeg-sys-next';target.mkdir()
+            prior=target/'PROVENANCE.md'; prior.write_bytes(b'prior packet: preserve')
+            with self.assertRaises(FileExistsError): stager.copy_ffmpeg_sys_notices(notices)
+            self.assertEqual(prior.read_bytes(),b'prior packet: preserve')
+
+
 class MacDependencyTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory(prefix='plus-mach-test-')
@@ -195,6 +216,9 @@ class MacDependencyTests(unittest.TestCase):
         shutil.copy2(ROOT / 'resources/color/OCIO-LICENSE.txt', repo / 'resources/color')
         shutil.copytree(ROOT / 'resources/lens-profiles-v41', repo / 'resources/lens-profiles-v41')
         shutil.copytree(ROOT / 'vendor/qmetaobject-rs', repo / 'vendor/qmetaobject-rs')
+        shutil.copytree(ROOT / 'vendor/ffmpeg-sys-next-9.0.0', repo / 'vendor/ffmpeg-sys-next-9.0.0')
+        for name in ('README.md', 'ffmpeg-sys-next-9.0.0.patch'):
+            shutil.copy2(ROOT / 'vendor' / name, repo / 'vendor' / name)
         lens = b'\x1f\x8bsynthetic lens database'
         lens_sha = hashlib.sha256(lens).hexdigest()
         (repo / 'src/core').mkdir(parents=True, exist_ok=True)
@@ -251,6 +275,14 @@ class MacDependencyTests(unittest.TestCase):
         self.main_binary(self.slice(('@rpath/libOpenColorIO.2.4.dylib',),
                                     ('@executable_path/../Frameworks',)))
         self.assertIn('Missing dependency', '\n'.join(self.audit()['errors']))
+
+    def test_obsolete_framework_loads_are_refused_even_in_system_locations(self):
+        for name in ('QTKit', 'VideoDecodeAcceleration'):
+            with self.subTest(framework=name):
+                self.main_binary(self.slice((f'/System/Library/Frameworks/{name}.framework/Versions/A/{name}',)))
+                self.assertIn('Obsolete FFmpeg framework dependency', '\n'.join(self.audit()['errors']))
+        self.main_binary(self.slice(('/System/Library/Frameworks/VideoToolbox.framework/Versions/A/VideoToolbox',)))
+        self.assertEqual(self.audit()['errors'], [])
 
     def test_unused_external_rpath_is_recorded_even_with_bundled_ocio(self):
         development = self.root / 'SSD/_dev/ocio-runtime/install/lib'

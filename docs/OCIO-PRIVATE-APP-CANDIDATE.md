@@ -44,6 +44,14 @@ The overlay changes no FFmpeg headers or processing code. The private lockfile
 changes only that crate's source identity; all other package records match the
 frozen main lockfile.
 
+That statement describes the original frozen candidate. The current root source
+now retains the published crate and the same two-request correction under
+`vendor/ffmpeg-sys-next-9.0.0/`, with an offline package/patch verifier and staged
+notices. Its only difference from the original private overlay is the explanatory
+comment. Current-source build/runtime acceptance is recorded separately in
+[integration evidence](OPENCOLORIO-INTEGRATION.md); it does not replace the
+historical artifact identities above.
+
 The unchanged core build script fetched a missing lens-profile database through
 its mutable `latest` URL despite Cargo `--offline`. The retained bytes match
 official lens-profile release v41, asset 492091898, with SHA-256

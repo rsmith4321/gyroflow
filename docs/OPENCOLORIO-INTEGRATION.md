@@ -796,3 +796,49 @@ the corrected isolated default binary SHA-256 is
 This integrates the targeted source fix; installed apps, the engine default,
 public releases and platform/package acceptance gates are unchanged. Windows
 and Claude work remain held until renewed direct human go-ahead.
+
+
+### Public FFmpeg binding build correction
+
+The root now retains published `ffmpeg-sys-next` 9.0.0, pinned by package SHA-256
+`9b939bf79dd5949412a4b81cfe21a07f48ea21b47fcbb5f57816c8c2de5ae30b` and upstream
+revision `80b7dd8327c3539159f37d8ca5423c75d6cd2e57`. Only two unconditional macOS
+static framework requests are removed: QTKit and VideoDecodeAcceleration. The
+retained source matches the published package plus the recorded patch byte for
+byte; it differs from the original private overlay only in explanatory comments.
+All other root lock package records are unchanged. Notices and corresponding
+binding source are now part of the tracked source and staging paths.
+
+A real arm64 Rust consumer links the unchanged accepted official-source static
+FFmpeg prefix and executes with both the registry and retained binding crate.
+Both report 228 codecs and identical complete filter names; VideoToolbox,
+x264/x265, PNG/EXR, scale, eq and buffer registrations are checked directly.
+The retained binding emits no obsolete framework requests, its linked executable
+imports neither framework, dynamic FFmpeg nor Homebrew libraries, and the 482
+prefix files, vendor bytes and canonical lock stay unchanged. All eight bounded
+build/run/inspection commands exit zero with terminal owned groups. This is a
+binding/link consumer check; it does not execute hardware-encoded frames, an app
+preview, stabilization or color export.
+
+The current SDK still contains legacy stubs: the unpatched consumer links zero
+with an incompatible-arm64 QTKit warning. An earlier probe expected a hard link
+failure and therefore failed its assertion; that result is retained. Another
+probe assumed the accepted prefix had `lut3d`; it does not, consistently with
+its inherited selected-filter configuration. A runner retry then rejected a
+duplicate output name before the corrected run. These failed runs are preserved,
+not counted as acceptance. The OCIO path does not use the legacy `lut3d` filter;
+a static default-engine LUT build would need separate filter capability work.
+
+The 54 packaging/build-receipt tests pass, including the real published package
+identity, byte comparison, modified/extra-file refusal, unsafe archive member
+refusal, exact notice copying, existing-packet preservation and obsolete Mac
+framework load rejection. No installed app, engine default or public release
+changes. Current full-app and Windows acceptance remain separate gates.
+
+Evidence: `_dev/root-ffmpeg-sys-integration-20261009/`, including
+`STATIC-PROBE-ACCEPTANCE.json`, `static-probe-v4/`,
+`PRIVATE-OVERLAY-COMPARISON.json`, `LOCK-DELTA.json`,
+`CLAUDE-MANIFEST-VERIFICATION.json` and `package-tests-final.log`.
+The scoped consumer executable SHA-256 is
+`58193ee24686cebb933588a609297e9d964bfd188fbae1918bc5afb859664096`.
+Windows and Claude work remain held until renewed direct human go-ahead.

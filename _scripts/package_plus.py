@@ -39,6 +39,16 @@ def copy_qmetaobject_notices(notices):
         shutil.copy2(ROOT/'vendor/qmetaobject-rs'/name, target/name)
 
 
+def copy_ffmpeg_sys_notices(notices):
+    """Retain the published binding crate's license declaration and exact patch."""
+    target = notices/'ffmpeg-sys-next'
+    target.mkdir()
+    for name in ('README.md', 'Cargo.toml.orig'):
+        shutil.copy2(ROOT/'vendor/ffmpeg-sys-next-9.0.0'/name, target/name)
+    shutil.copy2(ROOT/'vendor/README.md', target/'PROVENANCE.md')
+    shutil.copy2(ROOT/'vendor/ffmpeg-sys-next-9.0.0.patch', target/'PATCH.diff')
+
+
 def copy_ocio_notices(app, notices):
     """Copy the OCIO dependency notice packet after checking it against its manifest.
 
@@ -221,6 +231,9 @@ def check_mac_dependencies(app):
         visited.add(key)
         reached.add((path, architecture))
         for value in data['dependencies']:
+            if any(part in ('QTKit.framework', 'VideoDecodeAcceleration.framework')
+                   for part in Path(value).parts):
+                errors.add(f'Obsolete FFmpeg framework dependency {value!r} in {path} [{architecture}]')
             if value.startswith('@rpath/'):
                 candidates = [directory / value[len('@rpath/'):] for directory in paths]
             else:
@@ -390,6 +403,7 @@ def main():
     shutil.copy2(ROOT/'docs/PLUS-DISTRIBUTION.md',notices/'COMMUNITY-FORK.md')
     shutil.copytree(ROOT/'resources/lens-profiles-v41',notices/'lens-profiles-v41')
     copy_qmetaobject_notices(notices)
+    copy_ffmpeg_sys_notices(notices)
     if args.licenses: shutil.copytree(args.licenses.resolve(strict=True),notices/'Dependencies')
     ocio_notices=copy_ocio_notices(app,notices)
     if not args.development_runtime and ocio_notices['errors']:

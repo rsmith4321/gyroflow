@@ -75,6 +75,8 @@ chrono = "0.4"
 keep-awake = { git = "https://github.com/AdrianEddy/keep-awake-rs.git", rev = "4f2a93f" }
 
 [patch.crates-io]
+# Published 9.0.0 minus two obsolete macOS static framework links; see vendor/README.md.
+ffmpeg-sys-next = { path = "vendor/ffmpeg-sys-next-9.0.0" }
 qmetaobject = { git = "https://github.com/AdrianEddy/qmetaobject-rs.git", rev = "ff1e23d" }
 qttypes     = { git = "https://github.com/AdrianEddy/qmetaobject-rs.git", rev = "ff1e23d" }
 

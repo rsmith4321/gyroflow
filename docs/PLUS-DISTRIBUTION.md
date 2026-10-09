@@ -188,3 +188,22 @@ Both platform stages add the original MIT license, pin and patch description to
 retained crate with its original source headers. This is a downstream correction,
 not a new upstream release. Mac app tests and notice-copy tests do not establish
 current Windows execution or portable-package readiness.
+
+## Retained FFmpeg binding source
+
+The root app uses the published `ffmpeg-sys-next` 9.0.0 crate under
+`vendor/ffmpeg-sys-next-9.0.0/`. The exact package SHA-256 is
+`9b939bf79dd5949412a4b81cfe21a07f48ea21b47fcbb5f57816c8c2de5ae30b`;
+its upstream source is `80b7dd8327c3539159f37d8ca5423c75d6cd2e57`.
+Only the two obsolete macOS static framework requests for QTKit and
+VideoDecodeAcceleration are removed. FFmpeg source, bindings, all remaining
+link requests and non-macOS/dynamic paths are unchanged. The root lock removes
+only this package's registry source/checksum; other package records are exact.
+
+Both platform stages copy the original README and manifest license declaration,
+package provenance and exact patch to `Notices/ffmpeg-sys-next/`. The source
+archive contains the retained crate. Portable Mac audits reject either obsolete
+framework load even when it appears under an Apple system path. This does not
+replace FFmpeg's own notices, corresponding source or codec-rights checks.
+Use `_scripts/verify_vendored_ffmpeg_sys.py` with the pinned published `.crate`
+to verify every retained file against the original package plus patch.
