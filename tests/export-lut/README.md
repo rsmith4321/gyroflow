@@ -63,4 +63,10 @@ The complete standalone suites passed on arm64 macOS with FFmpeg 9.0.1:
 ignored. Both application feature configurations also passed an isolated
 `cargo check --locked --offline`; this verifies the full Rust wiring and
 build-script C++ compilation, not a new linked binary or app runtime.
-Windows and native PNG/EXR export acceptance for this source change remain open.
+Current Windows acceptance remains open. A later scoped Mac candidate-app
+observation completed three-frame neutral PNG, LUT PNG and LUT EXR exports
+against independent tagged-SDR equations; see
+[the integration notes](../../docs/OPENCOLORIO-INTEGRATION.md). It uses a private
+Qt binding candidate, private settings and bilinear stabilization. It does
+not establish unchanged-dependency release, debug Lanczos4 or Windows
+acceptance.

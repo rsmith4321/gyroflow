@@ -613,3 +613,55 @@ installed/default runtime and release gates remain unchanged.
 
 The retained root evidence is
 `_dev/root-encoder-color-review-20261008/ACCEPTANCE.json`.
+
+## Mac application RGB observation: 2026-10-09 UTC
+
+The exact application source at `3788024f` links with `ocio-runtime`, Qt
+6.7.3, OCIO 2.4.2 and Homebrew FFmpeg 9.0.1. This development configuration
+needs the existing x264/x265 static archive search paths explicitly supplied
+through `EXTRA_LINK_PATHS`; the earlier failed link is retained. No canonical
+source or dependency lock was changed to obtain that link.
+
+Running the debug application exposed a preexisting pinned Qt-binding
+signal-offset pattern that forms a reference through null. A standalone
+one-signal reproducer aborts without any video or color libraries. A private
+candidate replacing that calculation with Rust's standard field-offset macro
+passes the same connect/deliver/disconnect test. This is a **candidate dependency
+fix**, not an integrated or Windows-accepted change. The manual reproducer and
+proposed patch are in `tests/qobject-signal-offset/`.
+
+For the following observation, the app has that candidate binding override
+and a private settings-directory seam. Its production rendering and color
+sources match `3788024f` exactly. The synthetic 64×64, three-frame lossless
+MP4 has verified SMPTE170M/limited-range tags, a one-second stream duration,
+and decoded YUV bytes identical to the supplied fixture. A two-point LUT
+copies input red to all three output channels; controls are zero. CPU
+stabilization uses **bilinear** interpolation. No real-camera or native-preview
+compatibility is inferred from this fixture.
+
+| Application export | Expected interior value | Observed value | Maximum error | Preselected tolerance |
+| --- | --- | --- | --- | --- |
+| Neutral PNG, red | 0.71398843, legacy BT.709 | 0.71372549 | 0.00026294 | 2/255 |
+| LUT PNG, all RGB | 0.67773129, tagged BT.601 | 0.67843137 | 0.00070009 | 2/255 |
+| LUT EXR, all RGB | 0.67773129, tagged BT.601 | 0.67512017 | 0.00261112 | 3/255 |
+
+All nine images decode and satisfy the independent YCbCr reference over the
+48×48 interior. All 15 bounded commands exit zero and their owned groups are
+terminal. Existing authored Plus settings hashes remain exact. This supplies
+actual app-path evidence for the tagged RGB fix under the stated candidate
+configuration; it does not replace direct acceptance of an unchanged-dependency
+release build.
+
+The debug Lanczos4 run separately aborts at the existing CPU undistortion
+edge-index calculation with integer overflow. That failure is retained and
+unfixed. Choosing bilinear for this color observation does not establish
+Lanczos4 acceptance. A prior MKV fixture also lacked a usable stream duration
+and was rejected before rendering; its bounded failed run remains retained.
+The dynamic Homebrew FFmpeg/MDK combination emits duplicate Objective-C class
+warnings, whose causal effect is unproved.
+
+Evidence: `_dev/root-current-rgb-app-20261009/ACCEPTANCE.json` and
+`exports-v4-bilinear/RESULT.json`. The observed candidate binary SHA-256 is
+`b36f5cde9033298f82adcf2e460f681fa0baa0182cd1eb0e8d1cf9487112f8e2`.
+No installed app, default feature, public package or release gate changed.
+Current Windows acceptance remains open and is paused at Ryan's request.
