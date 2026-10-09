@@ -104,6 +104,7 @@ impl UITools {
                     engine.set_property("styleHrColor"          .into(), QString::from("#303b46").into());
                     engine.set_property("stylePopupBorder"      .into(), QString::from("#10151a").into());
                     engine.set_property("styleSliderHandle"     .into(), QString::from("#4e6171").into());
+                    engine.set_property("styleSliderAccentColor".into(), QString::from("#65b7ed").into());
                     engine.set_property("styleSliderBackground" .into(), QString::from("#899ba8").into());
                     engine.set_property("styleHighlightColor"   .into(), QString::from("#10ffffff").into());
                 },
@@ -119,6 +120,7 @@ impl UITools {
                     engine.set_property("styleHrColor"          .into(), QString::from("#dae3e7").into());
                     engine.set_property("stylePopupBorder"      .into(), QString::from("#cddade").into());
                     engine.set_property("styleSliderHandle"     .into(), QString::from("#b7c9cc").into());
+                    engine.set_property("styleSliderAccentColor".into(), QString::from("#2879ae").into());
                     engine.set_property("styleSliderBackground" .into(), QString::from("#c8d7db").into());
                     engine.set_property("styleHighlightColor"   .into(), QString::from("#10000000").into());
                 }
