@@ -6,8 +6,12 @@
   python3 vendor_archive.py <work>/cargo-vendor <commit> <out>/Gyroflow-Plus-rust-vendor-<commit12>.tar <work>/vendor-config.toml
 
 The archive holds cargo-vendor/ plus .cargo/config.toml pointing at it with a
-relative path, so `tar -xf` over a `git archive` of the same commit resolves with
-`--frozen` and no network. The directory is not called vendor/ because the
+relative path. Extract it into a new parent directory, and extract the matching
+Git source archive into that directory's src/ child. Invoke Cargo from src/ so
+the parent source config merges with the unchanged repository target config.
+NEVER overlay this archive on the Git source: both contain .cargo/config.toml,
+and overlay would erase the repository's target linker flags. The directory is
+not called vendor/ because the
 repository already has vendor/ (the patched ffmpeg-sys-next and qmetaobject_impl
 path crates); a vendor source there fails with "failed to load checksum
 .cargo-checksum.json of ffmpeg-sys-next". Entries are sorted; owner, group and

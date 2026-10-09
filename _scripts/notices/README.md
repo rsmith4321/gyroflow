@@ -51,9 +51,28 @@ local cache paths stays in the work directory, outside the shipped notice packet
 
 `vendor_archive.py` makes a deterministic archive from an already populated
 `cargo vendor --frozen --versioned-dirs` directory and its generated config.
-See its header for invocation. Extract this archive alongside the **same source
-commit's** Git archive. Its `cargo-vendor/` directory is separate from the repo's
-existing `vendor/` path crates. Graph resolution with an empty Cargo cache and
+See its header for invocation. Extract the two archives into this parent/child
+layout, matching the source commit and dependency lock recorded by their receipts:
+
+```text
+source-bundle/
+  .cargo/config.toml       # generated vendor source configuration
+  cargo-vendor/            # dependency sources
+  src/                    # Git source archive, unchanged
+    .cargo/config.toml     # tracked target linker flags
+    Cargo.toml
+    Cargo.lock
+```
+
+Run Cargo from `source-bundle/src/`. Cargo merges the parent vendor-source config
+with the repository's target config; the vendor directory resolves relative to
+`source-bundle/`. **Never extract the vendor archive over the Git source tree:**
+that would replace the tracked config and discard linker flags, including Mac
+runtime search paths. This follows Cargo's [configuration hierarchy and relative
+path rules](https://doc.rust-lang.org/cargo/reference/config.html).
+
+The `cargo-vendor/` directory is separate from the repo's existing `vendor/` path
+crates. Graph resolution with an empty Cargo cache and
 `--frozen` is a source-availability check; it is not a successful application build.
 Native dependencies and their source/build requirements remain separate.
 
@@ -62,7 +81,8 @@ Native dependencies and their source/build requirements remain separate.
 Integrated from the reviewed C2/C3 recipe at public application commit
 `0b5ba007bfad303f88c143615a9d2baf384de4cb`. The frozen C3 manifest SHA-256 is
 `2b549b1b00c39d620f04600a9b901ebe68889d42a659ddc62ff2561ae77334bc`.
-The gate, config, supplements and archive helper retain the reviewed bytes.
+The gate, config and supplements retain the reviewed bytes. The archive helper's
+implementation is unchanged; its instructions now require the parent/child layout.
 Integration adds an explicit runner environment check, replaces regex-based path
 redaction with literal replacement, and corrects the template's overinclusive
 "statically linked" label. Earlier C3 outputs retain their original receipt and

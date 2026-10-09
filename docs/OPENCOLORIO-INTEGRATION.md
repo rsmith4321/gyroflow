@@ -1213,3 +1213,21 @@ path characters passed. The full collector was not rerun for these changes, and
 the frozen C3 outputs retain their original template and receipt identities.
 Final package notice matching, corresponding-source delivery, attribution
 decisions and current Windows native/app acceptance remain open.
+
+### Corresponding-source archive layout correction
+
+The deterministic Rust dependency archive was materialized from the retained
+source tree. Its reported SHA-256 is
+`15844ceb7bfb4a8051f34f10ee1e4590328bc4698b3d1b184cf4da6f04570d93`,
+with an actual measured size of 1,062,123,520 bytes. The earlier 1,061,888,000-byte
+measurement belongs to a different stream and must not be paired with this hash.
+The archive remains in reviewer-owned cloud scratch; it has not been delivered
+locally, uploaded for distribution, or accepted as a complete release source bundle.
+
+Review found that extracting its generated `.cargo/config.toml` over the Git
+archive would replace the tracked target linker flags. Instructions now require
+the dependency archive at a parent root and the unchanged Git source at `root/src/`,
+with Cargo invoked from the child. The parent source-only and child target-only
+configs can then merge under Cargo's documented hierarchy. The archive-generation
+implementation is unchanged. Actual current-source offline graph resolution and
+full source-preservation checks for this layout are pending in the existing review.
