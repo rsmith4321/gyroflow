@@ -3387,7 +3387,6 @@ dependencies = [
 [[package]]
 name = "qmetaobject_impl"
 version = "0.2.10"
-source = "git+https://github.com/AdrianEddy/qmetaobject-rs.git?rev=ff1e23d#ff1e23dcdd722a0c335bbd51f7dcfdb722384db2"
 dependencies = [
  "proc-macro2",
  "quote",

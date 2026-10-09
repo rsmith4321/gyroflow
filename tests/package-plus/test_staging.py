@@ -103,6 +103,27 @@ class StagingTests(unittest.TestCase):
                     self.assertFalse(output.exists())
 
 
+class QtNoticeTests(unittest.TestCase):
+    def test_pinned_derive_license_and_patch_record_are_preserved(self):
+        with tempfile.TemporaryDirectory(prefix='plus-qt-notices-') as temporary:
+            notices=Path(temporary)
+            stager.copy_qmetaobject_notices(notices)
+            for name in ('LICENSE', 'PATCHES.md', 'UPSTREAM.json'):
+                self.assertEqual((notices/'qmetaobject-rs'/name).read_bytes(),
+                                 (ROOT/'vendor/qmetaobject-rs'/name).read_bytes())
+            pin=json.loads((notices/'qmetaobject-rs/UPSTREAM.json').read_text())
+            self.assertEqual(pin['revision'],'ff1e23dcdd722a0c335bbd51f7dcfdb722384db2')
+            self.assertEqual(pin['modified_files'],['qmetaobject_impl/src/qobject_impl.rs'])
+
+    def test_existing_notice_packet_is_preserved_and_refused(self):
+        with tempfile.TemporaryDirectory(prefix='plus-qt-notices-existing-') as temporary:
+            notices=Path(temporary);target=notices/'qmetaobject-rs';target.mkdir()
+            prior=target/'LICENSE';prior.write_bytes(b'prior packet: preserve')
+            with self.assertRaises(FileExistsError):
+                stager.copy_qmetaobject_notices(notices)
+            self.assertEqual(prior.read_bytes(),b'prior packet: preserve')
+
+
 class MacDependencyTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory(prefix='plus-mach-test-')
@@ -173,6 +194,7 @@ class MacDependencyTests(unittest.TestCase):
         shutil.copytree(ROOT / PACKET, repo / PACKET)
         shutil.copy2(ROOT / 'resources/color/OCIO-LICENSE.txt', repo / 'resources/color')
         shutil.copytree(ROOT / 'resources/lens-profiles-v41', repo / 'resources/lens-profiles-v41')
+        shutil.copytree(ROOT / 'vendor/qmetaobject-rs', repo / 'vendor/qmetaobject-rs')
         lens = b'\x1f\x8bsynthetic lens database'
         lens_sha = hashlib.sha256(lens).hexdigest()
         (repo / 'src/core').mkdir(parents=True, exist_ok=True)

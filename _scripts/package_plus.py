@@ -31,6 +31,14 @@ def msvc_version(value):
     return tuple(map(int, value.split('.')))
 
 
+def copy_qmetaobject_notices(notices):
+    """Retain the pinned derive dependency's license and downstream patch record."""
+    target = notices/'qmetaobject-rs'
+    target.mkdir()
+    for name in ('LICENSE', 'PATCHES.md', 'UPSTREAM.json'):
+        shutil.copy2(ROOT/'vendor/qmetaobject-rs'/name, target/name)
+
+
 def copy_ocio_notices(app, notices):
     """Copy the OCIO dependency notice packet after checking it against its manifest.
 
@@ -381,6 +389,7 @@ def main():
     shutil.copy2(ROOT/'resources/color/OCIO-LICENSE.txt',notices/'OpenColorIO-BSD-3-Clause.txt')
     shutil.copy2(ROOT/'docs/PLUS-DISTRIBUTION.md',notices/'COMMUNITY-FORK.md')
     shutil.copytree(ROOT/'resources/lens-profiles-v41',notices/'lens-profiles-v41')
+    copy_qmetaobject_notices(notices)
     if args.licenses: shutil.copytree(args.licenses.resolve(strict=True),notices/'Dependencies')
     ocio_notices=copy_ocio_notices(app,notices)
     if not args.development_runtime and ocio_notices['errors']:

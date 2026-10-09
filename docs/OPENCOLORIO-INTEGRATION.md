@@ -731,9 +731,9 @@ The separate binding candidate also passes three exact pinned upstream test
 functions: typed Rust signals, C++ signals, and lifetime/generic derive
 compilation. The original dependency passes the C++ test but aborts in the
 Rust typed-signal test. The generic compilation test does not instantiate its
-objects. That dependency correction is still **unintegrated**, and the canonical
-app's dependency lock is unchanged. Fixing the CPU index therefore does not by
-itself make a canonical debug app start successfully.
+objects. At that observation the dependency correction was still **unintegrated**, and
+the canonical app's dependency lock was unchanged. The CPU index correction
+alone did not make a canonical debug app start successfully.
 
 Evidence is in `private-lanczos-index-v6/`, `exports-v6-debug-index/`, and
 `binding-upstream-signals-v3/` under
@@ -743,3 +743,56 @@ The exact upstream test functions and their license header are retained in
 `tests/qobject-signal-offset/tests/upstream_signals.rs` for manual reproduction.
 Installed apps, the engine default and public releases are unchanged. Windows and Claude work remain held
 until renewed direct human go-ahead.
+
+
+### Pinned Qt derive source integration
+
+The root application now retains `qmetaobject_impl` under
+`vendor/qmetaobject-rs/`, from the exact upstream revision
+`ff1e23dcdd722a0c335bbd51f7dcfdb722384db2`. Of the eight retained upstream files,
+only `qmetaobject_impl/src/qobject_impl.rs` changes: the tested standard
+`std::mem::offset_of!` expression replaces the null-reference calculation.
+The original README, MIT license and source headers remain intact. The pin
+record contains both original and retained file hashes.
+
+The root Cargo patch replaces only this proc-macro's source identity.
+`qmetaobject`, `qttypes`, all other versions, sources and package dependencies
+remain unchanged. The standalone manual diagnostic intentionally still uses
+the unpatched Git baseline, independently of the root app's patch.
+
+An isolated debug application built from `226eeefd` plus these source changes
+exits zero in **22.886 seconds**. Its manifest, lock and retained dependency
+match the root source; only the settings location is a test seam. There is no
+private binding override. All three default-Lanczos OCIO export cases pass;
+all nine full decoded images remain byte-identical to the earlier deploy
+reference, all 15 bounded commands exit zero with terminal owned groups, and
+the complete protected settings/log tree remains unchanged.
+
+The ordinary default build also compiles and completes a neutral PNG export.
+Its three decoded images are byte-identical to the reference, all seven bounded
+commands exit zero with terminal owned groups, and the protected tree is exact.
+That run adds startup/neutral-path evidence for the default build, not new
+acceptance of the legacy color algorithms. The 46 packaging/build-receipt tests
+pass, including license/pin/patch copying and refusal to overwrite an existing
+notice packet. Both platform stages copy these notices; the committed source
+archive retains the full crate. Windows execution remains unrun for this source.
+
+An earlier default-build runner omitted `--manifest-path`, so Cargo searched
+upward and built from the canonical checkout. That failed isolation check
+replaced `gyroflow.log`; `settings.json` and other protected files were
+unchanged. The exact prior log preimage was recovered from retained evidence,
+verified against its pre-test SHA-256, and restored with its original inode and
+mtime. The full directory hash tree then matched the before snapshot. That
+failed run and recovery remain recorded; the corrected run explicitly names
+the isolated manifest and checks the logged settings path.
+
+Evidence: `vendor-integration-v7/`, `exports-v7-root-vendor/`,
+`exports-v7-default-neutral/RECOVERY.json`, and
+`exports-v7-default-neutral-v2/` under
+`_dev/root-current-rgb-app-20261009/`. The retained OCIO debug binary SHA-256 is
+`15c710116452a4d4b89e4519047d4cb76238c28a2103725e4c1b7b378f5a2dcd`;
+the corrected isolated default binary SHA-256 is
+`eafd1cf3026bc79f9cbe7a66c15125a55976ae4db72e5c3f75f28140445a7413`.
+This integrates the targeted source fix; installed apps, the engine default,
+public releases and platform/package acceptance gates are unchanged. Windows
+and Claude work remain held until renewed direct human go-ahead.

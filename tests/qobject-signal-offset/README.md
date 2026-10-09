@@ -20,13 +20,16 @@ cargo run --locked --offline --manifest-path tests/qobject-signal-offset/Cargo.t
 The observed baseline uses Rust's debug checks; an optimized run that happens
 to finish does not demonstrate that forming a null reference is safe.
 
-## Candidate, not integrated
+## Downstream correction and retained baseline
 
 `candidate.patch` changes only the generated offset calculation to
 `std::mem::offset_of!`. Rust documents this macro as stable since 1.77;
 Gyroflow's Rust 2024 edition already needs a newer toolchain. This does not
 establish compatibility with every upstream qmetaobject consumer's older
-toolchain. The patch remains a proposed dependency change.
+toolchain. The root application now uses the retained upstream proc-macro snapshot in
+`vendor/qmetaobject-rs/`, with this one-expression correction. The separate
+manual workspace deliberately keeps the original Git dependency as a baseline;
+it does not inherit the root application's Cargo patch.
 
 To test it, copy the pinned upstream `qmetaobject_impl` crate into a private
 directory and apply the patch there. Keep the cached/shared dependency source
@@ -35,14 +38,15 @@ unchanged. Add a **private** Cargo override for
 pointing to that copy, resolve a private lockfile, and run the same executable.
 The expected result is one delivered callback, successful disconnect, no
 second callback, and `PASS`. Do not edit the baseline lockfile or treat a
-dependency override as a canonical application fix.
+dependency override as proof that the canonical application adopted that private override; inspect
+the root manifest and vendored pin for the actual source integration.
 
 The observed private candidate passes that test with the same executable
 source. A current OCIO app using that candidate and a settings-directory
 test seam also completed the scoped PNG/EXR cases described in
 [the integration notes](../../docs/OPENCOLORIO-INTEGRATION.md). The app's
-production rendering sources were unchanged. The candidate has not passed
-Windows or broader binding acceptance and has not been integrated.
+production rendering sources were unchanged. The source integration and app follow-through are recorded in the integration
+notes. Current Windows and the entire upstream binding suite remain unverified.
 
 The copied upstream MIT notice is retained in `UPSTREAM-LICENSE`. Source:
 [pinned offset implementation](https://github.com/AdrianEddy/qmetaobject-rs/blob/ff1e23dcdd722a0c335bbd51f7dcfdb722384db2/qmetaobject_impl/src/qobject_impl.rs#L901),
@@ -73,4 +77,4 @@ ignored or filtered tests. The test functions are byte-identical between the
 observed baseline and candidate. This adds typed-signal and generic compilation
 coverage; it does not establish the entire upstream suite, instantiated generic
 signal delivery or Windows acceptance. The baseline diagnostic remains outside
-the normal passing suite and the dependency patch remains unintegrated.
+the normal passing suite and the original Git baseline remains separate from the patched application.

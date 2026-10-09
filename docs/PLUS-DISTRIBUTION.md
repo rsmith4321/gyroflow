@@ -125,8 +125,8 @@ The stager requires a clean source checkout for every candidate and a matching
 build/deploy receipt for portable stages on both platforms. It checks the receipt's
 commit, clean-source flag and executable SHA256 before creating the output and
 retains its bytes as `Notices/BUILD-INPUT.json`. It preserves
-the runtime's dependency notices, adds GPL/OCIO/fork notices, corresponding app
-source archive, source URL, input-build binary SHA256 and commit manifest, and refuses an
+the runtime's dependency notices, adds GPL/OCIO/fork and pinned qmetaobject derive
+notices, corresponding app source archive, source URL, input-build binary SHA256 and commit manifest, and refuses an
 existing output. Mac auditing rejects absolute non-system dependencies. Windows
 auditing (on Windows) rejects unresolved imports or symbols, stale library
 versions and an incoherent or too-old C++ runtime; it is not a run on a clean
@@ -172,3 +172,19 @@ input. `PACKAGE.json`, beside the app, records the final
 `packaged_binary_sha256` after signing. These can differ for a Mac Mach-O file;
 the final receipt stays outside the signed bundle to avoid a circular resource
 hash. Older stages used the ambiguous `binary_sha256` field for the input hash.
+
+
+## Retained Qt derive source
+
+The root app uses the `qmetaobject_impl` source retained under
+`vendor/qmetaobject-rs/`, from upstream revision
+`ff1e23dcdd722a0c335bbd51f7dcfdb722384db2`. Only the signal-field offset expression
+changes: Rust's standard `offset_of!` replaces a null-reference calculation.
+The version and every other dependency package identity stay pinned. See that
+directory's `UPSTREAM.json` and `PATCHES.md` for exact hashes and scope.
+
+Both platform stages add the original MIT license, pin and patch description to
+`Notices/qmetaobject-rs/`; the committed source archive contains the complete
+retained crate with its original source headers. This is a downstream correction,
+not a new upstream release. Mac app tests and notice-copy tests do not establish
+current Windows execution or portable-package readiness.
