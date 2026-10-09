@@ -2133,7 +2133,7 @@
    }
   },
   "unattributed": {
-   "name": "Software OpenGL (Mesa 11.2.2 / LLVM 3.6.2; notice coverage pending)",
+   "name": "Software OpenGL (Mesa 11.2.2 / LLVM 3.6.2; binary copyright coverage open)",
    "version": "Mesa 11.2.2 / LLVM 3.6.2",
    "required": true,
    "identity": {
@@ -2158,7 +2158,12 @@
     "unattributed/notices/LLVM-ARM.txt",
     "unattributed/notices/LLVM-MD5-CPP.txt",
     "unattributed/notices/LLVM-MD5-HEADER.txt",
-    "unattributed/notices/QT65-PUBLISHED-ATTRIBUTION.txt"
+    "unattributed/notices/QT65-PUBLISHED-ATTRIBUTION.txt",
+    "unattributed/notices/MESA-LICENSE.html",
+    "unattributed/notices/MESA-OS-THREAD.txt",
+    "unattributed/notices/LLVM-UNICODE-HEADER.txt",
+    "unattributed/notices/LLVM-UNICODE-C.txt",
+    "unattributed/ACKNOWLEDGMENTS.txt"
    ],
    "provenance_members": [
     "unattributed/PROVENANCE.json",
@@ -2173,8 +2178,8 @@
      {
       "id": "opengl32sw-provider",
       "class": "blocker",
-      "text": "The exact Qt-distributed DLL is identified as Mesa 11.2.2 / LLVM 3.6.2. Version-matched upstream notices and older Qt-published attribution are retained with verified source identities, but complete coverage of the actual Qt binary and its patch/build source revision remain unestablished.",
-      "needed_artifact": "Reviewed applicable copyright/license texts for the exact Qt-distributed Mesa/LLVM DLL, with the version-matched upstream sources distinguished from unknown Qt patches/build identity. Reference/version attribution alone does not satisfy the remaining requirement."
+      "text": "The Qt-distributed DLL and embedded Mesa11.2.2/LLVM3.6.2 versions are identified. Version-matched main/component notices, Gallium and Unicode notices, and supplementary regex documentation credits have been reviewed and retained. Copyright-holder coverage of all compiled Mesa/LLVM files and the Qt patch/build source revision remain unestablished.",
+      "needed_artifact": "Complete applicable copyright/license coverage for the Qt-distributed Mesa/LLVM DLL, using conservative version-matched source inventory where compiled object lists are unavailable, with unknown Qt patches/build identity recorded separately. No owner waiver or gap downgrade was adopted from the review."
      }
     ],
     "resolved": []
@@ -2191,8 +2196,8 @@
   },
   {
    "path": "README.md",
-   "bytes": 4104,
-   "sha256": "e1cd058e0a29587097486a9c2cffa26faa22ddf889189cd14b665d7f220c74e6",
+   "bytes": 4380,
+   "sha256": "fc47e09e6bb67e8f3e0e80a4f3e92f767682c41740b4318ff7a5091d85db24c6",
    "component": "packet",
    "role": "packet"
   },
@@ -6495,10 +6500,45 @@
   },
   {
    "path": "unattributed/NOTICE-SOURCES.json",
-   "bytes": 8940,
-   "sha256": "9a3ab8f226c5238be9603dcea0d9f4d8030842e2795c89d116e9900cb96bad97",
+   "bytes": 13457,
+   "sha256": "7a4ccfd7674b726252d48e61be7a7b086598ac098926d83988a8ad4e2a55fab3",
    "component": "unattributed",
    "role": "provenance"
+  },
+  {
+   "path": "unattributed/notices/MESA-LICENSE.html",
+   "bytes": 3763,
+   "sha256": "288ddfae338be168ef2492c21de42ee2f5c8ebc5a734b4e58b37007141bc2d6d",
+   "component": "unattributed",
+   "role": "notice"
+  },
+  {
+   "path": "unattributed/notices/MESA-OS-THREAD.txt",
+   "bytes": 1326,
+   "sha256": "c13e54b4dbcf562a2bc5f12a693311f037950a6a2b3d73c59e1cba3cb925923b",
+   "component": "unattributed",
+   "role": "notice"
+  },
+  {
+   "path": "unattributed/notices/LLVM-UNICODE-HEADER.txt",
+   "bytes": 843,
+   "sha256": "47e27f87477adf7e9a6cab4f5dceadb82f40cc2f211dc7fc6496b98a1bbee859",
+   "component": "unattributed",
+   "role": "notice"
+  },
+  {
+   "path": "unattributed/notices/LLVM-UNICODE-C.txt",
+   "bytes": 847,
+   "sha256": "4fcd1eedee79d2539f9ec14ac4097bc19f0c874c5e3bd89bda0d22560b5fde8c",
+   "component": "unattributed",
+   "role": "notice"
+  },
+  {
+   "path": "unattributed/ACKNOWLEDGMENTS.txt",
+   "bytes": 766,
+   "sha256": "190e8bb984aad826f974af7831afc193856265fa536c098022f19bf7a107773c",
+   "component": "unattributed",
+   "role": "notice"
   }
  ]
 }

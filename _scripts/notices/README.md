@@ -14,7 +14,7 @@ verifier:
 ```sh
 python3 -I _scripts/notices/verify_native_notices.py \
   resources/notices/native/windows-x64 --repo-root . \
-  --manifest-sha256 a7606f7a1c90336c40cfb0dfa5188bb6118c088564ae3552a98d16310ec4a047
+  --manifest-sha256 cbc3bc65e710a1585df9607a8eedf17a9919fb73f29db6d2dbda8f41d6858baa
 ```
 
 The Qt GPL-2.0-or-later alias is retained as the full upstream target text,
@@ -50,8 +50,10 @@ been resolved with retained documentation and exact installed provider files.
 Ten recorded blockers or obligations remain across the complete native tree.
 The software OpenGL component now retains version-matched Mesa/LLVM notices
 and an older Qt-published attribution, with source and excerpt identities in
-`unattributed/NOTICE-SOURCES.json`; complete coverage of the actual binary is
-still being reviewed, and the original provider gap remains blocking.
+`unattributed/NOTICE-SOURCES.json`. The version-matched texts have been reviewed;
+complete binary copyright-holder coverage remains
+open, and the original provider gap remains blocking. Supplementary Gallium and
+Unicode notices and explicit regex documentation credits are retained.
 These additions do not
 change the staged DLL inventory or establish complete corresponding source.
 

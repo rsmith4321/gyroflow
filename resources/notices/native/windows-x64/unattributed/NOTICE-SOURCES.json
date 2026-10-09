@@ -1,6 +1,6 @@
 {
  "schema": "gyroflow-plus/software-opengl-notice-sources/v1",
- "status": "retained_version_matched_notices_coverage_review_pending",
+ "status": "version_matched_notices_reviewed_binary_holder_coverage_open",
  "observed_utc": "2026-10-09T21:43:56.266768+00:00",
  "staged_dll_sha256": "b04de4541863bc7d8879040a78889c4849c1b1da2784c4630f734c146c2998ce",
  "reference_identity": "REFERENCE-ATTRIBUTION.json",
@@ -207,17 +207,116 @@
     "source_sha256": "d9f193ad149d21f68f02c14d7be4edb5d45f2f02eeedf4c477fa624239b79e22",
     "identity_basis": "Older Qt6.5 published attribution corroborates MesaMIT/KhronosMIT(2013-2016)/C11Boost; not exactQt6.7provider build/source identity. Retained alongside exact Mesa11.2.2 source notices conservatively."
    }
+  },
+  {
+   "path": "notices/MESA-LICENSE.html",
+   "bytes": 3763,
+   "sha256": "288ddfae338be168ef2492c21de42ee2f5c8ebc5a734b4e58b37007141bc2d6d",
+   "upstream": {
+    "project": "Mesa",
+    "version": "11.2.2",
+    "kind": "file",
+    "source_path": "docs/license.html",
+    "source_bytes": 3763,
+    "source_sha256": "288ddfae338be168ef2492c21de42ee2f5c8ebc5a734b4e58b37007141bc2d6d",
+    "archive_url": "https://archive.mesa3d.org/older-versions/11.x/11.2.2/mesa-11.2.2.tar.xz",
+    "archive_sha256": "40e148812388ec7c6d7b6657d5a16e2e8dabba8b97ddfceea5197947647bdfb4",
+    "identity_basis": "Exact version-matched official archive, not proof of Qt patches/build source"
+   }
+  },
+  {
+   "path": "notices/MESA-OS-THREAD.txt",
+   "bytes": 1326,
+   "sha256": "c13e54b4dbcf562a2bc5f12a693311f037950a6a2b3d73c59e1cba3cb925923b",
+   "upstream": {
+    "project": "Mesa",
+    "version": "11.2.2",
+    "kind": "lines",
+    "source_path": "src/gallium/auxiliary/os/os_thread.h",
+    "source_bytes": 6950,
+    "source_sha256": "8bef53eea4dd7bb13f0db7b43cd21c248381e4a9aadbe3e342d9059a4b5c1c79",
+    "archive_url": "https://archive.mesa3d.org/older-versions/11.x/11.2.2/mesa-11.2.2.tar.xz",
+    "archive_sha256": "40e148812388ec7c6d7b6657d5a16e2e8dabba8b97ddfceea5197947647bdfb4",
+    "identity_basis": "Exact version-matched official archive, not proof of Qt patches/build source",
+    "lines": [
+     1,
+     25
+    ]
+   }
+  },
+  {
+   "path": "notices/LLVM-UNICODE-HEADER.txt",
+   "bytes": 843,
+   "sha256": "47e27f87477adf7e9a6cab4f5dceadb82f40cc2f211dc7fc6496b98a1bbee859",
+   "upstream": {
+    "project": "LLVM",
+    "version": "3.6.2",
+    "kind": "lines",
+    "repository": "https://github.com/llvm/llvm-project",
+    "commit": "ee46064b83e7acd5a215ea5bb1c9708d75de6164",
+    "source_path": "llvm/include/llvm/Support/ConvertUTF.h",
+    "source_bytes": 10024,
+    "source_sha256": "281d667aa7f825dad888679574753007ab9b82ed5590e35306ce2d90f2f716b7",
+    "git_blob_sha1": "a184d0df21322cd7a9519da7ee0b48b6169107b8",
+    "lines": [
+     9,
+     29
+    ],
+    "archive_url": "https://releases.llvm.org/3.6.2/llvm-3.6.2.src.tar.xz",
+    "archive_sha256": "f60dc158bfda6822de167e87275848969f0558b3134892ff54fced87e4667b94",
+    "identity_basis": "Exact official release-tag Git blob; runtime coverage of the Qt DLL remains unestablished"
+   }
+  },
+  {
+   "path": "notices/LLVM-UNICODE-C.txt",
+   "bytes": 847,
+   "sha256": "4fcd1eedee79d2539f9ec14ac4097bc19f0c874c5e3bd89bda0d22560b5fde8c",
+   "upstream": {
+    "project": "LLVM",
+    "version": "3.6.2",
+    "kind": "lines",
+    "repository": "https://github.com/llvm/llvm-project",
+    "commit": "ee46064b83e7acd5a215ea5bb1c9708d75de6164",
+    "source_path": "llvm/lib/Support/ConvertUTF.c",
+    "source_bytes": 27014,
+    "source_sha256": "4dfa47ea9c28bb6a1b3e83f5a9eaa94e6ca2e20cc112329bb90ebd4e47bde12a",
+    "git_blob_sha1": "128459a1d548f742b35527bef7a2f6ae1b2e9a1c",
+    "lines": [
+     9,
+     29
+    ],
+    "archive_url": "https://releases.llvm.org/3.6.2/llvm-3.6.2.src.tar.xz",
+    "archive_sha256": "f60dc158bfda6822de167e87275848969f0558b3134892ff54fced87e4667b94",
+    "identity_basis": "Exact official release-tag Git blob; runtime coverage of the Qt DLL remains unestablished"
+   }
+  },
+  {
+   "path": "ACKNOWLEDGMENTS.txt",
+   "bytes": 766,
+   "sha256": "190e8bb984aad826f974af7831afc193856265fa536c098022f19bf7a107773c",
+   "upstream": {
+    "kind": "authored_documentation_credit",
+    "basis": "LLVM3.6.2 lib/Support/COPYRIGHT.regex conditions2/3 request documentation credits; Unicode notices retained conservatively"
+   }
   }
  ],
  "conservative_supplements": [
   "LLVM ARM/regex/MD5 notices retained; actual compiled component/target coverage is not established.",
   "Mesa C11 thread and GL/GLX headers retained in addition to the core license.",
-  "Older Qt6.5 published attribution supplies additional Khronos2013-2016 wording; it is not an exact Qt6.7 provider/build source record."
+  "Older Qt6.5 published attribution supplies additional Khronos2013-2016 wording; it is not an exact Qt6.7 provider/build source record.",
+  "Both Unicode ConvertUTF notices from LLVM3.6.2 Support files retained verbatim; actual compiled coverage remains unknown."
  ],
  "limits": [
-  "Verbatim source/excerpt identity independently checked; complete binary notice coverage review remains pending.",
+  "Verbatim sources/excerpts independently checked and v9 content review accepted; complete binary copyright-holder coverage remains open.",
   "Version-matched upstream sources do not establish unknown Qt patches/build revision.",
   "No complete corresponding source or public release approval."
  ],
- "public_release_approved": false
+ "public_release_approved": false,
+ "review": {
+  "handback_sha256": "5f1ca255af85366b1b7ac908d69a09aea3ed88f3e89468729d02397acae96428",
+  "claim_sha256": "4c83c302ec1bae47c641e32aaf88448f578a40935efc038b6b3102c43b5ef36d",
+  "scope": "Ten upstream files/excerpts independently matched; authored metadata reviewed separately. Missing Gallium notice, full Mesa license table and regex documentation credit retained. Unicode ConvertUTF notices independently confirmed and added.",
+  "khronos_header_origin": "Both complete headers directly matched to retained official Mesa archive; prior packet metadata omission does not leave source identity open.",
+  "open": "Complete copyright-holder coverage of compiled Mesa/LLVM files and Qt patch/build identity remain unestablished; no release requirement waived."
+ }
 }
