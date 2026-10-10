@@ -1,18 +1,20 @@
 # Windows libass source kit
 
-This kit accompanies the Windows libass dependency qualified by hosted run [38017550683](https://github.com/rsmith4321/gyroflow-plus/actions/runs/38017550683) at Gyroflow+ commit `4dd7582a606ec39ba7e9385f58b4195085ae6a4b`. It is inert data: archives, text and build glue. Nothing in it runs when you download, list, hash or extract it.
+This kit retains the inputs and evidence for a hosted source-rebuild qualification
+of libass in run [38017550683](https://github.com/rsmith4321/gyroflow-plus/actions/runs/38017550683) at Gyroflow+ commit `4dd7582a606ec39ba7e9385f58b4195085ae6a4b`. It is inert data: archives, text and build glue. Nothing in it runs when you download, list, hash or extract it.
 
-It is **not** a Gyroflow+ application release and contains no application binaries. It is not offered as complete corresponding source or as legal acceptance of any distribution. It is an additional asset on an unpublished, source-only draft release. The existing `libass-retained-source-archives-v18.zip` asset there is unchanged.
+It is **not** a Gyroflow+ application release and contains no application binaries. It is not offered as complete corresponding source or as legal acceptance of any distribution. It is prepared for additive retention on an unpublished, source-only draft release. The existing `libass-retained-source-archives-v18.zip` asset there is unchanged.
 
 ## Contents
 
 | Member | What it is |
 | --- | --- |
 | `libass-retained-source-archives-v18.zip` | 62447389 bytes, SHA-256 `8cdbf56eb72add8f592bccd9dfc93a39395d51e4bc91c77f67d6781a5e8ea2e5`. Contains twelve original `.tar.gz` source archives, exactly as retained. |
-| `libass-build-glue.tar` | A `git archive` of the build script, manifest, tests, manual workflow, `LICENSE` and this file, taken from the kit commit. |
-| `SOURCE-KIT-MANIFEST.json` | The size and SHA-256 of the two payload members and every glue file, the kit source commit, and the qualification run and commit. The manifest does not hash itself; the outer ZIP hash covers it. |
+| `libass-build-glue.tar` | A `git archive` of the build script, manifest, tests, manual workflow, `LICENSE`, repository `README.md`, acceptance documentation and this file, taken from the kit commit. |
+| `libass-qualification-evidence.tar` | The 28 original JSON/log evidence files from the successful hosted build and root acceptance, retained before GitHub artifact expiry. No binary products or private environment-capture output. |
+| `SOURCE-KIT-MANIFEST.json` | The size and SHA-256 of the three payload members and their file maps, the kit source commit, retained source draft/tag and qualification identities. The manifest does not hash itself; the outer ZIP hash covers it. |
 
-The kit commit is the commit that adds this document, and `SOURCE-KIT-MANIFEST.json` records it. Members are stored uncompressed, with the commit timestamp and fixed permissions. Preparing a kit requires its build script to match the one qualified at `4dd7582a`. Draft retention does not publish a release.
+The kit commit is the commit recorded for these instructions and build files, and `SOURCE-KIT-MANIFEST.json` records it. Members are stored uncompressed, with the commit timestamp and fixed permissions. Preparing a kit requires its build script to match the one qualified at `4dd7582a`. Draft retention does not publish a release.
 
 ## Verify and extract
 
@@ -48,8 +50,10 @@ Extracting the files is enough to read and inspect the sources. These instructio
 The only qualified rebuild is the manual GitHub Actions workflow **Native libass retained source archives**. It is bound to repository `rsmith4321/gyroflow-plus`, branch `codex/lut-preview-controls`, and `workflow_dispatch`. Its admission checks restrict that qualified job to these identities.
 
 - **`fetch-retained-source`** has `contents: write` only because GitHub hides draft releases from read-only tokens. It downloads the retained ZIP and checks its size and SHA-256. It then passes the ZIP to the next job as a one-day artifact. It does no checkout and runs no downloaded code.
-- **`source-rebuild`** has `contents: read`. It checks out the reviewed glue and verifies every archive hash pin. It builds on the GitHub-hosted `windows-2025` image, using the MSVC, CMake, Ninja and Perl that the image provides. NASM is built from its pinned source archive. Only JSON and log evidence is uploaded, and it is kept for 14 days.
+- **`source-rebuild`** has `contents: read`. It checks out the dispatched branch commit and verifies every archive hash pin. The qualified route requires that commit's build script, archive manifest and workflow to match the file hashes in this kit. A later branch tip is not automatically qualified. It builds on the GitHub-hosted `windows-2025` image, using the MSVC, CMake, Ninja and Perl that the image provides. NASM is built from its pinned source archive. Only JSON and log evidence is uploaded, and it is kept for 14 days.
 
+Before dispatch, compare those three files at the intended branch commit with
+`SOURCE-KIT-MANIFEST.json`. Do not infer recipe identity from a branch name.
 A maintainer with write access can start the workflow from the GitHub UI (Actions → workflow → Run workflow) or with the GitHub CLI:
 
 ```sh
@@ -77,7 +81,8 @@ The initial and relinked candidate DLLs have different hashes. Neither is shown 
 
 ## Licenses
 
-License files inside the original archives are preserved unchanged. The selected build glue is licensed GPL-3.0-or-later. Its full license text is `LICENSE` inside `libass-build-glue.tar`.
+License files inside the original archives are preserved unchanged. The repository's GPLv3 license and additional permissions are retained in `LICENSE` and
+`README.md` inside `libass-build-glue.tar`. Individual source notices remain intact.
 
 ## Limits
 
