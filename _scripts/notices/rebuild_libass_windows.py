@@ -4,12 +4,15 @@
 Keep the upstream devpkgs CMake project unchanged. The unrelated dav1d,
 libva-loader and lz4 targets are disabled; the ass link graph is checked
 against the vendor x64 link line so disabling them cannot weaken it.
-No binary download, source patch, NO_ASM substitution or release upload.
+No binary download, library source patch, NO_ASM substitution or release upload.
+The one adaptation is a guarded, recorded copy of NASM's MSVC build recipe
+(derive_nasm_makefile): the pinned Mkfiles/msvc.mak stays byte-identical.
 Only text evidence (.json/.log) is written to native-source-evidence/.
 """
 from __future__ import annotations
 
 import datetime
+import difflib
 import hashlib
 import json
 import os
@@ -76,6 +79,77 @@ NASM_PERLREQ = (
     "include/warnings.h", "doc/warnings.src", "misc/nasmtok.el", "version.h", "version.mac",
     "version.mak", "nsis/version.nsh")
 ERROR_SHARING_VIOLATION = 32  # Windows: another process still holds an open handle to the file
+# NASM's MSVC build recipe. The pinned file is kept; NMake reads a derived copy (same directory, so every
+# relative path is unchanged) with only these recipe lines adapted. Each original line must match exactly.
+NASM_MAKEFILE = "Mkfiles/msvc.mak"
+NASM_MAKEFILE_SHA256 = "a1404ea2617c0d0b06e3b064e11a9fbce8f3d6d5d77a79a33e03ec896f4e1f39"
+NASM_COMPAT_MAKEFILE = "Mkfiles\\msvc.gyroflowplus-compat.mak"
+_WARNTIMES = "asm\\warnings.c.time include\\warnings.h.time doc\\warnings.src.time"
+_RECURSE = "$(MAKE) /f " + NASM_COMPAT_MAKEFILE
+_U1005 = "NMake rejects an empty search string in $(macro:old=new) (U1005 at line 238); the three names are listed"
+_TOUCH = "':' is a POSIX shell no-op with no cmd.exe equivalent; 'type nul >' creates the same empty stamp file"
+_SIDE = "'@:' is a POSIX no-op; 'rem' is cmd's no-op and this makefile already uses it (line 353)"
+NASM_RECIPE_EDITS = (
+    (238, "\t$(RM_F) $(WARNFILES) $(WARNFILES:=.time)", "\t$(RM_F) $(WARNFILES) " + _WARNTIMES, _U1005),
+    (239, "\t$(MAKE) asm\\warnings.time", "\t" + _RECURSE + " asm\\warnings.time",
+     "a recursive NMake has no default makefile in the NASM directory; name the derived file"),
+    (241, "asm\\warnings.time: $(ALLOBJ_NW:.$(O)=.c)", "asm\\warnings.time: $(ALLOBJ_NW:.obj=.c)",
+     "no macro inside a substitution string; O is defined as obj (line 53), so the list is unchanged"),
+    (242, "\t: > asm\\warnings.time", "\ttype nul > asm\\warnings.time", _TOUCH),
+    (243, "\t$(MAKE) $(WARNFILES:=.time)", "\t" + _RECURSE + " " + _WARNTIMES,
+     _U1005 + "; the recursion names the derived file"),
+    (247, "\t: > asm\\warnings.c.time", "\ttype nul > asm\\warnings.c.time", _TOUCH),
+    (250, "\t@: Side effect", "\t@rem Side effect", _SIDE),
+    (254, "\t: > include\\warnings.h.time", "\ttype nul > include\\warnings.h.time", _TOUCH),
+    (257, "\t@: Side effect", "\t@rem Side effect", _SIDE),
+    (261, "\t: > doc\\warnings.src.time", "\ttype nul > doc\\warnings.src.time", _TOUCH),
+    (264, "\t@: Side effect", "\t@rem Side effect", _SIDE),
+    (302, '\t$(RUNPERL) $< $@ "$(srcdir)" "$(objdir)"', '\t$(RUNPERL) misc\\emacstbl.pl $@ "$(srcdir)" "$(objdir)"',
+     "$< is defined only in inference rules; this explicit rule names its first dependency instead"),
+    (392, "!ELSEIF [$(MAKE) /c MKDEP=1 /f Mkfiles\\msvc.mak msvc.dep] == 0",
+     "!ELSEIF [$(MAKE) /c MKDEP=1 /f " + NASM_COMPAT_MAKEFILE + " msvc.dep] == 0",
+     "this parse-time recursion must read the derived file; the original stops at line 238"),
+)
+# Unchanged lines the edits rely on, and construct counts in the pinned file (fail closed on any other file).
+NASM_RECIPE_CONTEXT = {53: "O               = obj",
+                       235: "WARNFILES = asm\\warnings.c include\\warnings.h doc\\warnings.src",
+                       353: "\trem cd doc && $(MAKE) clean",
+                       382: "\t$(RUNPERL) tools\\mkdep.pl -M Mkfiles\\msvc.mak -- $(DEPDIRS)"}
+NASM_RECIPE_COUNTS = {"$(WARNFILES:=.time)": 2, "\t: > ": 4, "@: Side effect": 3, "$(MAKE)": 5, "$<": 2,
+                      ":.$(O)=": 1, "Mkfiles\\msvc.mak": 2}
+# sha256 of derive_nasm_makefile(pinned msvc.mak); any other result is refused at run time
+NASM_COMPAT_SHA256 = "b4f5711560254f4ed814e868f3c739a93b0033732444f85278a9203558f780c3"
+
+
+def derive_nasm_makefile(original: bytes, expected_sha256: str = NASM_MAKEFILE_SHA256) -> tuple:
+    """Return (derived bytes, change records) for the pinned NASM msvc.mak; refuse anything else."""
+    if hashlib.sha256(original).hexdigest() != expected_sha256:
+        raise ValueError("NASM makefile is not the pinned msvc.mak.")
+    text = original.decode("ascii")
+    if "\r" in text or not text.endswith("\n"):
+        raise ValueError("Unexpected NASM makefile line endings.")
+    for needle, count in NASM_RECIPE_COUNTS.items():
+        if text.count(needle) != count:
+            raise ValueError(f"Unexpected NASM makefile construct count: {needle}")
+    lines = text.split("\n")
+    for number, line in NASM_RECIPE_CONTEXT.items():
+        if lines[number - 1] != line:
+            raise ValueError(f"Unexpected NASM makefile context at line {number}.")
+    changes = []
+    for number, old, new, reason in NASM_RECIPE_EDITS:
+        if lines[number - 1] != old:
+            raise ValueError(f"Unexpected NASM makefile text at line {number}.")
+        lines[number - 1] = new
+        changes.append({"line": number, "original": old, "derived": new, "reason": reason})
+    derived = "\n".join(lines).encode("ascii")
+    left = derived.decode("ascii")
+    if ":=" in left or ":.$(O)=" in left or left.count("$<") != 1 or "@:" in left or "\t: >" in left:
+        raise ValueError("NASM makefile adaptation left an unsupported construct.")
+    if left.count(NASM_COMPAT_MAKEFILE) != 3 or left.count("Mkfiles\\msvc.mak") != 1:  # 3 recursions; mkdep hint
+        raise ValueError("NASM makefile recursion does not name the derived file.")
+    return derived, changes
+
+
 TOOLS = ("git.exe", "cl.exe", "link.exe", "nmake.exe", "cmake.exe", "ninja.exe", "perl.exe", "dumpbin.exe")
 
 
@@ -542,14 +616,41 @@ class Run:
         self.command([self.tools["ninja.exe"], "--version"])
         self.command([self.tools["perl.exe"], "-e", "print $^V"])
 
+    def prepare_nasm_makefile(self, nasm: Path) -> dict:
+        """Write the derived NASM recipe beside the untouched original and record both hashes and the diff."""
+        original_path, derived_path = nasm / NASM_MAKEFILE, nasm / NASM_COMPAT_MAKEFILE.replace("\\", "/")
+        original = original_path.read_bytes()
+        derived, changes = derive_nasm_makefile(original)
+        if hashlib.sha256(derived).hexdigest() != NASM_COMPAT_SHA256:
+            raise RuntimeError("Derived NASM makefile differs from the reviewed transform.")
+        with derived_path.open("xb") as output:  # fresh only; never reuse or overwrite
+            output.write(derived)
+        diff = "".join(difflib.unified_diff(original.decode("ascii").splitlines(True),
+                                            derived.decode("ascii").splitlines(True),
+                                            "a/" + NASM_MAKEFILE, "b/" + NASM_COMPAT_MAKEFILE.replace("\\", "/")))
+        record = {"original": NASM_MAKEFILE, "original_sha256": hashlib.sha256(original).hexdigest(),
+                  "original_bytes": len(original), "derived": NASM_COMPAT_MAKEFILE,
+                  "derived_sha256": hashlib.sha256(derived).hexdigest(), "derived_bytes": len(derived),
+                  "changes": changes, "unified_diff": diff,
+                  "note": "Build-recipe grammar/shell adaptation only; no NASM source, version, flag or dependency change."}
+        self.save("NASM-MAKEFILE.json", record)
+        return record
+
+    def check_nasm_makefiles(self, nasm: Path, record: dict) -> None:
+        if digest(nasm / NASM_MAKEFILE) != record["original_sha256"] or \
+                digest(nasm / NASM_COMPAT_MAKEFILE.replace("\\", "/")) != record["derived_sha256"]:
+            raise RuntimeError("A NASM makefile changed during the NASM build.")
+
     def build(self):
         nasm = self.work / "nasm"
+        recipe = self.prepare_nasm_makefile(nasm)
         before = {p: (nasm / p).is_file() for p in NASM_PERLREQ}
-        self.command([self.tools["nmake.exe"], "/f", "Mkfiles/msvc.mak", "perlreq"], nasm, 300)
+        self.command([self.tools["nmake.exe"], "/f", NASM_COMPAT_MAKEFILE, "perlreq"], nasm, 300)
         missing = [p for p in NASM_PERLREQ if not (nasm / p).is_file() or not (nasm / p).stat().st_size]
         if missing:
             raise RuntimeError("NASM perlreq did not produce: " + ", ".join(missing[:10]))
-        self.command([self.tools["nmake.exe"], "/f", "Mkfiles/msvc.mak", "nasm.exe"], nasm, 300)
+        self.command([self.tools["nmake.exe"], "/f", NASM_COMPAT_MAKEFILE, "nasm.exe"], nasm, 300)
+        self.check_nasm_makefiles(nasm, recipe)
         version = self.command([nasm / "nasm.exe", "-v"], nasm)
         if not version.startswith("NASM version 2.16.01 "):
             raise RuntimeError("Unexpected NASM version.")

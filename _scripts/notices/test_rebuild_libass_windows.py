@@ -4,6 +4,7 @@
 Run: python3 -I _scripts/notices/test_rebuild_libass_windows.py
 V13_CANDIDATE_DIR and V13_WORKFLOW_PATH may name isolated reviewed candidate files.
 V13_LIBASS_SYM may name the pinned libass.sym for the optional 50-export fixture.
+V15_NASM_MAKEFILE may name the pinned NASM Mkfiles/msvc.mak for the recipe-adaptation fixture.
 
 No Windows runner, source build, compiler, assembler, generator, Perl, DLL, network or real
 subprocess is used: subprocess.Popen/run are replaced for the whole module and fail if reached.
@@ -755,6 +756,201 @@ class PrivateCapture(unittest.TestCase):
             self.assertEqual(run.command(["cmake", "--version"]), "ok\n")
         self.assertNotIn("private_disposition", self.receipt(run))
         self.assertEqual(run.deferred_private, [])
+
+
+class NasmRecipe(unittest.TestCase):
+    """The guarded derived NASM recipe: exact transform of the pinned file only, used by both nmake calls."""
+
+    def original(self):
+        path = os.environ.get("V15_NASM_MAKEFILE")
+        if not path:
+            self.skipTest("V15_NASM_MAKEFILE not set")
+        data = Path(path).read_bytes()
+        self.assertEqual(hashlib.sha256(data).hexdigest(), m.NASM_MAKEFILE_SHA256)
+        return data
+
+    def mutated(self, old, new):
+        data = self.original().replace(old, new, 1)
+        return data, hashlib.sha256(data).hexdigest()
+
+    def test_exact_derived_file_and_changes(self):
+        original = self.original()
+        derived, changes = m.derive_nasm_makefile(original)
+        self.assertEqual(hashlib.sha256(derived).hexdigest(), m.NASM_COMPAT_SHA256)
+        self.assertEqual([c["line"] for c in changes], [238, 239, 241, 242, 243, 247, 250, 254, 257, 261, 264, 302, 392])
+        old, new = original.decode("ascii").split("\n"), derived.decode("ascii").split("\n")
+        self.assertEqual(len(old), len(new))
+        differing = [i + 1 for i, (a, b) in enumerate(zip(old, new)) if a != b]
+        self.assertEqual(differing, [c["line"] for c in changes])
+        for c in changes:
+            self.assertEqual((old[c["line"] - 1], new[c["line"] - 1]), (c["original"], c["derived"]))
+            self.assertTrue(c["reason"])
+        self.assertEqual(m.derive_nasm_makefile(original), (derived, changes))  # deterministic
+
+    def test_unrelated_bytes_dependencies_and_flags_preserved(self):
+        original = self.original()
+        derived, changes = m.derive_nasm_makefile(original)
+        edited = {c["line"] for c in changes}
+        old, new = original.decode("ascii").split("\n"), derived.decode("ascii").split("\n")
+        for number, line in enumerate(old, 1):
+            if number not in edited:
+                self.assertEqual(new[number - 1], line, number)
+        spelled = lambda lines: [l.replace("$(ALLOBJ_NW:.$(O)=.c)", "$(ALLOBJ_NW:.obj=.c)") for l in lines]
+        for kept in ("CFLAGS", "LDFLAGS", "PERLREQ", "nasm$(X):", "ALLOBJ", "NASMLIB", "!INCLUDE msvc.dep"):
+            self.assertEqual(spelled([l for l in old if kept in l]), [l for l in new if kept in l], kept)
+        dependency = lambda lines: [l for l in lines if l and not l.startswith(("\t", "#", " ")) and ":" in l]
+        self.assertEqual([l.replace("$(ALLOBJ_NW:.$(O)=.c)", "$(ALLOBJ_NW:.obj=.c)") for l in dependency(old)],
+                         dependency(new))  # same targets and prerequisites; only line 241 spells O out
+        self.assertIn("O               = obj", new)
+        self.assertEqual(new[381], "\t$(RUNPERL) tools\\mkdep.pl -M Mkfiles\\msvc.mak -- $(DEPDIRS)")
+
+    def test_every_recursion_names_the_derived_file(self):
+        derived, _ = m.derive_nasm_makefile(self.original())
+        lines = derived.decode("ascii").split("\n")
+        recursions = [(n, l) for n, l in enumerate(lines, 1) if "$(MAKE)" in l and "rem " not in l and "cd doc" not in l]
+        self.assertEqual([n for n, _ in recursions], [239, 243, 392])
+        for _, line in recursions:
+            self.assertIn("/f " + m.NASM_COMPAT_MAKEFILE + " ", line)
+        self.assertNotIn("/f Mkfiles\\msvc.mak", derived.decode("ascii"))
+
+    def test_wrong_hash_is_refused(self):
+        with self.assertRaisesRegex(ValueError, "not the pinned"):
+            m.derive_nasm_makefile(b"all:\n")
+        with self.assertRaisesRegex(ValueError, "not the pinned"):
+            m.derive_nasm_makefile(b"")
+
+    def test_changed_original_is_refused_even_with_matching_hash(self):
+        for old, new, message in (
+                (b"\t: > asm\\warnings.time", b"\t: > asm\\warnings.stamp", "text at line 242"),
+                (b"O               = obj", b"O               = o", "context at line 53"),
+                (b"\t$(RUNPERL) $< $@", b"\t$(RUNPERL) $< $< $@", "count"),
+                (b"\t@: Side effect\n", b"\t@: Side effect\n\t@: Side effect\n", "count"),
+                (b"msvc.dep: $(PERLREQ)", b"msvc.dep: $(PERLREQ) $(WARNFILES:=.x)", "unsupported construct"),
+                (b"\n", b"\r\n", "line endings")):
+            data, sha = self.mutated(old, new)
+            with self.assertRaisesRegex(ValueError, message):
+                m.derive_nasm_makefile(data, sha)
+
+    def test_moved_line_is_refused(self):
+        data, sha = self.mutated(b"# -*- makefile -*-\n", b"")
+        with self.assertRaisesRegex(ValueError, "line"):
+            m.derive_nasm_makefile(data, sha)
+
+    def test_repeated_or_foreign_input_is_refused(self):
+        derived, _ = m.derive_nasm_makefile(self.original())
+        with self.assertRaisesRegex(ValueError, "not the pinned"):
+            m.derive_nasm_makefile(derived)
+        with self.assertRaises(ValueError):
+            m.derive_nasm_makefile(derived, hashlib.sha256(derived).hexdigest())  # already adapted
+        foreign = b"# Makefile.in\nall:\n\t$(MAKE) $(X:=.y)\n"
+        with self.assertRaises(ValueError):
+            m.derive_nasm_makefile(foreign, hashlib.sha256(foreign).hexdigest())
+        for bad in (b"\xff" * 4, "\u00e9\n".encode()):
+            with self.assertRaises(ValueError):
+                m.derive_nasm_makefile(bad, hashlib.sha256(bad).hexdigest())
+
+    def runner(self, root):
+        for sub in ("ws", "temp"):
+            (root / sub).mkdir()
+        environ = {"RUNNER_TEMP": str(root / "temp"), "GITHUB_RUN_ID": "7", "GITHUB_RUN_ATTEMPT": "1",
+                   "PATH": "C:\\runner"}
+        run = m.Run(root / "ws", environ=environ, popen=_forbidden, run_tool=_forbidden,
+                    clock=Clock(0.01), sleep=lambda s: None)
+        (run.work / "nasm/Mkfiles").mkdir(parents=True)
+        return run
+
+    def test_prepare_writes_fresh_copy_and_records_evidence(self):
+        original = self.original()
+        with tempfile.TemporaryDirectory() as d:
+            run = self.runner(Path(d))
+            nasm = run.work / "nasm"
+            (nasm / "Mkfiles/msvc.mak").write_bytes(original)
+            record = run.prepare_nasm_makefile(nasm)
+            derived = (nasm / "Mkfiles/msvc.gyroflowplus-compat.mak").read_bytes()
+            self.assertEqual((nasm / "Mkfiles/msvc.mak").read_bytes(), original)
+            saved = json.loads((run.evidence / "NASM-MAKEFILE.json").read_text())
+            self.assertEqual(saved, record)
+            self.assertEqual((saved["original_sha256"], saved["original_bytes"]), (m.NASM_MAKEFILE_SHA256, len(original)))
+            self.assertEqual((saved["derived_sha256"], saved["derived_bytes"]), (m.NASM_COMPAT_SHA256, len(derived)))
+            self.assertEqual(len(saved["changes"]), 13)
+            diff = saved["unified_diff"]
+            self.assertTrue(diff.startswith("--- a/Mkfiles/msvc.mak\n+++ b/Mkfiles/msvc.gyroflowplus-compat.mak\n"))
+            body = diff.splitlines()[2:]  # difflib may also show the blank line 240 as removed and re-added
+            self.assertEqual([l[1:] for l in body if l.startswith("-") and l != "-"], [c["original"] for c in saved["changes"]])
+            self.assertEqual([l[1:] for l in body if l.startswith("+") and l != "+"], [c["derived"] for c in saved["changes"]])
+            self.assertEqual(sum(l == "-" for l in body), sum(l == "+" for l in body))
+            run.check_nasm_makefiles(nasm, record)
+            with self.assertRaises(FileExistsError):  # a second derivation never overwrites
+                run.prepare_nasm_makefile(nasm)
+            (nasm / "Mkfiles/msvc.gyroflowplus-compat.mak").write_bytes(derived + b"#\n")
+            with self.assertRaisesRegex(RuntimeError, "changed"):
+                run.check_nasm_makefiles(nasm, record)
+            (nasm / "Mkfiles/msvc.gyroflowplus-compat.mak").write_bytes(derived)
+            (nasm / "Mkfiles/msvc.mak").write_bytes(original + b"#\n")
+            with self.assertRaisesRegex(RuntimeError, "changed"):
+                run.check_nasm_makefiles(nasm, record)
+
+    def test_prepare_refuses_unpinned_original_before_writing(self):
+        with tempfile.TemporaryDirectory() as d:
+            run = self.runner(Path(d))
+            nasm = run.work / "nasm"
+            (nasm / "Mkfiles/msvc.mak").write_bytes(b"all:\n")
+            with self.assertRaisesRegex(ValueError, "not the pinned"):
+                run.prepare_nasm_makefile(nasm)
+            self.assertFalse((nasm / "Mkfiles/msvc.gyroflowplus-compat.mak").exists())
+            self.assertFalse((run.evidence / "NASM-MAKEFILE.json").exists())
+
+    def test_prepare_refuses_unreviewed_result(self):
+        original = self.original()
+        with tempfile.TemporaryDirectory() as d, mock.patch.object(m, "NASM_COMPAT_SHA256", "0" * 64):
+            run = self.runner(Path(d))
+            nasm = run.work / "nasm"
+            (nasm / "Mkfiles/msvc.mak").write_bytes(original)
+            with self.assertRaisesRegex(RuntimeError, "reviewed transform"):
+                run.prepare_nasm_makefile(nasm)
+            self.assertFalse((nasm / "Mkfiles/msvc.gyroflowplus-compat.mak").exists())
+
+    def test_both_nmake_calls_use_the_derived_file(self):
+        """Fixture-free: command selection with the recipe helpers mocked."""
+        class Stop(Exception):
+            pass
+
+        with tempfile.TemporaryDirectory() as d:
+            run = self.runner(Path(d))
+            nasm = run.work / "nasm"
+            run.tools = {tool: "C:\\Program Files\\VS\\" + tool for tool in m.TOOLS}
+            calls, order = [], []
+
+            def command(argv, cwd=None, *rest, **kw):
+                calls.append(([str(a) for a in argv], cwd))
+                order.append("command")
+                if argv[-1] == "perlreq":
+                    for name in m.NASM_PERLREQ:
+                        (nasm / name).parent.mkdir(parents=True, exist_ok=True)
+                        (nasm / name).write_bytes(b"x")
+                if argv[-1] == "-v":
+                    raise Stop()
+                return ""
+
+            record = {"original_sha256": "o", "derived_sha256": "d"}
+            with mock.patch.object(run, "command", command), \
+                    mock.patch.object(run, "prepare_nasm_makefile", lambda n: order.append("prepare") or record), \
+                    mock.patch.object(run, "check_nasm_makefiles",
+                                      lambda n, r: order.append("check") or self.assertIs(r, record)):
+                with self.assertRaises(Stop):
+                    run.build()
+            nmake = [(argv, cwd) for argv, cwd in calls if argv[0].endswith("nmake.exe")]
+            self.assertEqual([argv[1:] for argv, _ in nmake],
+                             [["/f", m.NASM_COMPAT_MAKEFILE, "perlreq"], ["/f", m.NASM_COMPAT_MAKEFILE, "nasm.exe"]])
+            self.assertTrue(all(cwd == nasm for _, cwd in nmake))
+            self.assertEqual(order, ["prepare", "command", "command", "check", "command"])
+            self.assertFalse(any("Mkfiles/msvc.mak" in a or "Mkfiles\\msvc.mak" in a for argv, _ in calls for a in argv))
+
+    def test_derived_file_stays_beside_the_original(self):
+        self.assertEqual(m.NASM_MAKEFILE, "Mkfiles/msvc.mak")
+        self.assertEqual(m.NASM_COMPAT_MAKEFILE, "Mkfiles\\msvc.gyroflowplus-compat.mak")
+        self.assertRegex(m.NASM_COMPAT_SHA256, r"^[0-9a-f]{64}$")
+        self.assertEqual(m.NASM_MAKEFILE_SHA256, "a1404ea2617c0d0b06e3b064e11a9fbce8f3d6d5d77a79a33e03ec896f4e1f39")
 
 
 class Static(unittest.TestCase):

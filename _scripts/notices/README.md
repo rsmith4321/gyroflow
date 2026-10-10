@@ -217,9 +217,22 @@ at the end of the run. Truncation can also be refused, and an inherited handle
 can write later; the capture remains outside the uploaded evidence. Any other
 deletion error fails the run.
 
+NASM's original `Mkfiles/msvc.mak` uses constructs NMake and cmd do not accept
+(hosted run 38010050723 stopped with U1005 at its line 238). The runner leaves
+that pinned file byte-identical and, only when its SHA-256 matches, writes a
+separate `Mkfiles/msvc.gyroflowplus-compat.mak` beside it. Thirteen lines change:
+empty-search `$(WARNFILES:=.time)` becomes the three listed names, a nested
+`$(O)` substitution is spelled `.obj`, POSIX `: >` and `@:` become `type nul >`
+and `@rem`, an explicit-rule `$<` names `misc\emacstbl.pl`, and the three
+recursive NMake calls name the derived file. NASM sources, version, flags and
+target dependencies are unchanged. Any other original, context or construct
+count is refused, and both `nmake /f` calls use the derived file. The original
+and derived hashes and the exact unified diff are saved in `NASM-MAKEFILE.json`.
+
 The candidate passed 47 isolated standard-library mocked tests in Claude's v13
 review. The targeted v14 cleanup regression suite reported 58 passing mocked
-tests and one explicit missing-fixture skip. Root independently checked the
+tests and one explicit missing-fixture skip. The v15 NASM recipe suite
+reported 70 passing mocked tests and one explicit missing-fixture skip. Root independently checked the
 packet/output hashes, twelve source
 archives, twenty-one quoted source ranges and exact patch replay. Those checks
 do not establish that a Windows source build or relink works. Run the reusable
@@ -231,9 +244,11 @@ python3 -I _scripts/notices/test_rebuild_libass_windows.py
 
 Set `V13_LIBASS_SYM` to `libass/libass.sym` extracted as data from the pinned
 `wang-bin/libass` source to include its optional fifty-symbol fixture. Without
-that file, the corresponding fixture is explicitly skipped.
+that file, the corresponding fixture is explicitly skipped. Set
+`V15_NASM_MAKEFILE` to the pinned NASM `Mkfiles/msvc.mak` to include the recipe
+fixtures; without it, those fixtures are explicitly skipped.
 
-A hosted run must verify the real MSVC/Ninja formats, NASM generation, assembly,
+A hosted run must verify the real MSVC/Ninja formats, the derived NASM recipe under NMake, NASM generation, assembly,
 static link graph and relink. The hosted Visual Studio is discovered with
 vswhere on each run and recorded with tool paths and hashes; hosted run
 38008920591 reported `C:\Program Files\Microsoft Visual Studio\18\Enterprise`.
