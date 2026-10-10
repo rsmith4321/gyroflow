@@ -161,16 +161,11 @@ Rectangle {
 
                 Item {
                     width: parent.width;
-                    height: logoText.height * 1.5;
-                    BasicText {
-                        id: logoText;
+                    height: children[0].height * 1.4;
+                    Image {
+                        source: "qrc:/resources/gyrograde/wordmark" + (style === "dark"? "_white" : "_black") + ".svg";
+                        sourceSize.width: Math.min(300 * dpiScale, parent.width * 0.9);
                         anchors.centerIn: parent;
-                        leftPadding: 0;
-                        textFormat: Text.StyledText;
-                        text: "Gyro<font color=\"" + styleAccentColor + "\">Grade</font>";
-                        font.pixelSize: 30 * dpiScale;
-                        font.bold: true;
-                        font.letterSpacing: 0.5 * dpiScale;
                     }
                 }
                 BasicText {
