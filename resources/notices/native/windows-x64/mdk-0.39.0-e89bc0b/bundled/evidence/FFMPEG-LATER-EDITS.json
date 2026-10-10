@@ -184,5 +184,36 @@
  "source_or_binary_build_executed": false,
  "binary_reproduced": false,
  "complete_corresponding_source": false,
- "public_release_approved": false
+ "public_release_approved": false,
+ "later_edit_followup_review": {
+  "handback_sha256": "dc0e0381d6e17efca2b957d3ac0664427bdf3fda63bef7b889a8a81ea137c9d9",
+  "claim_sha256": "04af21dd168c2a833a69947d552ddd30a0bd221909448a93d47d495ff80c4d0d",
+  "root_data_review_sha256": "e10ecb0c5c6e40cc8b2121e0a529b0bd91235605170ebff2bf692faca6210546",
+  "claim_input_hashes_checked": 19,
+  "output_hashes_checked": 8,
+  "commands_and_prior_classes_preserved": 25,
+  "full_log_and_sdk_citations_checked": 24,
+  "condition_summary": {
+   "sed_proved": 7,
+   "sed_contradicted": 13,
+   "sed_unknown": 0,
+   "conditional_patches_contradicted": 5
+  },
+  "qualified_findings": [
+   "The five nvcodec optional-symbol replacements independently match the retained diff; passes 2 through 5 are byte no-ops.",
+   "The x64 successful configure branch and completion marker support the ffmpeg.c insertion condition. Its final count remains 1 through 3, and it affects ffmpeg.exe rather than ffmpeg-9.dll.",
+   "Both armasm insertion candidates remain possible; shell quote removal is exact, but sed version, final empty line and concurrent copy count remain unknown.",
+   "All seven packaged SDK pkg-config prefixes match the source packaging edit; pre-edit contents remain unavailable.",
+   "The full root vendor log contains no patching-lld-flags message; this supports the negative condition only and does not reconstruct config.mak."
+  ],
+  "limits": [
+   "E3 form/copycount and E4 copycount/working-tree line endings remain unknown.",
+   "No final config.mak or runner source bytes.",
+   "Negative full-log evidence qualifies lld condition, not generated config bytes.",
+   "No complete corresponding-source or public release approval."
+  ],
+  "source_or_peer_code_executed": false,
+  "complete_corresponding_source": false,
+  "public_release_approved": false
+ }
 }

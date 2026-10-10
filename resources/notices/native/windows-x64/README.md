@@ -149,3 +149,11 @@ as supporting evidence. Final source line endings, concurrent insertion counts,
 generated configuration and full dependency/rebuild delivery remain open.
 These source candidates do not reproduce or replace a DLL. All eight
 distribution requirements remain unchanged; no public release is approved.
+
+The independent later-edit follow-up verifies five header substitutions and
+qualifies all 20 sed conditions against the retained source, full vendor log and
+packaged SDK text (7 proved, 13 contradicted). The five conditional patches
+remain contradicted. The successful x64 configure branch supports the
+`ffmpeg.c` insertion condition, while final insertion counts, line endings and
+`config.mak` bytes remain unknown. This adds source provenance evidence; it does
+not close any of the eight release requirements.

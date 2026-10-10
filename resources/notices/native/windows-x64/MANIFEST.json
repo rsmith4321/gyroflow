@@ -2977,8 +2977,8 @@
   },
   {
    "path": "README.md",
-   "bytes": 9772,
-   "sha256": "1aa7c02eca9c3de6cc4b2b23ea5147efc38302b066babd43002a4bbb4e23206d",
+   "bytes": 10285,
+   "sha256": "e87f1e294e4b9ab3364f3a322118e0f5e6dd8f427b5bd7bb976f36933392cee9",
    "component": "packet",
    "role": "packet"
   },
@@ -12692,8 +12692,8 @@
   },
   {
    "path": "mdk-0.39.0-e89bc0b/bundled/evidence/FFMPEG-LATER-EDITS.json",
-   "bytes": 13736,
-   "sha256": "c5270b30a20f6e48eec61943eb91976216997336fb5ec354de8d9daa0e19d724",
+   "bytes": 15546,
+   "sha256": "2fed6d8633e9987840fdfa6521007b2de8919152e49ca350bfb3a544bf6ff339",
    "component": "mdk",
    "role": "provenance"
   },
