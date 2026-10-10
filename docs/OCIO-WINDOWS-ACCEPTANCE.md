@@ -65,7 +65,7 @@ baseline hashes afterwards (see below).
 | Double-click reset | Exposure settled at zero; the other seven values stayed unchanged |
 | Reset adjustments | All eight controls settled at zero; the LUT stayed selected |
 | Clear LUT | The selector returned to its empty state and the Clear button disappeared |
-| Save and reopen | After saving the owned project, resetting and clearing, native reopen restored all eight nonzero values and the selected LUT. Accessibility data shows the LUT restored in the selector, but the Clear button did not appear in the post-reopen snapshots, so active-LUT grading after reopen rests on the worker's visual observation |
+| Save and reopen | After saving the owned project, resetting and clearing, native reopen restored all eight nonzero values and the selected LUT. In the settled post-reopen and close-prompt accessibility snapshots the selector shows the LUT and the Clear button is present again, as a newly created accessibility element; only the snapshot taken immediately on reopen, before the project finished loading, still showed the cleared state. Active-LUT grading after reopen was worker-observed |
 | Exit | After the worker confirmed the close prompt, the application exited normally; no remaining owned window or modal |
 
 The saved grade matches the eight values listed in the export case above.
