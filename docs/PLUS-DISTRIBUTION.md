@@ -22,7 +22,7 @@ dependency source-delivery and provider requirements remain open.
 | Surface | Fork identity |
 | --- | --- |
 | Application/UI | Gyroflow+; subtitle “Stabilize · Color correct · Export”; community-fork attribution retained in documentation and notices |
-| Application version | `0.1.0-dev`; upstream core retains its own version |
+| Application version | `1.0.0` (window title “GyroFlow Plus 1.0”); upstream core retains its own version |
 | Mac bundle | `com.ryansmith.gyroflow-plus`, `Gyroflow Plus.app` |
 | Windows portable executable | `Gyroflow Plus` directory; executable keeps `Gyroflow.exe` for the embedded MDK key |
 | Settings | `Gyroflow Plus` user-data directory; Qt organization Ryan Smith |
