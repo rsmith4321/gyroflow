@@ -2,7 +2,7 @@
 
 Ryan authorized an update to [Gyroflow issue #250](https://github.com/gyroflow/gyroflow/issues/250) once a usable app download is ready. He also authorized closing [the earlier PR #1249](https://github.com/gyroflow/gyroflow/pull/1249) with an explanation. Preserve its code and discussion.
 
-PR #1249 was closed, unmerged, on October 10, 2026 UTC. The [explanation](https://github.com/gyroflow/gyroflow/pull/1249#issuecomment-6092087028) is posted; its head remains `0e4773610760a6eb7d2b05102343d64bf72b089e`. No branch or source was deleted. The issue update below remains unpublished pending a usable package.
+PR #1249 was closed, unmerged, on October 10, 2026 UTC. The [explanation](https://github.com/gyroflow/gyroflow/pull/1249#issuecomment-6092087028) is posted; its head remains `0e4773610760a6eb7d2b05102343d64bf72b089e`. No branch or source was deleted. The issue update was posted on October 10, 2026 ([comment](https://github.com/gyroflow/gyroflow/issues/250#issuecomment-6102702700)) after the Mac 1.0 release `plus-v1.0.0` (commit `755c9d3c`, DMG SHA-256 `8d48885f7cf26331b7cb2838970697d22f391a8ba683b0f5c1f98a62547d8600`) went live. The posted text adds the download link, the Mac/Apple silicon limit and the issues link to the draft below.
 
 ## Issue update draft — post after release checks
 
