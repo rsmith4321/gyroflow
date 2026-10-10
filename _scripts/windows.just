@@ -51,14 +51,17 @@ install-deps:
     # ――――――――――――――――――――――――――――――――――――――― FFmpeg ――――――――――――――――――――――――――――――――――――――――
     if (-not (Test-Path -Path "{{FFmpeg}}")) {
         echo "Downloading {{FFmpeg}}"
-        Invoke-WebRequest -Uri "https://github.com/BtbN/FFmpeg-Builds/releases/download/{{WindowsFFmpegRelease}}/{{FFmpeg}}.zip" -OutFile "{{FFmpeg}}.zip"
+        # The draft release is private: this needs the GitHub CLI signed in with access to the repository.
+        if (-not (Get-Command "gh.exe" -ErrorAction SilentlyContinue)) { throw "The GitHub CLI (gh) is required to download the slim FFmpeg bundle." }
+        gh release download "{{WindowsFFmpegRelease}}" --repo "{{WindowsFFmpegRepo}}" --pattern "{{FFmpeg}}.zip" --clobber
+        if ($LASTEXITCODE -ne 0) { throw "Downloading {{FFmpeg}}.zip from {{WindowsFFmpegRepo}} failed." }
         if ((Get-FileHash -LiteralPath "{{FFmpeg}}.zip" -Algorithm SHA256).Hash.ToLowerInvariant() -ne "{{WindowsFFmpegSHA256}}") {
             throw "FFmpeg archive SHA-256 mismatch; refusing to extract it."
         }
         Expand-Archive -LiteralPath "{{FFmpeg}}.zip" -DestinationPath .
         Remove-Item -LiteralPath "{{FFmpeg}}.zip"
     }
-    & $Python "{{ProjectDir}}/tests/export-lut/check_windows_ffmpeg.py" "{{FFMPEG_DIR}}" --target-arch "{{FFMPEG_ARCH}}"
+    & $Python "{{ProjectDir}}/tests/export-lut/check_windows_ffmpeg.py" "{{FFMPEG_DIR}}" --target-arch "{{FFMPEG_ARCH}}" --app-coverage
     if ($LASTEXITCODE -ne 0) { throw "FFmpeg bundle does not support the required export filters/codecs." }
     # ――――――――――――――――――――――――――――――――――――――― FFmpeg ――――――――――――――――――――――――――――――――――――――――
 

@@ -11,8 +11,10 @@ of original installed provider files. `.gitattributes` keeps those bytes unchang
 Later additions retain MDK bundled notices, the FreeType license choice and
 acknowledgment, and the byte-matched OpenCL SDK provider's copyright and metadata.
 The current `427a6ca4` private Windows stage has the same 120 DLL identities as
-the frozen inventory. Eight blocking requirements remain; consult the manifest
-for the current component records. A copied notice tree does not close them.
+the frozen inventory, except that the seven FFmpeg entries now record the slim
+Gyroflow+ FFmpeg archive (`docs/WINDOWS-FFMPEG-SLIM.md`) that the current pin
+builds with. Seven blocking requirements remain; consult the manifest for the
+current component records. A copied notice tree does not close them.
 
 `MANIFEST.json` lists:
 - every file with its size and SHA-256
@@ -29,7 +31,7 @@ separately from these gap classes.
 | Directory | Component | Notice text here |
 |---|---|---|
 | `qt-6.7.3/` | Qt 6.7.3: 30 DLLs and 49 plugins | Module licences and 46 third-party attributions at tag v6.7.3 |
-| `ffmpeg/` | FFmpeg n9.0.2 BtbN gpl-shared: 7 DLLs | FFmpeg, BtbN, 106 of 116 build components, 87 Rust crates and the toolchain runtimes |
+| `ffmpeg/` | FFmpeg n9.0.2, slim Gyroflow+ build of BtbN's scripts: 7 DLLs | FFmpeg, BtbN, all 27 build components, the 65 Rust crates rav1e links and the toolchain runtimes |
 | `opencv-4.14.0/` | OpenCV 4.14.0: 12 DLLs | The provider's `COPYRIGHT.txt`, identical to the repository copy |
 | `ocio-2.4.2/` | OpenColorIO_2_4.dll | None here. The tracked `resources/color` notices are staged by `package_plus.py` |
 | `rust-windows-x64-ocio/` | Gyroflow's Rust crates | None here. Include the tracked `resources/notices/rust/windows-x64-ocio` in the same `--licenses` input |

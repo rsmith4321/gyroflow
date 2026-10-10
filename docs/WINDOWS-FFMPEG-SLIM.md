@@ -69,6 +69,28 @@ filter". The Linux lite build was not inspected and is assumed to be the same.
 
 ## Status
 
-Candidate. `_scripts/common.just` switches to the slim archive only after the
-checks above pass, and the Windows native notices are regenerated for the
-smaller component set at the same time.
+Pinned since 2026-10-10. Run 38057762428 built both bundles; they are kept in
+the private draft release `ffmpeg-slim-n9.0.2-22-g46d8f462ee-r1` of this
+repository, so `windows.just` downloads them with the signed-in GitHub CLI.
+
+| Target | Archive SHA-256 | Bytes |
+|---|---|---|
+| win64 | `0926f6aca7b98307394f363973c0418cdb98ab61893f3f6a8de0e1be627a5de6` | 33,564,288 |
+| winarm64 | `a0e2484817ec803819dd5908575533ce4e90fe77c294e6daf6a6cc095ed1a423` | 22,754,298 |
+
+Both passed every check above on native runners (x64 in the build run, ARM64
+in verify run 38061390279). Compared with the full bundle, the slim one drops
+only components the app never selects: library-backed encoders and decoders
+such as xvid, vpx, opus, lame, theora, webp, jxl and openjpeg (FFmpeg's own
+VP9, Opus and Vorbis decoders remain), subtitle, OpenCL and VAAPI filters, the
+DASH and IMF demuxers and the SRT, RIST and SFTP protocols. The DLLs shrink
+from 191 MB to 89 MB.
+
+The Windows native notices list the 27 slim components and the 65 Rust crates
+rav1e links. 52 of those crates had no notice in the full-bundle tree because
+they leave no source paths in the DLLs; their texts were added from the
+checksum-verified `.crate` files.
+
+Not yet done: a Windows app build and export run with the slim bundle (needs a
+Windows machine), and public delivery of the archives and their corresponding
+source, which waits on release approval.

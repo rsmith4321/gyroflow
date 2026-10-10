@@ -20,10 +20,13 @@ export QMAKE := env_var_or_default("QMAKE", if path_exists(QtPath / "qmake.bat")
 # ――――――――――――――――――――――――――――――――――――――――― Qt ――――――――――――――――――――――――――――――――――――――――――
 
 # ――――――――――――――――――――――――――――――――――――――― FFmpeg ――――――――――――――――――――――――――――――――――――――――
-WindowsFFmpegRelease := "autobuild-2026-10-06-13-06"
+# Slim build of BtbN's scripts (docs/WINDOWS-FFMPEG-SLIM.md), kept in a private
+# draft release of this repository until a public release is approved.
+WindowsFFmpegRepo := "rsmith4321/gyroflow-plus"
+WindowsFFmpegRelease := "ffmpeg-slim-n9.0.2-22-g46d8f462ee-r1"
 WindowsFFmpegArch := if Arch == "aarch64" { "winarm64" } else { "win64" }
-WindowsFFmpegSHA256 := if Arch == "aarch64" { "21f28e33c3a3bf2a2c0b0eacedde7d62cfc707f8c034b995442276a9c0adab4c" } else { "9d971d67fea48100b623e65d3ffba480215244931492b23a41374cec7511b1ce" }
-FFmpeg := if os() == "windows"               { "ffmpeg-n9.0.2-22-g46d8f462ee-" + WindowsFFmpegArch + "-gpl-shared-9.0"
+WindowsFFmpegSHA256 := if Arch == "aarch64" { "a0e2484817ec803819dd5908575533ce4e90fe77c294e6daf6a6cc095ed1a423" } else { "0926f6aca7b98307394f363973c0418cdb98ab61893f3f6a8de0e1be627a5de6" }
+FFmpeg := if os() == "windows"               { "ffmpeg-n9.0.2-22-g46d8f462ee-" + WindowsFFmpegArch + "-gpl-shared-9.0-gyroflowplus-slim"
    } else if os() + Arch == "macosaarch64"   { "ffmpeg-arm64"
    } else if os() + Arch == "macosx86_64"    { "ffmpeg-x86_64"
    } else                                    { "ffmpeg-9.0-linux-clang-gpl-lite" }

@@ -25,6 +25,11 @@ desktop shortcut are verified below. ARM64 runtime verification remains open.
   ARM64 has a separately pinned archive/hash; its archive hash, seven target DLL
   PE machines, seven MSVC import-library COFF machines and header ABI majors pass
   structural checks on this x64 laptop. ARM64 runtime is untested.
+- 2026-10-10: the pin moved to the slim Gyroflow+ build of the same FFmpeg and
+  BtbN commits (`WINDOWS-FFMPEG-SLIM.md`). The evidence in this file was
+  gathered with the full BtbN bundle. The slim bundle passed the preflight,
+  app-coverage and encode checks on hosted Windows x64 and ARM64 runners; the
+  app itself has not been rerun on Windows with it.
 - The replacement bundle's actual x64 DLLs expose FFmpeg 9 ABIs (avfilter 12,
   avcodec 63, avutil 61), required filters, libx264/libx265, ProRes and FFV1,
   with development headers and MSVC `.lib` import libraries.
