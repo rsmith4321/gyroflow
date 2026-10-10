@@ -177,6 +177,10 @@ fn entry() {
     });
     let screen_size_inch = cpp!(unsafe[] -> f64 as "double" { auto size = QGuiApplication::primaryScreen()->physicalSize(); return std::sqrt(std::pow(size.width(), 2.0) + std::pow(size.height(), 2.0)) / (2.54 * 10.0); });
     let mut dpi = cpp!(unsafe[] -> f64 as "double" { return QGuiApplication::primaryScreen()->logicalDotsPerInch() / 96.0; });
+    // macOS reports 72 dpi, which made the UI three quarters size; use its points as-is.
+    if cfg!(target_os = "macos") {
+        dpi *= 96.0 / 72.0;
+    }
     if cfg!(any(target_os = "android", target_os = "ios")) {
         dpi *= 1.2;
     }
