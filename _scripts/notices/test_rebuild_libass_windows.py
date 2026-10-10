@@ -574,6 +574,11 @@ class Toolchain(unittest.TestCase):
             capture = json.loads((run.evidence / "COMMANDS.json").read_text())[1]
             self.assertEqual((capture["private_output"], capture["log"], capture["status"]), (True, None, "exited"))
             self.assertNotIn("sha256", capture)
+            toolchain = json.loads((run.evidence / "TOOLCHAIN.json").read_text())
+            self.assertEqual(toolchain["vswhere_installation_path"], str(root / "VS"))  # reported, not assumed
+            self.assertEqual(toolchain["developer_script_sha256"],
+                             hashlib.sha256(b"@rem fake\n").hexdigest())
+            self.assertFalse(any("2022" in str(v) or "2026" in str(v) for v in toolchain.values()))
 
     def test_unsafe_developer_path_refused(self):
         with tempfile.TemporaryDirectory() as d:
@@ -585,6 +590,171 @@ class Toolchain(unittest.TestCase):
             for bad in ('C:\\a"b\\VsDevCmd.bat', "C:\\%x%\\VsDevCmd.bat", "C:\\a&b\\VsDevCmd.bat"):
                 with self.assertRaises(RuntimeError):
                     run.developer_environment(Path(bad))
+
+SECRET = b"Path=C:\\VC\\bin\r\nACTIONS_RUNTIME_TOKEN=ghs_notarealtoken0000\r\n"
+_REAL_UNLINK = Path.unlink
+_REAL_OPEN = Path.open
+
+
+def winerror(code, path):
+    exc = PermissionError(13, "mocked Windows refusal", str(path))
+    exc.winerror = code  # what Windows sets; WinError 32 is ERROR_SHARING_VIOLATION
+    return exc
+
+
+class PrivateCapture(unittest.TestCase):
+    """Regression for hosted run 38008920591: deleting the private VsDevCmd capture raised WinError 32."""
+
+    setUp, tearDown, make, receipt = Runner.setUp, Runner.tearDown, Runner.make, Runner.receipt
+
+    def private_unlink(self, refusals):
+        """Refuse deletion of files in the private directory with the given winerror codes, then allow it."""
+        codes = list(refusals)
+
+        def unlink(path, *args, **kwargs):
+            if path.parent.name == "private" and codes:
+                raise winerror(codes.pop(0), path)
+            return _REAL_UNLINK(path, *args, **kwargs)
+        return mock.patch.object(m.Path, "unlink", autospec=True, side_effect=unlink)
+
+    def private_files(self, run):
+        return {p.name: p.read_bytes() for p in (run.work / "private").iterdir()}
+
+    def assert_private_kept_out(self, run):
+        for path in run.evidence.rglob("*"):
+            text = path.read_bytes()
+            self.assertNotIn(b"ghs_notarealtoken0000", text, path.name)
+            self.assertNotIn(b"C:\\VC", text, path.name)
+            self.assertNotIn(b"C:\\\\VC", text, path.name)
+        self.assertNotIn("sha256", self.receipt(run))
+        self.assertIsNone(self.receipt(run)["log"])
+
+    def capture(self, run, **kwargs):
+        return run.command([], seconds=120, private=True, cmdline="cmd.exe /d /s /c \"...\"", **kwargs)
+
+    def test_sharing_violation_is_tolerated_truncated_and_deleted_at_end(self):
+        run = self.make(lambda out: FakeProcess(out, exits_after=1, write=SECRET))
+        with self.private_unlink([32]):
+            self.assertEqual(self.capture(run), SECRET)  # the run continues with the captured environment
+        disposition = self.receipt(run)["private_disposition"]
+        self.assertEqual(disposition, {"state": "deletion deferred", "winerror": 32,
+                                       "contents": "truncated to 0 bytes"})
+        self.assertEqual(self.private_files(run), {"command-001.log": b""})
+        self.assert_private_kept_out(run)
+        run.finish_private()
+        self.assertEqual(self.receipt(run)["private_disposition"]["final"], {"state": "deleted"})
+        self.assertEqual(self.private_files(run), {})
+
+    def test_still_held_at_end_is_reported_not_fatal(self):
+        run = self.make(lambda out: FakeProcess(out, exits_after=1, write=SECRET))
+        with self.private_unlink([32, 32]):
+            self.capture(run)
+            run.finish_private()
+        final = self.receipt(run)["private_disposition"]["final"]
+        self.assertTrue(final["state"].startswith("still held at end"))
+        self.assertEqual(self.private_files(run), {"command-001.log": b""})
+        self.assert_private_kept_out(run)
+
+    def test_truncation_also_refused(self):
+        run = self.make(lambda out: FakeProcess(out, exits_after=1, write=SECRET))
+
+        def open_(path, mode="r", *args, **kwargs):
+            if path.parent.name == "private" and mode == "r+b":
+                raise winerror(32, path)
+            return _REAL_OPEN(path, mode, *args, **kwargs)
+        with self.private_unlink([32]), mock.patch.object(m.Path, "open", autospec=True, side_effect=open_):
+            self.assertEqual(self.capture(run), SECRET)
+        disposition = self.receipt(run)["private_disposition"]
+        self.assertEqual((disposition["contents"], disposition["truncate_error"]),
+                         ("truncation refused", {"error_type": "PermissionError", "winerror": 32}))
+        self.assert_private_kept_out(run)
+
+    def test_normal_deletion(self):
+        run = self.make(lambda out: FakeProcess(out, exits_after=1, write=SECRET))
+        self.assertEqual(self.capture(run), SECRET)
+        self.assertEqual(self.receipt(run)["private_disposition"], {"state": "deleted"})
+        self.assertEqual(self.private_files(run), {})
+        self.assertEqual(run.deferred_private, [])
+        self.assert_private_kept_out(run)
+
+    def test_other_deletion_errors_stay_errors(self):
+        run = self.make(lambda out: FakeProcess(out, exits_after=1, write=SECRET))
+        with self.private_unlink([5]):  # access denied is not a sharing violation
+            with self.assertRaises(RuntimeError):
+                self.capture(run)
+        self.assertEqual(self.receipt(run)["private_disposition"],
+                         {"state": "error", "error_type": "PermissionError", "winerror": 5})
+        self.assertEqual(run.deferred_private, [])
+        self.assert_private_kept_out(run)
+
+    def test_error_at_final_attempt_fails_strict_only(self):
+        run = self.make(lambda out: FakeProcess(out, exits_after=1, write=SECRET))
+        with self.private_unlink([32, 5]):
+            self.capture(run)
+            with self.assertRaises(RuntimeError):
+                run.finish_private()
+        self.assertEqual(self.receipt(run)["private_disposition"]["final"]["state"], "error")
+
+    def test_error_at_final_attempt_after_failure_does_not_mask_it(self):
+        run = self.make(lambda out: FakeProcess(out, exits_after=1, write=SECRET))
+        with self.private_unlink([32, 5]):
+            self.capture(run)
+            run.finish_private(strict=False)  # main() uses this on the failure path; the original error is kept
+        self.assertEqual(self.receipt(run)["private_disposition"]["final"]["state"], "error")
+        self.assertEqual(run.deferred_private, [])
+
+    def test_command_failure_stays_failure_with_sharing_violation(self):
+        run = self.make(lambda out: FakeProcess(out, exits_after=1, returncode=1, write=SECRET))
+        with self.private_unlink([32]):
+            with self.assertRaisesRegex(RuntimeError, r"failed \(exit 1\)"):
+                self.capture(run)
+        r = self.receipt(run)
+        self.assertEqual((r["exit_code"], r["private_disposition"]["state"]), (1, "deletion deferred"))
+        self.assertEqual(self.private_files(run), {"command-001.log": b""})
+        self.assert_private_kept_out(run)
+
+    def test_deadline_with_cleanup_exceptions_and_sharing_violation(self):
+        run = self.make(lambda out: FakeProcess(out, pid=4040, wait_errors=2, write=SECRET),
+                        taskkill=subprocess.TimeoutExpired("taskkill", 15), clock=Clock(100.0))
+        with self.private_unlink([32]):
+            with self.assertRaisesRegex(RuntimeError, "deadline"):
+                self.capture(run)
+        r = self.receipt(run)
+        self.assertEqual(r["status"], "deadline")
+        self.assertEqual(self.killed, [["taskkill.exe", "/PID", "4040", "/T", "/F"]])
+        self.assertEqual(r["private_disposition"]["state"], "deletion deferred")
+        self.assert_private_kept_out(run)
+
+    def test_launch_failure_disposes_empty_capture(self):
+        def boom(out):
+            raise FileNotFoundError("cmd.exe")
+        run = self.make(boom)
+        with self.assertRaises(FileNotFoundError):
+            self.capture(run)
+        r = self.receipt(run)
+        self.assertEqual((r["status"], r["private_disposition"]), ("runner error", {"state": "deleted"}))
+        self.assertEqual(self.private_files(run), {})
+
+    def test_private_read_failure_is_an_error(self):
+        run = self.make(lambda out: FakeProcess(out, exits_after=1, write=SECRET))
+        real = m.Path.read_bytes
+
+        def read_bytes(path):
+            if path.parent.name == "private":
+                raise winerror(32, path)
+            return real(path)
+        with mock.patch.object(m.Path, "read_bytes", autospec=True, side_effect=read_bytes):
+            with self.assertRaises(RuntimeError):
+                self.capture(run)
+        r = self.receipt(run)
+        self.assertEqual((r["private_read_error"], r["private_disposition"]), ("PermissionError", {"state": "deleted"}))
+
+    def test_public_logs_unaffected(self):
+        run = self.make(lambda out: FakeProcess(out, exits_after=1, write=b"ok\n"))
+        with self.private_unlink([32]):
+            self.assertEqual(run.command(["cmake", "--version"]), "ok\n")
+        self.assertNotIn("private_disposition", self.receipt(run))
+        self.assertEqual(run.deferred_private, [])
 
 
 class Static(unittest.TestCase):

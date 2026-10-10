@@ -44,7 +44,8 @@ MAX_LOG_BYTES = 12 * 1024 * 1024
 MAX_TOTAL_LOG_BYTES = 24 * 1024 * 1024
 POLL_SECONDS = 0.2
 WHOLE_SECONDS = 900
-NOT_RUN = ("Hosted VS2022 differs from vendor VS2026; no vendor-identical DLL or version-metadata claim. "
+NOT_RUN = ("The hosted Visual Studio is whatever vswhere reports for this run (TOOLCHAIN.json); it is not shown "
+           "to match the vendor's build and no vendor-identical compiler, version-metadata or DLL claim is made. "
            "No app install/runtime test, complete corresponding-source or release approval.")
 
 # Vendor x64 link of libass.dll (devpkgs job log line 1630), relative to the build directory.
@@ -74,6 +75,7 @@ NASM_PERLREQ = (
     "macros/macros.c", "asm/pptok.ph", "asm/directbl.c", "asm/directiv.h", "asm/warnings.c",
     "include/warnings.h", "doc/warnings.src", "misc/nasmtok.el", "version.h", "version.mac",
     "version.mak", "nsis/version.nsh")
+ERROR_SHARING_VIOLATION = 32  # Windows: another process still holds an open handle to the file
 TOOLS = ("git.exe", "cl.exe", "link.exe", "nmake.exe", "cmake.exe", "ninja.exe", "perl.exe", "dumpbin.exe")
 
 
@@ -340,6 +342,7 @@ class Run:
         self.env = normalize_windows_env(environ)
         self.env.update(GIT_TERMINAL_PROMPT="0", GCM_INTERACTIVE="Never")
         self.tools = {}
+        self.deferred_private = []  # (record, path) whose deletion Windows refused with a sharing violation
         self.commands = []
         self.sources = []
         self.log_total = 0
@@ -368,6 +371,46 @@ class Run:
                 notes.append({"step": step, "error": type(exc).__name__})
         return notes
 
+    def dispose_private(self, log: Path) -> dict:
+        """Delete a private capture. Only a Windows sharing violation is tolerated: a process outside our control
+        can still hold an inherited handle after our child exits. The bytes are then truncated away and deletion is
+        attempted once more at the end of the run. Every other error is reported, never hidden."""
+        try:
+            log.unlink()
+            return {"state": "deleted"}
+        except FileNotFoundError:
+            return {"state": "absent"}
+        except OSError as exc:
+            if getattr(exc, "winerror", None) != ERROR_SHARING_VIOLATION:
+                return {"state": "error", "error_type": type(exc).__name__,
+                        "winerror": getattr(exc, "winerror", None)}
+        disposition = {"state": "deletion deferred", "winerror": ERROR_SHARING_VIOLATION}
+        try:
+            with log.open("r+b") as handle:
+                handle.truncate(0)
+            disposition["contents"] = "truncated to 0 bytes"
+        except OSError as exc:
+            disposition["contents"] = "truncation refused"
+            disposition["truncate_error"] = {"error_type": type(exc).__name__,
+                                             "winerror": getattr(exc, "winerror", None)}
+        return disposition
+
+    def finish_private(self, strict=True) -> None:
+        """One final deletion attempt for deferred private captures; no waiting and no process cleanup."""
+        pending, self.deferred_private = self.deferred_private, []
+        errors = []
+        for record, log in pending:
+            final = self.dispose_private(log)
+            if final["state"] == "deletion deferred":
+                final["state"] = "still held at end; left in RUNNER_TEMP, outside the uploaded evidence"
+            record["private_disposition"]["final"] = final
+            if final["state"] == "error":
+                errors.append(record["number"])
+        if pending:
+            self.save("COMMANDS.json", self.commands)
+        if errors and strict:
+            raise RuntimeError("Private capture removal failed for command(s) " + ", ".join(map(str, errors)) + ".")
+
     def command(self, args, cwd=None, seconds=300, private=False, cmdline=None):
         """Run one bounded command and keep its receipt whatever happens; private output is never uploaded."""
         args = [str(x) for x in args]
@@ -384,7 +427,7 @@ class Run:
                   "seconds_allowed": round(limit - began, 3), "log_cap_bytes": cap}
         self.commands.append(record)
         self.save("COMMANDS.json", self.commands)
-        process, stopped, cleanup = None, None, []
+        process, stopped, cleanup, data = None, None, [], None
         try:
             with log.open("wb") as output:
                 process = self.popen(cmdline or args, cwd=cwd or self.work, env=self.env,
@@ -420,13 +463,23 @@ class Run:
                     record["retained_bytes"] = cap
             if not private:
                 self.log_total += min(size, cap)
+            else:
+                if "runner_error" not in record and not stopped and process.returncode == 0:
+                    try:
+                        data = log.read_bytes()
+                    except OSError as exc:
+                        record["private_read_error"] = type(exc).__name__
+                record["private_disposition"] = self.dispose_private(log)
+                if record["private_disposition"]["state"] == "deletion deferred":
+                    self.deferred_private.append((record, log))
             self.save("COMMANDS.json", self.commands)
-        data = log.read_bytes()
-        if private:
-            log.unlink()
         if stopped or process.returncode:
             raise RuntimeError(f"Command {number} failed ({stopped or 'exit ' + str(process.returncode)}).")
-        return data if private else data.decode("utf-8", errors="replace")
+        if private:
+            if data is None or record["private_disposition"]["state"] == "error":
+                raise RuntimeError(f"Command {number}: private capture could not be read or removed.")
+            return data
+        return log.read_bytes().decode("utf-8", errors="replace")
 
     def git(self, args, cwd=None):
         return self.command([self.tools["git.exe"], "-c", "credential.helper=", "-c", "core.autocrlf=false",
@@ -473,6 +526,11 @@ class Run:
         if not developer.is_file():
             raise RuntimeError("MSVC developer environment unavailable.")
         self.developer_environment(developer)
+        # Identity of the hosted toolchain actually used (no new commands; the vswhere output is also logged).
+        self.save("TOOLCHAIN.json", {"vswhere_installation_path": install,
+                                     "developer_script": str(developer), "developer_script_sha256": digest(developer),
+                                     "note": "Tool paths and hashes follow in <tool>.json; no version is inferred "
+                                             "from the installation directory name."})
         # Child lookup on Windows uses this process's PATH, not env=; always call tools by resolved path.
         for tool in TOOLS:
             path = shutil.which(tool, path=self.env["PATH"])
@@ -558,7 +616,9 @@ def main():
         run.acquire()
         run.toolchain()
         run.build()
+        run.finish_private()
     except BaseException as exc:
+        run.finish_private(strict=False)
         run.save("RESULT.json", {"status":"failed", "error_type":type(exc).__name__,
                                  "error":str(exc)[:500], "seconds":run.clock()-run.start,
                                  "ended_utc": utc(), "public_release_approved":False})

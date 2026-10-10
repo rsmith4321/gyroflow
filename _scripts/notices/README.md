@@ -210,10 +210,17 @@ its official source, limits compilation to two jobs, and records commands, sourc
 identities and tool hashes. The source work has a fifteen-minute budget and the
 job has a twenty-minute timeout. Log caps are checked by polling; retained logs
 are truncated if a cap is exceeded. The private developer environment capture
-is excluded from artifacts.
+is excluded from artifacts. If Windows refuses to delete it because another
+process still holds a handle (WinError 32), the runner attempts to truncate it,
+records the disposition without contents or hash, and tries deletion once more
+at the end of the run. Truncation can also be refused, and an inherited handle
+can write later; the capture remains outside the uploaded evidence. Any other
+deletion error fails the run.
 
 The candidate passed 47 isolated standard-library mocked tests in Claude's v13
-review. Root independently checked the packet/output hashes, twelve source
+review. The targeted v14 cleanup regression suite reported 58 passing mocked
+tests and one explicit missing-fixture skip. Root independently checked the
+packet/output hashes, twelve source
 archives, twenty-one quoted source ranges and exact patch replay. Those checks
 do not establish that a Windows source build or relink works. Run the reusable
 mocked tests from a checkout with:
@@ -227,7 +234,12 @@ Set `V13_LIBASS_SYM` to `libass/libass.sym` extracted as data from the pinned
 that file, the corresponding fixture is explicitly skipped.
 
 A hosted run must verify the real MSVC/Ninja formats, NASM generation, assembly,
-static link graph and relink. Hosted VS2022 and shallow source metadata differ
-from the vendor's VS2026 build; no identical DLL or complete corresponding-source
-claim follows. Native source and provider requirements remain blocking until
-their separate evidence and delivery checks pass.
+static link graph and relink. The hosted Visual Studio is discovered with
+vswhere on each run and recorded with tool paths and hashes; hosted run
+38008920591 reported `C:\Program Files\Microsoft Visual Studio\18\Enterprise`.
+That path does not by itself establish a compiler version or show that the
+toolchain matches the vendor's build. Shallow source checkouts also change
+libass version metadata. No vendor-identical compiler, metadata or DLL, and no
+complete corresponding-source claim follows. Native source and provider
+requirements remain blocking until their separate evidence and delivery checks
+pass.
