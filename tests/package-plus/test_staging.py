@@ -345,6 +345,8 @@ class MacDependencyTests(unittest.TestCase):
             path.write_text(value)
         shutil.copytree(ROOT / PACKET, repo / PACKET)
         shutil.copy2(ROOT / 'resources/color/OCIO-LICENSE.txt', repo / 'resources/color')
+        (repo / 'resources/gyrograde').mkdir(parents=True)
+        shutil.copy2(ROOT / 'resources/gyrograde/AppIcon.icns', repo / 'resources/gyrograde')
         shutil.copytree(ROOT / 'resources/lens-profiles-v41', repo / 'resources/lens-profiles-v41')
         shutil.copytree(ROOT / 'vendor/qmetaobject-rs', repo / 'vendor/qmetaobject-rs')
         shutil.copytree(ROOT / 'vendor/ffmpeg-sys-next-9.0.0', repo / 'vendor/ffmpeg-sys-next-9.0.0')
@@ -718,6 +720,8 @@ class MacDependencyTests(unittest.TestCase):
             info=plistlib.load(stream)
         self.assertNotIn('GyroGradeSourceCommit',info)
         self.assertEqual(info['GyroGradeCheckoutCommit'],'1234567890abcdef')
+        self.assertEqual(info['CFBundleIconFile'],'AppIcon.icns')
+        self.assertEqual((self.stage_app/'Contents/Resources/AppIcon.icns').read_bytes(),(ROOT/'resources/gyrograde/AppIcon.icns').read_bytes())
         self.assertFalse(receipt['public_release_approved'])
         check = self.stage_app / 'Contents/Resources/Notices/OpenColorIO-third-party/STAGE-CHECK.json'
         self.assertEqual(json.loads(check.read_text())['errors'], [])

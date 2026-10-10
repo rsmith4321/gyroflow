@@ -461,11 +461,12 @@ def main():
         shutil.rmtree(app/'Contents/_CodeSignature',ignore_errors=True)
         contents=app/'Contents';resources=contents/'Resources'
         resources.mkdir(exist_ok=True)
+        shutil.copy2(ROOT/'resources/gyrograde/AppIcon.icns',resources/'AppIcon.icns')
         shutil.copy2(binary,contents/'MacOS/gyroflow')
         plist=contents/'Info.plist'
         with plist.open('rb') as f: info=plistlib.load(f)
         info.update(CFBundleDisplayName='GyroGrade',CFBundleName='GyroGrade',
-                    CFBundleIdentifier='com.ryansmith.gyrograde',CFBundleExecutable='gyroflow',
+                    CFBundleIdentifier='com.ryansmith.gyrograde',CFBundleExecutable='gyroflow',CFBundleIconFile='AppIcon.icns',
                     CFBundleShortVersionString=version.split('-')[0],CFBundleVersion=version.split('-')[0],
                     GyroGradeVersion=version,GyroGradeCheckoutCommit=commit,
                     GyroGradeDevelopmentRuntime=args.development_runtime,
