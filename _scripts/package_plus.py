@@ -16,6 +16,7 @@ import plistlib
 import re
 import shutil
 import subprocess
+import sys
 import tomllib
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -29,6 +30,12 @@ def msvc_version(value):
     if not re.fullmatch(r'\d+\.\d+\.\d+\.\d+', value):
         raise argparse.ArgumentTypeError('Use the full MSVC redistributable FileVersion, e.g. 14.44.35211.0')
     return tuple(map(int, value.split('.')))
+
+
+def sha256_hex(value):
+    if not re.fullmatch(r'[0-9a-f]{64}', value):
+        raise argparse.ArgumentTypeError('Use a lowercase 64-character SHA-256')
+    return value
 
 
 def copy_qmetaobject_notices(notices):
@@ -47,6 +54,33 @@ def copy_ffmpeg_sys_notices(notices):
         shutil.copy2(ROOT/'vendor/ffmpeg-sys-next-9.0.0'/name, target/name)
     shutil.copy2(ROOT/'vendor/README.md', target/'PROVENANCE.md')
     shutil.copy2(ROOT/'vendor/ffmpeg-sys-next-9.0.0.patch', target/'PATCH.diff')
+
+
+def bind_native_notices(dependencies, manifest_sha256):
+    """Identify the reviewed native notice tree a Windows stage carries.
+
+    Exactly one MANIFEST.json inside the copied --licenses tree must match the
+    pin. Integrity must pass; the release-complete result (3 while recorded
+    gaps remain) is recorded, never treated as approval. Third-party source
+    bundles stay unbound until a delivery route is chosen."""
+    sha=lambda path: hashlib.sha256(path.read_bytes()).hexdigest()
+    report=dict(manifest_sha256=manifest_sha256,manifest_path=None,integrity_exit=None,
+        release_complete_exit=None,
+        source_bundles=dict(qt=None,libass=None,mesa=None,delivery='open'),errors=[])
+    found=[p for p in sorted(dependencies.rglob('MANIFEST.json')) if p.is_file() and sha(p)==manifest_sha256] \
+        if dependencies.is_dir() else []
+    if len(found)!=1:
+        report['errors'].append(f'Expected one native notice MANIFEST.json with SHA-256 {manifest_sha256} '
+                                f'in the supplied notices; found {len(found)}')
+    else:
+        report['manifest_path']=found[0].relative_to(dependencies).as_posix()
+        verify=[sys.executable,'-I',str(ROOT/'_scripts/notices/verify_native_notices.py'),str(found[0].parent),
+                '--repo-root',str(ROOT),'--manifest-sha256',manifest_sha256]
+        report['integrity_exit']=subprocess.run(verify,capture_output=True).returncode
+        report['release_complete_exit']=subprocess.run(verify+['--require-release-complete'],capture_output=True).returncode
+        if report['integrity_exit']!=0:
+            report['errors'].append(f'Native notice integrity check exited {report["integrity_exit"]}')
+    return report
 
 
 def copy_ocio_notices(app, notices):
@@ -332,6 +366,7 @@ def main():
     parser.add_argument('--development-runtime',action='store_true')
     parser.add_argument('--deploy-receipt',type=Path,help='Mac: build_plus.py receipt; Windows: win64-deploy.json written by just deploy')
     parser.add_argument('--msvc-redist-floor',type=msvc_version,help='Windows: required C++ redistributable FileVersion for the newest toolset among staged components, e.g. 14.44.35211.0')
+    parser.add_argument('--native-notices-sha256',type=sha256_hex,help='Windows: SHA-256 of the reviewed native notice MANIFEST.json inside --licenses')
     args=parser.parse_args()
     runtime=args.runtime.resolve(strict=True);binary=args.binary.resolve(strict=True)
     output=args.output.resolve()
@@ -361,6 +396,8 @@ def main():
     if args.platform=='windows' and not args.development_runtime:
         if not args.msvc_redist_floor:
             parser.error('Windows stages require --deploy-receipt and --msvc-redist-floor')
+        if not args.native_notices_sha256:
+            parser.error('Windows stages require --native-notices-sha256 for the supplied native notice tree')
         runtime_exe=runtime/'Gyroflow.exe'
         if not runtime_exe.is_file() or hashlib.sha256(runtime_exe.read_bytes()).hexdigest()!=binary_hash:
             parser.error('Deploy receipt, --binary and runtime Gyroflow.exe must be one clean build of this commit')
@@ -433,6 +470,11 @@ def main():
     copy_qmetaobject_notices(notices)
     copy_ffmpeg_sys_notices(notices)
     if args.licenses: shutil.copytree(args.licenses.resolve(strict=True),notices/'Dependencies')
+    native_notices=None
+    if args.platform=='windows' and args.native_notices_sha256:
+        native_notices=bind_native_notices(notices/'Dependencies',args.native_notices_sha256)
+        if not args.development_runtime and native_notices['errors']:
+            raise RuntimeError('Native notice binding failed: '+'; '.join(native_notices['errors']))
     ocio_notices=copy_ocio_notices(app,notices)
     if not args.development_runtime and ocio_notices['errors']:
         raise RuntimeError('OpenColorIO notice check failed: '+'; '.join(ocio_notices['errors']))
@@ -446,7 +488,7 @@ def main():
         input_binary_sha256=binary_hash,
         source=f'https://github.com/rsmith4321/gyroflow-plus/tree/{binary_commit}' if binary_commit else None,
         checkout_source=f'https://github.com/rsmith4321/gyroflow-plus/tree/{commit}',external_mac_dependencies=external,
-        lens_profiles=lens_profiles,public_release_approved=False)
+        lens_profiles=lens_profiles,native_notices=native_notices,public_release_approved=False)
     if mac_audit is not None: manifest['mac_runtime_audit'] = mac_audit
     if windows_audit is not None: manifest['windows_runtime_audit'] = windows_audit
     (notices/'BUILD.json').write_text(json.dumps(manifest,indent=2)+'\n')
@@ -463,7 +505,7 @@ def main():
         binary_source_verified=receipt_in is not None, platform=args.platform,
         packaged_binary_sha256=hashlib.sha256(packaged_binary.read_bytes()).hexdigest(),
         input_binary_sha256=manifest['input_binary_sha256'], lens_profiles=lens_profiles,
-        development_runtime=args.development_runtime, public_release_approved=False)
+        development_runtime=args.development_runtime, native_notices=native_notices, public_release_approved=False)
     if mac_audit is not None: receipt['mac_runtime_audit'] = mac_audit
     if windows_audit is not None:
         receipt['windows_runtime_audit'] = {key: windows_audit.get(key) for key in ('machine', 'errors',

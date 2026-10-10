@@ -34,7 +34,8 @@ class StagingTests(unittest.TestCase):
                 exe_sha256=hashlib.sha256(binary.read_bytes()).hexdigest(),crt_source='fixture')))
             command=['package_plus.py','windows',str(runtime),str(root/'stage'),
                 '--binary',str(binary),'--licenses',str(root/'notices'),
-                '--deploy-receipt',str(receipt),'--msvc-redist-floor','14.51.36260.0']
+                '--deploy-receipt',str(receipt),'--msvc-redist-floor','14.51.36260.0',
+                '--native-notices-sha256','0'*64]
             with patch.object(stager,'ROOT',root),patch.object(sys,'argv',command), \
                  patch.object(stager,'git',side_effect=lambda *args: b'' if args[0]=='status' else commit.encode()), \
                  patch.object(stager.shutil,'copytree',side_effect=RuntimeError('staging reached')), \
@@ -101,6 +102,68 @@ class StagingTests(unittest.TestCase):
                         stager.main()
                     self.assertEqual(failure.exception.code, 2)
                     self.assertFalse(output.exists())
+
+    def test_windows_release_stage_requires_native_notice_pin_before_output_creation(self):
+        with tempfile.TemporaryDirectory(prefix='plus-windows-notice-pin-') as temporary:
+            root=Path(temporary);runtime=root/'runtime';runtime.mkdir()
+            (root/'Cargo.toml').write_text('[package]\nversion="0.1.0-dev"\n')
+            binary=root/'gyroflow.exe';binary.write_bytes(b'synthetic; never executed')
+            shutil.copy2(binary,runtime/'Gyroflow.exe')
+            receipt=root/'receipt.json';commit='a'*40
+            receipt.write_text(json.dumps(dict(commit=commit,dirty=False,features='ocio-runtime',
+                exe_sha256=hashlib.sha256(binary.read_bytes()).hexdigest())))
+            base=['package_plus.py','windows',str(runtime),str(root/'stage'),'--binary',str(binary),
+                '--licenses',str(root/'notices'),'--deploy-receipt',str(receipt),'--msvc-redist-floor','14.51.36260.0']
+            for extra in ([],['--native-notices-sha256','ABC'],['--native-notices-sha256','0'*63]):
+                with self.subTest(extra=extra), patch.object(stager,'ROOT',root), patch.object(sys,'argv',base+extra), \
+                     patch.object(stager,'git',side_effect=lambda *args: b'' if args[0]=='status' else commit.encode()), \
+                     contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as failure:
+                    stager.main()
+                self.assertEqual(failure.exception.code,2)
+                self.assertFalse((root/'stage').exists())
+
+
+class NativeNoticeBindingTests(unittest.TestCase):
+    """Binds the tracked reviewed tree; the verifier runs offline on copies only."""
+    TREE=ROOT/'resources/notices/native/windows-x64'
+
+    @classmethod
+    def setUpClass(cls):
+        cls.temporary=tempfile.TemporaryDirectory(prefix='plus-native-notices-')
+        cls.dependencies=Path(cls.temporary.name)/'Dependencies'
+        shutil.copytree(cls.TREE,cls.dependencies/'native/windows-x64')
+        cls.pin=hashlib.sha256((cls.TREE/'MANIFEST.json').read_bytes()).hexdigest()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.temporary.cleanup()
+
+    def test_pinned_tree_records_integrity_and_release_gaps(self):
+        report=stager.bind_native_notices(self.dependencies,self.pin)
+        self.assertEqual(report['errors'],[])
+        self.assertEqual(report['manifest_path'],'native/windows-x64/MANIFEST.json')
+        self.assertEqual(report['integrity_exit'],0)
+        # Recorded release gaps remain; binding never turns them into approval.
+        self.assertEqual(report['release_complete_exit'],3)
+        self.assertEqual(report['source_bundles'],dict(qt=None,libass=None,mesa=None,delivery='open'))
+
+    def test_unmatched_pin_or_missing_tree_is_an_error(self):
+        for dependencies,pin in ((self.dependencies,'0'*64),(self.dependencies/'absent',self.pin)):
+            with self.subTest(dependencies=dependencies.name,pin=pin[:8]):
+                report=stager.bind_native_notices(dependencies,pin)
+                self.assertIsNone(report['integrity_exit'])
+                self.assertIn('found 0',report['errors'][0])
+
+    def test_edited_member_fails_integrity(self):
+        with tempfile.TemporaryDirectory(prefix='plus-native-notices-edited-') as temporary:
+            dependencies=Path(temporary)/'Dependencies'
+            shutil.copytree(self.TREE,dependencies/'windows-x64')
+            member=next(p for p in sorted((dependencies/'windows-x64').rglob('*'))
+                        if p.is_file() and p.name not in ('MANIFEST.json','README.md'))
+            member.write_bytes(member.read_bytes()+b'\nedited')
+            report=stager.bind_native_notices(dependencies,self.pin)
+            self.assertNotEqual(report['integrity_exit'],0)
+            self.assertTrue(any('integrity' in error for error in report['errors']))
 
 
 class QtNoticeTests(unittest.TestCase):

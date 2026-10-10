@@ -143,8 +143,17 @@ python _scripts/package_plus.py windows _deployment/_binaries/win64 path/to/new-
   --binary target/x86_64-pc-windows-msvc/deploy/gyroflow.exe `
   --deploy-receipt _deployment/_binaries/win64-deploy.json `
   --msvc-redist-floor 14.44.35211.0 `
-  --licenses path/to/dependency-notices
+  --licenses path/to/dependency-notices `
+  --native-notices-sha256 41edb624f5aa46aab954d03555b33ba18876d36546df68248b45de1192433530
 ```
+
+`--native-notices-sha256` pins the reviewed native notice tree, which must be
+inside the `--licenses` directory. Staging fails unless exactly one
+`MANIFEST.json` there has that hash and its integrity check passes.
+`BUILD.json` and `PACKAGE.json` record the manifest hash and path, the
+integrity result and the `--require-release-complete` result. That result stays
+3 while the recorded release gaps remain. Third-party source bundles are recorded
+as not yet delivered.
 
 The floor above is an example; replace it with the full FileVersion required by
 the newest toolset used to build the app, OCIO, Qt and OpenCV. Run deploy in a
