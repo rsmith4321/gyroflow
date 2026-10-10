@@ -157,6 +157,8 @@ def main():
     parser.add_argument('--jobs', type=int, default=6)
     args = parser.parse_args()
     tree = args.tree.resolve(strict=True)
+    # git archive runs inside each cached repository, so paths must be absolute.
+    args.cache, args.output = args.cache.resolve(), args.output.resolve()
     manifest = json.loads((tree/'MANIFEST.json').read_text())
     identity = manifest['components']['ffmpeg']['identity']
     args.cache.mkdir(parents=True, exist_ok=True)
@@ -164,7 +166,7 @@ def main():
     components_dir.mkdir(parents=True, exist_ok=True)
     items = components(tree)
     with concurrent.futures.ThreadPoolExecutor(args.jobs) as pool:
-        results = list(pool.map(lambda item: archive(item, args.cache.resolve(), components_dir), items))
+        results = list(pool.map(lambda item: archive(item, args.cache, components_dir), items))
     for result in results:
         state = result['archive'] or f'MISSING: {result["error"]}'
         print(f'{result["component"]}: {state}', flush=True)

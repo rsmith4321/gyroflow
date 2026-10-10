@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Local synthetic repositories only; no network."""
-import contextlib, hashlib, importlib.util, io, json, subprocess, sys, tarfile, tempfile, unittest
+import contextlib, hashlib, importlib.util, io, json, os, subprocess, sys, tarfile, tempfile, unittest
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -41,15 +41,17 @@ class SourceBundleBuilderTests(unittest.TestCase):
         self.temporary.cleanup()
 
     def run_builder(self):
-        output = self.root/'out'
-        argv = ['build', str(self.tree), str(self.root/'cache'), str(output), '--jobs', '2']
-        saved, sys.argv = sys.argv, argv
+        # Relative cache and output paths, as a user would pass them.
+        argv = ['build', str(self.tree), 'cache', 'out', '--jobs', '2']
+        saved, sys.argv, cwd = sys.argv, argv, os.getcwd()
+        os.chdir(self.root)
         try:
             with contextlib.redirect_stdout(io.StringIO()):
                 code = builder.main()
         finally:
             sys.argv = saved
-        return output, code
+            os.chdir(cwd)
+        return self.root/'out', code
 
     def test_pinned_tree_is_archived_and_missing_components_are_listed(self):
         output, code = self.run_builder()
