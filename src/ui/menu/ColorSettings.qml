@@ -230,7 +230,7 @@ MenuItem {
     }
 
     MenuItem {
-        text: qsTr("Find & organize LUTs");
+        text: qsTr("Find && organize LUTs"); // "&&" shows one "&"; a single one marks a shortcut key
         objectName: "color-lut-library";
         opened: false;
         QQD.FolderDialog {
