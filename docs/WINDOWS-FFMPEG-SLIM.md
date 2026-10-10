@@ -57,6 +57,16 @@ pinned toolchain images, then on native Windows x64 and ARM64 runners:
 
 Hardware encoders are checked for presence only; hosted runners have no GPUs.
 
+## Mac and Linux
+
+macOS and Linux still use avbuild's GPL-lite builds. The installed Mac app
+(`/Applications/Gyroflow Plus.app`, built with `ocio-runtime`) contains the
+filter names `scale`, `colorspace` and `buffersink` but neither `lut3d` nor
+`geq` (2026-10-10, `strings` on the binary). Its LUT export works because the
+OCIO runtime applies the LUT without FFmpeg. A default (legacy) Mac build
+would fail LUT export with "This FFmpeg build does not include the lut3d
+filter". The Linux lite build was not inspected and is assumed to be the same.
+
 ## Status
 
 Candidate. `_scripts/common.just` switches to the slim archive only after the

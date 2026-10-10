@@ -3,7 +3,7 @@
 """Exercise a Windows FFmpeg bundle's CLI the way Gyroflow+ exports use it.
 
 Usage:
-  smoke_encode.py <FFMPEG_DIR> --work <dir>      encode/decode smoke tests
+  smoke_encode.py <FFMPEG_DIR> --work <dir> [--arch arm64]  encode/decode smoke tests
   smoke_encode.py <FFMPEG_DIR> --dump <out.json> list the bundle's components
   smoke_encode.py --diff <full.json> <slim.json> report what a slim bundle drops
 
@@ -33,6 +33,8 @@ CASES = [
     ("png", "png_%03d.png", ["-pix_fmt", "rgb48be"], "320x180"),
     ("exr", "exr_%03d.exr", ["-pix_fmt", "gbrpf32le"], "320x180"),
 ]
+# BtbN does not build aom for Windows ARM64, in either bundle.
+ARM64_ABSENT = {"libaom-av1"}
 AUDIO_CASES = [("aac", "aac.mp4"), ("alac", "alac.mov"), ("pcm_s16le", "pcm16.mov"),
                ("pcm_s24be", "pcm24.mov")]
 LISTS = ["encoders", "decoders", "muxers", "demuxers", "filters", "hwaccels",
@@ -54,13 +56,16 @@ def run(command, cwd=None):
     return result.stdout
 
 
-def smoke(bundle, work):
+def smoke(bundle, work, arch="x64"):
     ffmpeg = binary(bundle, "ffmpeg")
     work = Path(work)
     work.mkdir(parents=True, exist_ok=True)
     base = [ffmpeg, "-hide_banner", "-nostdin", "-loglevel", "error", "-y"]
     results = {}
     for encoder, output, extra, size in CASES:
+        if arch == "arm64" and encoder in ARM64_ABSENT:
+            results[encoder] = "not built for arm64"
+            continue
         run(base + ["-f", "lavfi", "-i", VIDEO.format(size=size), "-c:v", encoder]
             + extra + [output], cwd=work)
         decoded = output.replace("%03d", "001")
@@ -123,6 +128,7 @@ if __name__ == "__main__":
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("bundle", nargs="?")
     parser.add_argument("--work")
+    parser.add_argument("--arch", choices=["x64", "arm64"], default="x64")
     parser.add_argument("--dump")
     parser.add_argument("--diff", nargs=2, metavar=("FULL", "SLIM"))
     args = parser.parse_args()
@@ -132,7 +138,7 @@ if __name__ == "__main__":
         elif args.bundle and args.dump:
             Path(args.dump).write_text(json.dumps(dump(args.bundle), indent=1, sort_keys=True))
         elif args.bundle and args.work:
-            print(json.dumps(smoke(args.bundle, args.work), indent=1, sort_keys=True))
+            print(json.dumps(smoke(args.bundle, args.work, args.arch), indent=1, sort_keys=True))
         else:
             parser.error("give a bundle with --work or --dump, or --diff FULL SLIM")
     except (OSError, RuntimeError, subprocess.TimeoutExpired) as error:

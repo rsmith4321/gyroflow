@@ -6,6 +6,11 @@ name: Windows FFmpeg slim
 
 on:
   workflow_dispatch:
+    inputs:
+      verify_run_id:
+        description: Verify the bundles built by this earlier run instead of building
+        required: false
+        default: ''
   push:
     branches: [codex/lut-preview-controls]
     paths:
@@ -14,14 +19,15 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
-  group: windows-ffmpeg-slim-${{ github.ref }}
+  group: windows-ffmpeg-slim-${{ github.ref }}-${{ inputs.verify_run_id }}
   cancel-in-progress: true
 
 jobs:
   build:
-    if: github.repository == 'rsmith4321/gyroflow-plus'
+    if: github.repository == 'rsmith4321/gyroflow-plus' && !inputs.verify_run_id
     name: Build ${{ matrix.target }}
     runs-on: ubuntu-24.04
     timeout-minutes: 340
@@ -112,6 +118,9 @@ jobs:
   verify:
     name: Verify ${{ matrix.target }}
     needs: build
+    if: >-
+      always() && github.repository == 'rsmith4321/gyroflow-plus' &&
+      (needs.build.result == 'success' || (inputs.verify_run_id && needs.build.result == 'skipped'))
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 60
     strategy:
@@ -129,7 +138,6 @@ jobs:
           persist-credentials: false
           sparse-checkout-cone-mode: false
           sparse-checkout: |
-            _scripts/common.just
             _scripts/ffmpeg-windows
             tests/export-lut/check_windows_ffmpeg.py
 
@@ -142,6 +150,8 @@ jobs:
         with:
           name: ffmpeg-slim-${{ matrix.target }}
           path: slim-artifact
+          run-id: ${{ inputs.verify_run_id || github.run_id }}
+          github-token: ${{ github.token }}
 
       - name: Extract slim bundle
         run: |
@@ -152,10 +162,10 @@ jobs:
 
       - name: Fetch the pinned full BtbN bundle for comparison
         run: |
-          $just = Get-Content _scripts/common.just -Raw
-          $release = [regex]::Match($just, 'WindowsFFmpegRelease := "([^"]+)"').Groups[1].Value
-          $hashes = [regex]::Match($just, 'WindowsFFmpegSHA256 := if Arch == "aarch64" \{ "([0-9a-f]{64})" \} else \{ "([0-9a-f]{64})" \}')
-          $sha = if ("${{ matrix.target }}" -eq "winarm64") { $hashes.Groups[1].Value } else { $hashes.Groups[2].Value }
+          $pin = Get-Content _scripts/ffmpeg-windows/slim.pin -Raw
+          $release = [regex]::Match($pin, '(?m)^full_release=(\S+)').Groups[1].Value
+          $sha = [regex]::Match($pin, '(?m)^full_${{ matrix.target }}_sha256=([0-9a-f]{64})').Groups[1].Value
+          if (-not $release -or -not $sha) { throw "Missing full bundle pin" }
           $name = "ffmpeg-n9.0.2-22-g46d8f462ee-${{ matrix.target }}-gpl-shared-9.0"
           Invoke-WebRequest -Uri "https://github.com/BtbN/FFmpeg-Builds/releases/download/$release/$name.zip" -OutFile full.zip
           if ((Get-FileHash full.zip -Algorithm SHA256).Hash.ToLowerInvariant() -ne $sha) { throw "Full bundle hash mismatch" }
@@ -175,7 +185,7 @@ jobs:
 
       - name: Encode smoke test (slim)
         run: |
-          python _scripts/ffmpeg-windows/smoke_encode.py "$env:SLIM" --work smoke
+          python _scripts/ffmpeg-windows/smoke_encode.py "$env:SLIM" --work smoke --arch ${{ matrix.arch }}
           if ($LASTEXITCODE -ne 0) { throw "smoke test failed" }
 
       - name: Compare with the full bundle
