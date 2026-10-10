@@ -63,6 +63,10 @@ pub fn data_dir() -> PathBuf {
                     let pw_dir = OsString::from_vec(bytes);
                     path = PathBuf::from(pw_dir);
                     path.push("Library");
+                    // The App Store edition can only write inside its own container.
+                    if let Ok(id) = std::env::var("APP_SANDBOX_CONTAINER_ID") {
+                        path.extend(["Containers", id.as_str(), "Data", "Library"]);
+                    }
                     path.push("Application Support");
                     path.push("Gyroflow Plus");
                 }
