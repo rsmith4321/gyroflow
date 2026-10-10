@@ -6,6 +6,7 @@ V13_CANDIDATE_DIR and V13_WORKFLOW_PATH may name isolated reviewed candidate fil
 V13_LIBASS_SYM may name the pinned libass.sym for the optional 50-export fixture.
 V15_NASM_MAKEFILE may name the pinned NASM Mkfiles/msvc.mak for the recipe-adaptation fixture.
 V16_NASM_CONFIG_DIR may name the pinned NASM config/ directory for configuration-header fixtures.
+V17_HOSTED_GRAPH may name the complete command-094.log from hosted run 38013124997 (data only).
 
 No Windows runner, source build, compiler, assembler, generator, Perl, DLL, network or real
 subprocess is used: subprocess.Popen/run are replaced for the whole module and fail if reached.
@@ -333,6 +334,44 @@ def graph(objects=None, libs=None, rsp=True, asm_flags="-f win64 -DHAVE_ALIGNED_
 
 
 class BuildGraph(unittest.TestCase):
+    def test_known_transitive_freetype_repeat(self):
+        libraries = m.VENDOR_STATIC_LIBRARIES + ("src\\freetype\\freetype.lib",)
+        for response in (False, True):
+            with self.subTest(response=response):
+                text, body = graph(libs=libraries, rsp=response)
+                inputs = m.link_inputs(m.link_line(text), lambda path: body)
+                m.check_link_graph(inputs)
+                self.assertEqual(inputs["project_libraries"], list(libraries))
+
+    def test_other_archive_repeat_counts_are_refused(self):
+        base = m.VENDOR_STATIC_LIBRARIES
+        cases = [base + (library,) for library in base if library != "src\\freetype\\freetype.lib"]
+        cases += [base + ("src\\freetype\\freetype.lib",) * 2,
+                  base + ("src\\freetype\\freetype.lib", "src\\harfbuzz\\harfbuzz.lib"),
+                  base[:2] + ("src\\freetype\\freetype.lib",),
+                  base[:2] + ("src\\freetype\\freetype.lib", base[2]),
+                  (base[1], base[0], base[2], base[1])]
+        for libraries in cases:
+            with self.subTest(libraries=libraries):
+                text, _ = graph(libs=libraries, rsp=False)
+                with self.assertRaisesRegex(RuntimeError, "static libraries"):
+                    m.check_link_graph(m.link_inputs(m.link_line(text), None))
+
+    def test_actual_hosted_graph(self):
+        path = os.environ.get("V17_HOSTED_GRAPH")
+        if not path:
+            self.skipTest("V17_HOSTED_GRAPH not set")
+        data = Path(path).read_bytes()
+        self.assertEqual(hashlib.sha256(data).hexdigest(),
+                         "228e75ce7d77a1bf9dc1f42c153c4c6691b2a525f6482ac54161603513e24477")
+        text = data.decode()
+        m.check_assembly(text)
+        inputs = m.link_inputs(m.link_line(text), lambda path: self.fail("Unexpected response file"))
+        m.check_link_graph(inputs)
+        self.assertEqual(sorted(inputs["objects"]), sorted(m.VENDOR_OBJECTS))
+        self.assertEqual(inputs["project_libraries"],
+                         list(m.VENDOR_STATIC_LIBRARIES) + ["src\\freetype\\freetype.lib"])
+
     def test_vendor_graph_with_response_file(self):
         text, body = graph()
         info = m.check_assembly(text)

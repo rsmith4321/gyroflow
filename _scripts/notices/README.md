@@ -217,6 +217,18 @@ at the end of the run. Truncation can also be refused, and an inherited handle
 can write later; the capture remains outside the uploaded evidence. Any other
 deletion error fails the run.
 
+The graph check retains the exact 34 object inputs, all seven x64 assembly
+commands, LTCG/x64 flags and the three pinned static dependencies. Hosted run
+38013124997 built NASM and libass successfully, then exposed one checker mismatch:
+CMake 4.4.3 emits FreeType a second time after HarfBuzz. The pinned HarfBuzz
+`CMakeLists.txt` lines 611–612 explicitly link FreeType, and the vendor log also
+compiles `hb-ft.cc` with `HAVE_FREETYPE=1` and archives it in HarfBuzz. The checker
+admits the historical library multiset or exactly the observed ordered sequence
+`FriBidi, FreeType, HarfBuzz, FreeType`; other repeats, missing libraries and
+foreign/absolute project libraries remain refused. The literal link command must
+also appear in the actual Ninja build log and is retained in `BUILD-PROOF.json`.
+This qualifies the known dependency edge, not compiler or DLL identity.
+
 NASM's original `Mkfiles/msvc.mak` uses constructs NMake and cmd do not accept
 (hosted run 38010050723 stopped with U1005 at its line 238). The runner leaves
 that pinned file byte-identical and, only when its SHA-256 matches, writes a
@@ -263,6 +275,10 @@ fixtures; without it, those fixtures are explicitly skipped. Set
 `V16_NASM_CONFIG_DIR` to the pinned source's `config/` directory for the header
 fixtures and successful recipe-preparation fixture; otherwise those checks are
 explicitly skipped. The fixture files are read as data, never executed.
+Set `V17_HOSTED_GRAPH` to the retained `command-094.log` from run 38013124997
+for its hash-pinned actual graph fixture. With all four fixture variables set,
+all 81 mocked tests pass, including exact repeated-FreeType acceptance and
+rejection of other repeat counts or orders. These tests do not execute that graph.
 
 A hosted run must verify the real MSVC/Ninja formats, the derived NASM recipe under NMake, NASM generation, assembly,
 static link graph and relink. The hosted Visual Studio is discovered with

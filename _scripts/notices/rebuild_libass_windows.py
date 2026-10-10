@@ -346,7 +346,12 @@ def check_link_graph(inputs: dict) -> None:
     problems = []
     if sorted(inputs["objects"]) != sorted(VENDOR_OBJECTS):
         problems.append("objects " + repr(sorted(set(inputs["objects"]) ^ set(VENDOR_OBJECTS))[:10]))
-    if sorted(inputs["project_libraries"]) != sorted(VENDOR_STATIC_LIBRARIES):
+    # The pinned HarfBuzz target links FreeType too (CMakeLists.txt:611-612).
+    # Hosted CMake 4.4.3 repeats that archive after HarfBuzz; permit exactly that
+    # known extra occurrence, not arbitrary duplicates or a weaker set comparison.
+    repeated_freetype = VENDOR_STATIC_LIBRARIES + ("src\\freetype\\freetype.lib",)
+    if sorted(inputs["project_libraries"]) != sorted(VENDOR_STATIC_LIBRARIES) and \
+            tuple(inputs["project_libraries"]) != repeated_freetype:
         problems.append("static libraries " + repr(inputs["project_libraries"]))
     if inputs["absolute_libraries"]:
         problems.append("absolute libraries " + repr(inputs["absolute_libraries"][:5]))
@@ -703,6 +708,8 @@ class Run:
         assembly = check_assembly(graph)
         line = link_line(graph)
         first_log = self.command(ninja + ["-j", "2", "-v", "-d", "keeprsp", "ass"], seconds=600)
+        if line not in first_log:
+            raise RuntimeError("Executed libass.dll link differs from the planned link command.")
         inputs = link_inputs(line, lambda p: (build / p).read_text(encoding="utf-8", errors="strict"))
         check_link_graph(inputs)
         dll = build / DLL.replace("\\", "/")
@@ -731,7 +738,8 @@ class Run:
         compare_exports(first_exports, again)
         fribidi = fribidi_proof(fribidi_before, inventory(gen_tab), graph, first_log)
         self.save("BUILD-PROOF.json", {
-            "assembly_enabled": True, **assembly, "link_graph": inputs, "exports": expected,
+            "assembly_enabled": True, **assembly, "link_graph": inputs, "link_command": line,
+            "executed_link_command_matches_plan": True, "exports": expected,
             "nasm_perlreq_present_before": before, "first_dll_sha256": first,
             "relinked_dll_sha256": digest(dll), "relink_command_lines": len(relink_log.splitlines()),
             "link_outputs_excluded": sorted(str(p.name) for p in link_outputs),
