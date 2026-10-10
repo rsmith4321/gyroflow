@@ -456,7 +456,7 @@ def main():
             parser.error('Deploy receipt, --binary and runtime Gyroflow.exe must be one clean build of this commit')
     output.mkdir(parents=True)
     if args.platform=='mac':
-        app=output/'Gyroflow Plus.app'
+        app=output/'GyroGrade.app'
         shutil.copytree(runtime,app,symlinks=True)
         shutil.rmtree(app/'Contents/_CodeSignature',ignore_errors=True)
         contents=app/'Contents';resources=contents/'Resources'
@@ -464,15 +464,15 @@ def main():
         shutil.copy2(binary,contents/'MacOS/gyroflow')
         plist=contents/'Info.plist'
         with plist.open('rb') as f: info=plistlib.load(f)
-        info.update(CFBundleDisplayName='Gyroflow Plus',CFBundleName='Gyroflow Plus',
-                    CFBundleIdentifier='com.ryansmith.gyroflow-plus',CFBundleExecutable='gyroflow',
+        info.update(CFBundleDisplayName='GyroGrade',CFBundleName='GyroGrade',
+                    CFBundleIdentifier='com.ryansmith.gyrograde',CFBundleExecutable='gyroflow',
                     CFBundleShortVersionString=version.split('-')[0],CFBundleVersion=version.split('-')[0],
-                    GyroflowPlusVersion=version,GyroflowPlusCheckoutCommit=commit,
-                    GyroflowPlusDevelopmentRuntime=args.development_runtime,
-                    NSHumanReadableCopyright='Gyroflow Plus community fork. Original Gyroflow and third-party copyrights retained.')
+                    GyroGradeVersion=version,GyroGradeCheckoutCommit=commit,
+                    GyroGradeDevelopmentRuntime=args.development_runtime,
+                    NSHumanReadableCopyright='GyroGrade by Ryan Smith, based on Gyroflow. Original Gyroflow and third-party copyrights retained.')
         info.pop('GyroflowLUTSourceCommit',None)
-        info.pop('GyroflowPlusSourceCommit',None)
-        if binary_commit: info['GyroflowPlusSourceCommit']=binary_commit
+        info.pop('GyroGradeSourceCommit',None)
+        if binary_commit: info['GyroGradeSourceCommit']=binary_commit
         info.pop('UTExportedTypeDeclarations',None)
         # Be available in Open With, without becoming the owner/default handler.
         info['CFBundleDocumentTypes']=[dict(CFBundleTypeName='Gyroflow Project',CFBundleTypeRole='Editor',
@@ -490,7 +490,7 @@ def main():
             raise RuntimeError('Mac runtime audit failed: '+ '; '.join(mac_audit['errors'] +
                 ['External runtime path: '+path for path in external]))
     else:
-        app=output/'Gyroflow Plus'
+        app=output/'GyroGrade'
         shutil.copytree(runtime,app)
         # Keep the upstream executable name. The embedded MDK key displays a QR
         # overlay for a renamed executable (docs/WINDOWS-LUT-TESTING.md).
@@ -538,19 +538,19 @@ def main():
     if hashlib.sha256(packaged_binary.read_bytes()).hexdigest()!=binary_hash:
         raise RuntimeError('Executable changed during staging; no completed package receipt written')
     if receipt_bytes is not None: (notices/'BUILD-INPUT.json').write_bytes(receipt_bytes)
-    manifest=dict(name='Gyroflow Plus',community_fork=True,version=version,commit=binary_commit,
+    manifest=dict(name='GyroGrade',community_fork=True,version=version,commit=binary_commit,
         checkout_commit=commit,binary_source_verified=receipt_in is not None,
         dirty_source=dirty,development_runtime=args.development_runtime,
         input_binary_sha256=binary_hash,
-        source=f'https://github.com/rsmith4321/gyroflow-plus/tree/{binary_commit}' if binary_commit else None,
-        checkout_source=f'https://github.com/rsmith4321/gyroflow-plus/tree/{commit}',external_mac_dependencies=external,
+        source=f'https://github.com/rsmith4321/gyrograde/tree/{binary_commit}' if binary_commit else None,
+        checkout_source=f'https://github.com/rsmith4321/gyrograde/tree/{commit}',external_mac_dependencies=external,
         lens_profiles=lens_profiles,native_notices=native_notices,public_release_approved=False)
     if mac_audit is not None: manifest['mac_runtime_audit'] = mac_audit
     if windows_audit is not None: manifest['windows_runtime_audit'] = windows_audit
     (notices/'BUILD.json').write_text(json.dumps(manifest,indent=2)+'\n')
     # A complete committed source archive accompanies every stage. Refusing
     # dirty builds avoids omitting untracked source or collecting private files.
-    with (output/f'Gyroflow-Plus-source-{commit[:12]}.tar').open('wb') as f:
+    with (output/f'GyroGrade-source-{commit[:12]}.tar').open('wb') as f:
         subprocess.run(['git','archive','--format=tar',commit],cwd=ROOT,stdout=f,check=True)
     if args.platform=='mac':
         subprocess.run(['codesign','--force','--deep','--sign','-',str(app)],check=True)

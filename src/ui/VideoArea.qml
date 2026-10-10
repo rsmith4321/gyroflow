@@ -188,16 +188,16 @@ Item {
                     window.isDialogOpened = false;
                     if (!error_string) {
                         if (url == "ffmpeg_gpl") {
-                            messageBox(Modal.Success, qsTr("Component was installed successfully.\nYou need to restart Gyroflow for changes to take effect.\nYour render queue and current file is saved automatically."), [ { text: qsTr("Ok") } ]);
+                            messageBox(Modal.Success, qsTr("Component was installed successfully.\nYou need to restart GyroGrade for changes to take effect.\nYour render queue and current file is saved automatically."), [ { text: qsTr("Ok") } ]);
                         } else {
                             loadFile(url, false);
                         }
                     } else {
                         if (Qt.platform.os == "osx") {
-                            error_string += "\n" + qsTr("This is often caused by read-only file system.\nMake sure you copied the Gyroflow app to your Applications folder, instead of running from the .dmg directly.");
+                            error_string += "\n" + qsTr("This is often caused by read-only file system.\nMake sure you copied the GyroGrade app to your Applications folder, instead of running from the .dmg directly.");
                         }
                         if (Qt.platform.os == "windows") {
-                            error_string += "\n" + qsTr("This is often caused by read-only file system.\nIf you have Gyroflow in C:\\Program Files\\, then you'll need to run Gyroflow as Administrator in order to extract the SDK to the Gyroflow folder.");
+                            error_string += "\n" + qsTr("This is often caused by read-only file system.\nIf you have GyroGrade in C:\\Program Files\\, then you'll need to run GyroGrade as Administrator in order to extract the SDK to the Gyroflow folder.");
                         }
                         messageBox(Modal.Error, error_string, [ { text: qsTr("Ok") } ]);
                     }
@@ -245,7 +245,7 @@ Item {
                         messageBox(Modal.Warning, qsTr("File format was detected, but no motion data was found.\nThe camera probably doesn't record motion data in this particular shooting mode."), [ { "text": qsTr("Ok") } ]);
                     }
                     if (additional_data.unsupported_lens) {
-                        messageBox(Modal.Warning, qsTr("This video cannot be stabilized, because this lens doesn't support OSS metadata.\nDisable lens stabilization (Optical SteadyShot) in order to use Gyroflow."), [ { "text": qsTr("Ok") } ]);
+                        messageBox(Modal.Warning, qsTr("This video cannot be stabilized, because this lens doesn't support OSS metadata.\nDisable lens stabilization (Optical SteadyShot) in order to use GyroGrade."), [ { "text": qsTr("Ok") } ]);
                     }
                     if (additional_data.contains_raw_gyro && !additional_data.contains_quats) timeline.setDisplayMode(0); // Switch to gyro view
                     if (!additional_data.contains_raw_gyro && additional_data.contains_quats) timeline.setDisplayMode(3); // Switch to quaternions view

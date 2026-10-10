@@ -45,7 +45,7 @@ def main():
     timestamps=lambda p:[(f.get('best_effort_timestamp'),f.get('duration')) for f in p['frames']]
     if timestamps(n)!=timestamps(c): raise RuntimeError("Frame count or timestamps differ")
     comment=c.get('format',{}).get('tags',{}).get('comment','')
-    if 'Gyroflow Plus basic grade v1:' not in comment: raise RuntimeError("Missing tone export marker")
+    if 'GyroGrade basic grade v1:' not in comment: raise RuntimeError("Missing tone export marker")
     filters=f"format=gbrpf32le,lut3d=file=reference.cube:interp=tetrahedral"
     logs=[(output/f'{name}.log').open('wb') for name in ['input','conversion','colored']]
     base=['ffmpeg','-v','error','-xerror','-threads','1']

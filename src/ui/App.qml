@@ -161,34 +161,16 @@ Rectangle {
 
                 Item {
                     width: parent.width;
-                    height: logoRow.height * 1.5;
-                    Row {
-                        id: logoRow;
+                    height: logoText.height * 1.5;
+                    BasicText {
+                        id: logoText;
                         anchors.centerIn: parent;
-                        spacing: 7 * dpiScale;
-                        Image {
-                            id: logoImage;
-                            source: "qrc:/resources/logo" + (style === "dark"? "_white" : "_black") + ".svg";
-                            sourceSize.width: Math.max(1, Math.min(275 * dpiScale, gflogo.width * 0.9 - 35 * dpiScale));
-                        }
-                        Item {
-                            width: 28 * dpiScale;
-                            height: logoImage.height;
-                            Rectangle {
-                                anchors.centerIn: parent;
-                                width: parent.width;
-                                height: 4 * dpiScale;
-                                radius: height / 2;
-                                color: styleAccentColor;
-                            }
-                            Rectangle {
-                                anchors.centerIn: parent;
-                                width: 4 * dpiScale;
-                                height: parent.width;
-                                radius: width / 2;
-                                color: styleAccentColor;
-                            }
-                        }
+                        leftPadding: 0;
+                        textFormat: Text.StyledText;
+                        text: "Gyro<font color=\"" + styleAccentColor + "\">Grade</font>";
+                        font.pixelSize: 30 * dpiScale;
+                        font.bold: true;
+                        font.letterSpacing: 0.5 * dpiScale;
                     }
                 }
                 BasicText {
@@ -210,6 +192,17 @@ Rectangle {
                     wrapMode: Text.WordWrap;
                     font.pixelSize: 10 * dpiScale;
                     opacity: 0.7;
+                    leftPadding: 12 * dpiScale;
+                    rightPadding: 12 * dpiScale;
+                    bottomPadding: 4 * dpiScale;
+                }
+                BasicText {
+                    width: parent.width;
+                    text: qsTr("Based on %1").arg("<a href=\"https://gyroflow.xyz\">Gyroflow</a>");
+                    textFormat: Text.StyledText;
+                    horizontalAlignment: Text.AlignHCenter;
+                    font.pixelSize: 9 * dpiScale;
+                    opacity: 0.6;
                     leftPadding: 12 * dpiScale;
                     rightPadding: 12 * dpiScale;
                     bottomPadding: 10 * dpiScale;
@@ -677,7 +670,7 @@ Rectangle {
             Qt.callLater(controller.recompute_threaded);
         }
         function openUpdatePage(): void {
-            Qt.openUrlExternally("https://github.com/rsmith4321/gyroflow-plus/releases");
+            Qt.openUrlExternally("https://github.com/rsmith4321/gyrograde/releases");
         }
         function onUpdates_available(version: string, changelog: string): void {
             const heading = "<p align=\"center\">" + qsTr("There's a newer version available: %1.").arg("<b>" + version + "</b>") + "</p>\n\n";

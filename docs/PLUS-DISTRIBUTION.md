@@ -1,7 +1,7 @@
-# Gyroflow Plus desktop distribution foundation
+# GyroGrade desktop distribution foundation
 
-Gyroflow Plus is a community fork of Gyroflow, maintained by Ryan Smith. The
-working name is provisional. Upstream development is active. Original authors,
+GyroGrade is based on Gyroflow and maintained by Ryan Smith. It was called
+Gyroflow Plus until 1.0.1, and it is not affiliated with the Gyroflow project. Original authors,
 copyright headers, GPLv3 source license and third-party notices are retained.
 New prototype source is GPL-3.0-or-later. OpenColorIO tone samples include its
 BSD 3-clause copyright/license; see `resources/color/OCIO-LICENSE.txt`.
@@ -10,7 +10,7 @@ BSD 3-clause copyright/license; see `resources/color/OCIO-LICENSE.txt`.
 
 This software uses the FreeType font engine, including FreeType code in
 MDK's `libass.dll`. For the FreeType 2.14.3 font-engine portion identified
-in the Windows notice packet, Gyroflow Plus elects the FreeType License
+in the Windows notice packet, GyroGrade elects the FreeType License
 (FTL). The original license-selection document, FTL, alternate GPLv2 text
 and separately licensed file notices remain intact. The acknowledgment
 is retained in `mdk-0.39.0-e89bc0b/bundled/DISTRIBUTION-CREDITS.txt` in the
@@ -21,12 +21,12 @@ dependency source-delivery and provider requirements remain open.
 
 | Surface | Fork identity |
 | --- | --- |
-| Application/UI | Gyroflow+; subtitle “Stabilize · Color correct · Export”; community-fork attribution retained in documentation and notices |
-| Application version | `1.0.0` (window title “GyroFlow Plus 1.0”); upstream core retains its own version |
-| Mac bundle | `com.ryansmith.gyroflow-plus`, `Gyroflow Plus.app` |
-| Windows portable executable | `Gyroflow Plus` directory; executable keeps `Gyroflow.exe` for the embedded MDK key |
-| Settings | `Gyroflow Plus` user-data directory; Qt organization Ryan Smith |
-| Update API/download | `rsmith4321/gyroflow-plus`, stable `plus-v<semver>` tags only |
+| Application/UI | GyroGrade wordmark; subtitle “Stabilize · Color correct · Export”; “Based on Gyroflow” credit in the sidebar, documentation and notices |
+| Application version | `1.0.1` (window title “GyroGrade 1.0.1”); upstream core retains its own version |
+| Mac bundle | `com.ryansmith.gyrograde`, `GyroGrade.app` |
+| Windows portable executable | `GyroGrade` directory; executable keeps `Gyroflow.exe` for the embedded MDK key |
+| Settings | `GyroGrade` user-data directory; on first launch it copies `settings.json` and `lens_profiles` from a `Gyroflow Plus` directory beside it, once. `GYROGRADE_DATA_DIR` (or the older `GYROFLOW_PLUS_DATA_DIR`) selects another profile |
+| Update API/download | `rsmith4321/gyrograde`, stable `plus-v<semver>` tags only (the prefix is kept so 1.0 installs find updates) |
 | Project format | Compatible `.gyroflow`, no default-handler takeover |
 
 Official settings and the earlier LUT Preview settings are not automatically
@@ -222,8 +222,8 @@ untracked private files into a package.
 
 Development staging may omit the build receipt. In that case `source_commit`
 and the build manifest's `commit`/`source` are null, `binary_source_verified` is
-false, and the Mac bundle has no `GyroflowPlusSourceCommit`. The separately named
-`checkout_commit` and `GyroflowPlusCheckoutCommit` identify the accompanying
+false, and the Mac bundle has no `GyroGradeSourceCommit`. The separately named
+`checkout_commit` and `GyroGradeCheckoutCommit` identify the accompanying
 checkout archive, which is not evidence that an unverified binary came from it.
 If a receipt is supplied for a development stage, it must pass the same identity
 checks. This prevents a stale executable from being labeled with a newer commit.

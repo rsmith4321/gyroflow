@@ -13,7 +13,7 @@ concurrency:
 jobs:
   fetch-retained-source:
     if: >-
-      github.repository == 'rsmith4321/gyroflow-plus' &&
+      github.repository == 'rsmith4321/gyrograde' &&
       github.event_name == 'workflow_dispatch' &&
       github.ref == 'refs/heads/codex/lut-preview-controls'
     runs-on: windows-2025
@@ -30,7 +30,7 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          gh release download codex/ocio-source-prep-20261009 --repo rsmith4321/gyroflow-plus --pattern libass-retained-source-archives-v18.zip --dir "$env:RUNNER_TEMP/libass-source-input"
+          gh release download codex/ocio-source-prep-20261009 --repo rsmith4321/gyrograde --pattern libass-retained-source-archives-v18.zip --dir "$env:RUNNER_TEMP/libass-source-input"
           if ($LASTEXITCODE -ne 0) { throw 'Retained source download failed.' }
           $path = Join-Path $env:RUNNER_TEMP 'libass-source-input/libass-retained-source-archives-v18.zip'
           if ((Get-Item -LiteralPath $path).Length -ne 62447389 -or (Get-FileHash -Algorithm SHA256 -LiteralPath $path).Hash.ToLowerInvariant() -ne '8cdbf56eb72add8f592bccd9dfc93a39395d51e4bc91c77f67d6781a5e8ea2e5') { throw 'Retained source identity mismatch.' }

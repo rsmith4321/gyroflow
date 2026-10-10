@@ -152,10 +152,10 @@ impl RenderOptions {
             comment.push_str(&format!("\nGyroflow color adjustments: brightness {:+.0}%, contrast {:+.0}%", self.brightness * 100.0, self.contrast * 100.0));
         }
         if self.shadows != 0.0 || self.highlights != 0.0 {
-            comment.push_str(&format!("\nGyroflow Plus video tone v1: shadows {:+.2}%, highlights {:+.2}%", self.shadows * 100.0, self.highlights * 100.0));
+            comment.push_str(&format!("\nGyroGrade video tone v1: shadows {:+.2}%, highlights {:+.2}%", self.shadows * 100.0, self.highlights * 100.0));
         }
         if self.exposure != 0.0 || self.saturation != 0.0 || self.warmth != 0.0 || self.tint != 0.0 {
-            comment.push_str(&format!("\nGyroflow Plus basic grade v1: display exposure {:+.2} stops, saturation {:+.2}%, temperature {:+.2}%, tint {:+.2}%", self.exposure, self.saturation*100.0, self.warmth*100.0, self.tint*100.0));
+            comment.push_str(&format!("\nGyroGrade basic grade v1: display exposure {:+.2} stops, saturation {:+.2}%, temperature {:+.2}%, tint {:+.2}%", self.exposure, self.saturation*100.0, self.warmth*100.0, self.tint*100.0));
         }
         metadata.set("comment", comment.trim());
         metadata

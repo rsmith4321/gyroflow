@@ -15,12 +15,13 @@ pub fn data_dir() -> PathBuf {
 
     PATH.get_or_init(|| {
         if let Some(path) = settings_location::from_override(
-            std::env::var_os("GYROFLOW_PLUS_DATA_DIR")
-        ).expect("Cannot initialize GYROFLOW_PLUS_DATA_DIR profile") {
+            // The old variable still works for scripts written before the rename.
+            std::env::var_os("GYROGRADE_DATA_DIR").or_else(|| std::env::var_os("GYROFLOW_PLUS_DATA_DIR"))
+        ).expect("Cannot initialize GYROGRADE_DATA_DIR profile") {
             return path;
         }
 
-        let mut path = app_dirs2::get_app_dir(AppDataType::UserData, &AppInfo { name: "Gyroflow Plus", author: "Ryan Smith" }, "").unwrap();
+        let mut path = app_dirs2::get_app_dir(AppDataType::UserData, &AppInfo { name: "GyroGrade", author: "Ryan Smith" }, "").unwrap();
         if path.file_name().unwrap() == path.parent().unwrap().file_name().unwrap() {
             path = path.parent().unwrap().to_path_buf();
         }
@@ -38,7 +39,7 @@ pub fn data_dir() -> PathBuf {
                     path = PathBuf::from(s);
                     path.push("AppData");
                     path.push("Local");
-                    path.push("Gyroflow Plus");
+                    path.push("GyroGrade");
                     windows::Win32::System::Com::CoTaskMemFree(Some(raw_path.as_ptr() as *mut _));
                 }
             }
@@ -68,11 +69,13 @@ pub fn data_dir() -> PathBuf {
                         path.extend(["Containers", id.as_str(), "Data", "Library"]);
                     }
                     path.push("Application Support");
-                    path.push("Gyroflow Plus");
+                    path.push("GyroGrade");
                 }
                 _ => { },
             }
         }
+        // GyroGrade was called Gyroflow Plus in 1.0.
+        settings_location::adopt_previous(&path, "Gyroflow Plus");
         let _ = std::fs::create_dir_all(&path);
         if let Err(e) = std::fs::create_dir_all(&path.join("lens_profiles")) {
             ::log::error!("Failed to create lens profiles directory at {:?}: {e:?}", path.join("lens_profiles"));

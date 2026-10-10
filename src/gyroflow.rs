@@ -69,12 +69,12 @@ fn entry() {
 
     cpp!(unsafe [] {
         qApp->setOrganizationName("Ryan Smith");
-        qApp->setOrganizationDomain("github.com/rsmith4321/gyroflow");
-        qApp->setApplicationName("Gyroflow Plus");
+        qApp->setOrganizationDomain("github.com/rsmith4321/gyrograde");
+        qApp->setApplicationName("GyroGrade");
 
         QMessageLogger("", 0, "main").debug(QLoggingCategory("gyroflow")) << "Qt version:" << qVersion();
     });
-    ::log::debug!("Gyroflow Plus {}", util::get_version());
+    ::log::debug!("GyroGrade {}", util::get_version());
 
     let mut open_file = String::new();
     let mut open_preset = String::new();

@@ -27,7 +27,7 @@ concurrency:
 
 jobs:
   build:
-    if: github.repository == 'rsmith4321/gyroflow-plus' && !inputs.verify_run_id
+    if: github.repository == 'rsmith4321/gyrograde' && !inputs.verify_run_id
     name: Build ${{ matrix.target }}
     runs-on: ubuntu-24.04
     timeout-minutes: 340
@@ -119,7 +119,7 @@ jobs:
     name: Verify ${{ matrix.target }}
     needs: build
     if: >-
-      always() && github.repository == 'rsmith4321/gyroflow-plus' &&
+      always() && github.repository == 'rsmith4321/gyrograde' &&
       (needs.build.result == 'success' || (inputs.verify_run_id && needs.build.result == 'skipped'))
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 60

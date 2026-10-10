@@ -1,8 +1,9 @@
-## Gyroflow Plus — community fork (working name)
+## GyroGrade: Gyroflow stabilization with LUTs and color grading
 
-[Gyroflow Plus website](https://gyroflowplus.com/)
+[GyroGrade website](https://gyroflowplus.com/) · [Download for Mac](https://github.com/rsmith4321/gyrograde/releases/latest)
 
-This is Ryan Smith's community development fork of [Gyroflow](https://github.com/gyroflow/gyroflow).
+GyroGrade is Ryan Smith's app based on [Gyroflow](https://github.com/gyroflow/gyroflow).
+It was called Gyroflow Plus until version 1.0.1. It is not affiliated with or endorsed by the Gyroflow project.
 It keeps Gyroflow's existing stabilization workflow and adds user-selected `.cube`
 LUT preview/export and eight basic grading controls: exposure, temperature,
 tint, brightness, contrast, highlights, shadows and saturation, plus supporting
@@ -14,7 +15,7 @@ management and remembered camera/profile choices with links to official DJI,
 GoPro and Insta360 downloads; manufacturer files are not bundled.
 See [LUT library usage](docs/LUT-LIBRARY.md). Source footage and embedded motion data are preserved.
 
-Gyroflow Plus combines **Gyroflow stabilization with LUTs and simple color
+GyroGrade combines **Gyroflow stabilization with LUTs and simple color
 correction** to help you finish drone and action-camera clips in one place.
 The optional `ocio-runtime` build integrates pinned official
 [OpenColorIO](https://opencolorio.org/) **2.4.2** for both CPU export and generated
@@ -24,13 +25,11 @@ processor to Gyroflow's preview, stabilization and encoding. For faster CPU
 export, Highlights/Shadows use a sampled curve generated and evaluated by
 OpenColorIO. A general OCIO configuration/color-space workflow is not included.
 
-The installed development Mac build and private Windows validation build use
-this official runtime. **Cargo's default features still select the earlier
-lightweight implementation** while platform and distribution checks remain
-open. Native Mac checks and Windows build/CLI export checks are recorded;
-Windows interactive preview and project persistence still need acceptance.
-There is no public packaged release of this runtime yet. OpenColorIO copyright
-and license notices are retained.
+The Mac release and the private Windows validation build use this official
+runtime. **Cargo's default features still select the earlier lightweight
+implementation**; build with `ocio-runtime` to match the release. Windows
+interactive preview and project persistence still need acceptance, and there is
+no Windows release yet. OpenColorIO copyright and license notices are retained.
 See the [implementation and library integration notes](docs/OPENCOLORIO-INTEGRATION.md)
 and the processing order, native Mac acceptance and measured limits in the
 [basic grading report](docs/BASIC-GRADING-PLAN.md).

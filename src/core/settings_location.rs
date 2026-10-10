@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-use std::{ffi::OsString, io, path::PathBuf};
+use std::{ffi::OsString, io, path::{Path, PathBuf}};
 
 /// Resolve an explicitly selected profile without consulting the normal user profile.
 /// Invalid overrides fail rather than silently using the user's saved settings.
@@ -9,10 +9,37 @@ pub fn from_override(value: Option<OsString>) -> io::Result<Option<PathBuf>> {
     let path = PathBuf::from(value);
     if !path.is_absolute() {
         return Err(io::Error::new(io::ErrorKind::InvalidInput,
-            "GYROFLOW_PLUS_DATA_DIR must be a nonempty absolute directory path"));
+            "GYROGRADE_DATA_DIR must be a nonempty absolute directory path"));
     }
     std::fs::create_dir_all(path.join("lens_profiles"))?;
     Ok(Some(path))
+}
+
+/// Give a new profile the settings and lens profiles saved under the app's previous name,
+/// a sibling folder. Runs only while the new profile does not exist; the old one is left as is.
+pub fn adopt_previous(path: &Path, previous_name: &str) {
+    let Some(old) = path.parent().map(|parent| parent.join(previous_name)) else { return; };
+    if path.exists() || !old.join("settings.json").is_file() { return; }
+    if let Err(e) = copy_profile(&old, path) {
+        ::log::error!("Failed to copy settings from {old:?} to {path:?}: {e:?}");
+    }
+}
+
+fn copy_profile(old: &Path, path: &Path) -> io::Result<()> {
+    std::fs::create_dir_all(path)?;
+    std::fs::copy(old.join("settings.json"), path.join("settings.json"))?;
+    if old.join("lens_profiles").is_dir() { copy_dir(&old.join("lens_profiles"), &path.join("lens_profiles"))?; }
+    Ok(())
+}
+
+fn copy_dir(from: &Path, to: &Path) -> io::Result<()> {
+    std::fs::create_dir_all(to)?;
+    for entry in std::fs::read_dir(from)? {
+        let entry = entry?;
+        let target = to.join(entry.file_name());
+        if entry.file_type()?.is_dir() { copy_dir(&entry.path(), &target)?; } else { std::fs::copy(entry.path(), target)?; }
+    }
+    Ok(())
 }
 
 #[cfg(test)]
@@ -77,6 +104,32 @@ mod tests {
         std::fs::write(&lens, b"preserve lens").unwrap();
         assert!(from_override(Some(profile.into_os_string())).is_err());
         assert_eq!(std::fs::read(lens).unwrap(), b"preserve lens");
+    }
+
+    #[test]
+    fn renamed_profile_copies_previous_settings_once() {
+        let scratch = Scratch::new();
+        let old = scratch.0.join("Gyroflow Plus");
+        std::fs::create_dir_all(old.join("lens_profiles").join("user")).unwrap();
+        std::fs::write(old.join("settings.json"), b"saved user grade").unwrap();
+        std::fs::write(old.join("lens_profiles").join("user").join("lens.json"), b"lens").unwrap();
+        let new = scratch.0.join("GyroGrade");
+        adopt_previous(&new, "Gyroflow Plus");
+        assert_eq!(std::fs::read(new.join("settings.json")).unwrap(), b"saved user grade");
+        assert_eq!(std::fs::read(new.join("lens_profiles").join("user").join("lens.json")).unwrap(), b"lens");
+        std::fs::write(new.join("settings.json"), b"changed later").unwrap();
+        adopt_previous(&new, "Gyroflow Plus");
+        assert_eq!(std::fs::read(new.join("settings.json")).unwrap(), b"changed later");
+        assert_eq!(std::fs::read(old.join("settings.json")).unwrap(), b"saved user grade");
+    }
+
+    #[test]
+    fn renamed_profile_without_previous_settings_stays_absent() {
+        let scratch = Scratch::new();
+        std::fs::create_dir(scratch.0.join("Gyroflow Plus")).unwrap();
+        let new = scratch.0.join("GyroGrade");
+        adopt_previous(&new, "Gyroflow Plus");
+        assert!(!new.exists());
     }
 
     #[cfg(unix)]

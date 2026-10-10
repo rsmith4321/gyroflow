@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   checks:
-    if: github.repository == 'rsmith4321/gyroflow-plus'
+    if: github.repository == 'rsmith4321/gyrograde'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:

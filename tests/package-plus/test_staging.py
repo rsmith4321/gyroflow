@@ -280,7 +280,7 @@ class MacDependencyTests(unittest.TestCase):
         self.temporary = tempfile.TemporaryDirectory(prefix='plus-mach-test-')
         self.addCleanup(self.temporary.cleanup)
         self.root = Path(self.temporary.name).resolve()
-        self.app = self.root / 'Gyroflow Plus.app'
+        self.app = self.root / 'GyroGrade.app'
         self.app.mkdir()
         self.metadata = {}
         self.stage_app = None
@@ -365,7 +365,7 @@ class MacDependencyTests(unittest.TestCase):
         with plist.open('wb') as stream:
             plistlib.dump({'LSMinimumSystemVersion': '11.0'}, stream)
         output = self.root / 'stage'
-        self.stage_app = output / 'Gyroflow Plus.app'
+        self.stage_app = output / 'GyroGrade.app'
         command = ['package_plus.py', 'mac', str(self.app), str(output),
                    '--binary', str(self.app / 'Contents/MacOS/gyroflow'), '--licenses', str(notices)]
         if development: command.append('--development-runtime')
@@ -630,7 +630,7 @@ class MacDependencyTests(unittest.TestCase):
         self.assertEqual(receipt['source_commit'],'1234567890abcdef')
         self.assertEqual(build['commit'],receipt['source_commit'])
         with (self.stage_app/'Contents/Info.plist').open('rb') as stream:
-            self.assertEqual(plistlib.load(stream)['GyroflowPlusSourceCommit'],receipt['source_commit'])
+            self.assertEqual(plistlib.load(stream)['GyroGradeSourceCommit'],receipt['source_commit'])
         self.assertEqual((self.stage_app/'Contents/Resources/Notices/BUILD-INPUT.json').read_bytes(),
                          (self.root/'build-receipt.json').read_bytes())
         self.assertEqual(receipt['lens_profiles']['errors'],[])
@@ -716,8 +716,8 @@ class MacDependencyTests(unittest.TestCase):
         self.assertEqual(build['checkout_commit'],'1234567890abcdef')
         with (self.stage_app/'Contents/Info.plist').open('rb') as stream:
             info=plistlib.load(stream)
-        self.assertNotIn('GyroflowPlusSourceCommit',info)
-        self.assertEqual(info['GyroflowPlusCheckoutCommit'],'1234567890abcdef')
+        self.assertNotIn('GyroGradeSourceCommit',info)
+        self.assertEqual(info['GyroGradeCheckoutCommit'],'1234567890abcdef')
         self.assertFalse(receipt['public_release_approved'])
         check = self.stage_app / 'Contents/Resources/Notices/OpenColorIO-third-party/STAGE-CHECK.json'
         self.assertEqual(json.loads(check.read_text())['errors'], [])
@@ -731,7 +731,7 @@ class OcioNoticeTests(unittest.TestCase):
         self.repo = self.root / 'repo'
         shutil.copytree(ROOT / PACKET, self.repo / PACKET)
         shutil.copy2(ROOT / 'resources/color/OCIO-LICENSE.txt', self.repo / 'resources/color')
-        self.app = self.root / 'Gyroflow Plus'
+        self.app = self.root / 'GyroGrade'
         self.app.mkdir()
 
     def check(self):

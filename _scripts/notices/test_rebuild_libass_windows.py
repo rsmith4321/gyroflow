@@ -63,11 +63,11 @@ def tearDownModule():
 BRANCH = "codex/lut-preview-controls"
 GOOD_ENV = {
     "GITHUB_ACTIONS": "true", "RUNNER_ENVIRONMENT": "github-hosted", "RUNNER_OS": "Windows",
-    "GITHUB_REPOSITORY": "rsmith4321/gyroflow-plus", "GITHUB_EVENT_NAME": "workflow_dispatch",
+    "GITHUB_REPOSITORY": "rsmith4321/gyrograde", "GITHUB_EVENT_NAME": "workflow_dispatch",
     "GITHUB_REF": "refs/heads/" + BRANCH, "GITHUB_REF_TYPE": "branch", "GITHUB_REF_NAME": BRANCH,
-    "GITHUB_WORKFLOW_REF": "rsmith4321/gyroflow-plus/.github/workflows/native-libass-source.yml@refs/heads/" + BRANCH,
+    "GITHUB_WORKFLOW_REF": "rsmith4321/gyrograde/.github/workflows/native-libass-source.yml@refs/heads/" + BRANCH,
     "GITHUB_RUN_ID": "123456789", "GITHUB_RUN_ATTEMPT": "1", "GITHUB_SHA": "a" * 40,
-    "GITHUB_WORKSPACE": "D:\\a\\gyroflow-plus\\gyroflow-plus", "RUNNER_TEMP": "D:\\a\\_temp"}
+    "GITHUB_WORKSPACE": "D:\\a\\gyrograde\\gyrograde", "RUNNER_TEMP": "D:\\a\\_temp"}
 
 
 class Admission(unittest.TestCase):
@@ -82,8 +82,8 @@ class Admission(unittest.TestCase):
             self.assertIn(expect, errors)
 
     def test_wrong_repository_or_fork(self):
-        self.check({"GITHUB_REPOSITORY": "someone/gyroflow-plus"}, expect="GITHUB_REPOSITORY")
-        self.check({"GITHUB_REPOSITORY": "rsmith4321/Gyroflow-Plus"}, expect="GITHUB_REPOSITORY")
+        self.check({"GITHUB_REPOSITORY": "someone/gyrograde"}, expect="GITHUB_REPOSITORY")
+        self.check({"GITHUB_REPOSITORY": "rsmith4321/GyroGrade"}, expect="GITHUB_REPOSITORY")
 
     def test_wrong_event(self):
         for event in ("push", "pull_request", "pull_request_target", "schedule", "release", "repository_dispatch"):

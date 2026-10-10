@@ -267,8 +267,8 @@ fn main() {
             res.set_icon("resources/app_icon.ico");
             res.set("FileVersion", "1.0.0.0");
             res.set("ProductVersion", "1.0.0.0");
-            res.set("ProductName", "Gyroflow Plus");
-            res.set("FileDescription", &format!("Gyroflow Plus v{} - community fork", env!("CARGO_PKG_VERSION")));
+            res.set("ProductName", "GyroGrade");
+            res.set("FileDescription", &format!("GyroGrade v{}, based on Gyroflow", env!("CARGO_PKG_VERSION")));
             res.compile().unwrap();
         }
         tos => panic!("unknown target os {:?}!", tos)

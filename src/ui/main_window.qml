@@ -25,7 +25,7 @@ Window {
         onTriggered: main_window.safeAreaMargins = ui_tools.get_safe_area_margins(main_window);
     }
 
-    title: "GyroFlow Plus " + version.split(" ")[0].replace(/\.0$/, "");
+    title: "GyroGrade " + version.split(" ")[0].replace(/\.0$/, "");
 
     onVisibilityChanged: {
         Qt.callLater(() => {

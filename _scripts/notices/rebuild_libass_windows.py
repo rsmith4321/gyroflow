@@ -41,7 +41,7 @@ SOURCES = (
     ("devpkgs/src/oneVPL", "wang-bin/oneVPL", "3a3ca48d176ceb9733c2ea81d4f16a17d6c1702c"),
     ("nasm", "netwide-assembler/nasm", "d41598b3359d39c14e80f56bd8c3749f1d097932"),
 )
-REPOSITORY = "rsmith4321/gyroflow-plus"
+REPOSITORY = "rsmith4321/gyrograde"
 BRANCH = "codex/lut-preview-controls"  # already the repository default branch (root API check 2026-10-10)
 WORKFLOW = ".github/workflows/native-libass-source.yml"
 ARCHIVE_WORKFLOW = ".github/workflows/native-libass-archives.yml"

@@ -9,7 +9,7 @@ permissions:
 jobs:
   read-existing-source-note:
     if: >-
-      github.repository == 'rsmith4321/gyroflow-plus' &&
+      github.repository == 'rsmith4321/gyrograde' &&
       github.event_name == 'workflow_dispatch' &&
       github.ref == 'refs/heads/codex/lut-preview-controls'
     runs-on: windows-2025
@@ -24,9 +24,9 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          gh release view codex/ocio-source-prep-20261009 --repo rsmith4321/gyroflow-plus --json isDraft,tagName,targetCommitish
+          gh release view codex/ocio-source-prep-20261009 --repo rsmith4321/gyrograde --json isDraft,tagName,targetCommitish
           if ($LASTEXITCODE -ne 0) { throw 'Read-only draft lookup failed; no download or permission escalation attempted.' }
-          gh release download codex/ocio-source-prep-20261009 --repo rsmith4321/gyroflow-plus --pattern FFmpeg-base-source-README.txt --dir "$env:RUNNER_TEMP/source-note"
+          gh release download codex/ocio-source-prep-20261009 --repo rsmith4321/gyrograde --pattern FFmpeg-base-source-README.txt --dir "$env:RUNNER_TEMP/source-note"
           if ($LASTEXITCODE -ne 0) { throw 'Read-only existing draft asset download failed.' }
           $path = Join-Path $env:RUNNER_TEMP 'source-note/FFmpeg-base-source-README.txt'
           $hash = (Get-FileHash -Algorithm SHA256 -LiteralPath $path).Hash.ToLowerInvariant()
