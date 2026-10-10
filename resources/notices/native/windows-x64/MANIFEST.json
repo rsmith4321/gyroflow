@@ -1959,7 +1959,8 @@
     "mdk-0.39.0-e89bc0b/bundled/evidence/LIBASS-OFFLINE-CONFIGURE-INPUTS.json",
     "mdk-0.39.0-e89bc0b/bundled/evidence/FFMPEG-LATER-EDITS.json",
     "mdk-0.39.0-e89bc0b/bundled/evidence/ffmpeg-later/configure-mfplat.diff",
-    "mdk-0.39.0-e89bc0b/bundled/evidence/ffmpeg-later/nvcodec-optional-symbols.diff"
+    "mdk-0.39.0-e89bc0b/bundled/evidence/ffmpeg-later/nvcodec-optional-symbols.diff",
+    "mdk-0.39.0-e89bc0b/bundled/evidence/LIBASS-SOURCE-QUALIFICATION.json"
    ],
    "reused_repo_paths": [],
    "release_provenance": {
@@ -1992,8 +1993,8 @@
      {
       "id": "mdk-libass-fribidi-source",
       "class": "obligation",
-      "text": "libass.dll statically links FriBidi (LGPL-2.1-or-later, b93119f5, 1.0.17). Its corresponding source, and what LGPL-2.1 requires for relinking a statically linked library, must accompany or be offered with the package; not done here. Exact source archives, seven logged FriBidi table-generation commands and their five Unicode18.0.0 data inputs are now indexed in LIBASS-BUILD-INPUTS.json. The missing FreeType dlg gitlink source is retained as a supplementary source-only draft asset. Generated outputs, standalone offline rebuild/relink qualification and public corresponding-source delivery remain open.",
-      "needed_artifact": "Root's source route for FriBidi b93119f5 together with the libass af5f116d, HarfBuzz 863d3f77, FreeType 0a0221a1 and devpkgs ce43c819 build files used for libass.dll. Qualify generated files and the offline rebuild/relink procedure, and deliver the complete source alongside the package."
+      "text": "libass.dll statically links FriBidi (LGPL-2.1-or-later, b93119f5, 1.0.17). Corresponding source and the applicable relinking materials must accompany or be offered with the package. LIBASS-BUILD-INPUTS.json preserves historical source-input collection. Later hosted run 38017550683 qualified the retained 12-archive source build, seven FriBidi generated-output hashes and object/static-library relinking; LIBASS-SOURCE-QUALIFICATION.json records the evidence and reviewed source kit retained on an unpublished draft. Candidate DLL hashes differ and neither replaces or is shown to match the shipped vendor DLL. Public delivery alongside the package and remaining corresponding-source/provider checks remain open.",
+      "needed_artifact": "Deliver the reviewed source kit and applicable relinking materials alongside the matching package through a public corresponding-source route, and complete remaining corresponding-source/provider checks before closing this obligation. Preserve the pinned build recipe, generated-output evidence and original source/license archives; the unpublished draft and hosted qualification alone do not close it."
      },
      {
       "id": "mdk-libass-build-revision",
@@ -2977,8 +2978,8 @@
   },
   {
    "path": "README.md",
-   "bytes": 10285,
-   "sha256": "e87f1e294e4b9ab3364f3a322118e0f5e6dd8f427b5bd7bb976f36933392cee9",
+   "bytes": 11500,
+   "sha256": "3d2d64700e1106fdc8a4a946de2b835f61c515050223c9ec7c5db69c873ae39e",
    "component": "packet",
    "role": "packet"
   },
@@ -12708,6 +12709,13 @@
    "path": "mdk-0.39.0-e89bc0b/bundled/evidence/ffmpeg-later/nvcodec-optional-symbols.diff",
    "bytes": 2882,
    "sha256": "b969241969a3a5897a27a5223b3ff77a620e12834c33bd1ac645702c636798a2",
+   "component": "mdk",
+   "role": "provenance"
+  },
+  {
+   "path": "mdk-0.39.0-e89bc0b/bundled/evidence/LIBASS-SOURCE-QUALIFICATION.json",
+   "bytes": 8541,
+   "sha256": "0fd4e2b75881fb2ee1f43e65793c2d6648588aa91373d9c75f9336a997c5eef4",
    "component": "mdk",
    "role": "provenance"
   }

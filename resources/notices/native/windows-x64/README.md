@@ -120,9 +120,10 @@ Git blobs and is retained in the existing unpublished source-only draft. Its
 Boost license and header notice are included as a conservative source superset;
 this does not assert that dlg code is linked. Vendor build pins are directly
 logged, but raw shipped DLL identity remains limited by PE header/padding
-differences. Generated outputs, an offline rebuild/relink procedure and complete
-public source delivery remain open. The eight distribution requirements are
-unchanged; these records do not approve a public release.
+differences. These input-collection records are historical. The later hosted
+archive-source build and relink qualification is recorded separately below.
+Public corresponding-source delivery remains open; the eight distribution
+requirements are unchanged.
 
 ## Supplementary libass configure inputs
 
@@ -134,7 +135,26 @@ archive omitted them through `export-ignore`. Snappy's two test gitlinks are
 listed and omitted; the original parent build disables tests and benchmarks.
 This does not assert that Snappy or GLFW is linked into libass, or establish a
 full recursive Snappy source snapshot. The top-level configuration also reaches
-other projects; offline rebuild/relink and public source delivery remain open.
+other projects. The later archive-source qualification below covers the retained
+build recipe; complete public source delivery remains open.
+
+## Later libass source-build qualification
+
+`mdk-0.39.0-e89bc0b/bundled/evidence/LIBASS-SOURCE-QUALIFICATION.json`
+records successful hosted run `38017550683` at source `4dd7582a`. It used 12
+retained source archives, built libass with seven assembly objects, checked seven
+FriBidi generated-output hashes against the earlier source qualification, and
+relinked from 34 libass objects and the recorded static libraries. Both candidate
+DLLs exported the expected 50 symbols. Their hashes differ; neither candidate
+replaces or is shown to match the shipped vendor DLL.
+
+The reviewed source kit at `6f17b323` retains those archives, the build recipe,
+original license texts and the hosted text evidence on an unpublished draft.
+The runner had network access. Independent acceptance checked logs and runner
+assertions; binary products and generated-table bytes were not transferred for
+independent rehashing. Public delivery alongside the package and remaining
+corresponding-source/provider checks are still open. This qualification changes
+no app binary, runtime default, Windows GUI acceptance or release approval.
 
 ## Bundled FFmpeg later source edits
 

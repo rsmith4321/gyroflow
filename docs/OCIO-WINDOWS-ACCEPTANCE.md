@@ -89,14 +89,14 @@ jobs ended, including preserved failed helper attempts.
 ### Current source notice packet
 
 The current native notice snapshot, `resources/notices/native/windows-x64`, is a
-separate, later packet. Its `MANIFEST.json` is 559,181 bytes, SHA-256
-`a9e0fb7dd2eb08c971b21bc1bcf97ef1788e6bab2d4437df201830bbd71c095e`. It uses schema
+separate, later packet. Its `MANIFEST.json` is 559,717 bytes, SHA-256
+`41edb624f5aa46aab954d03555b33ba18876d36546df68248b45de1192433530`. It uses schema
 `gyroflow-plus/native-notices-manifest/v2`, has status `CANDIDATE`, targets
 `x86_64-pc-windows-msvc`, and sets `public_release_approved: false`.
 
 The offline verifier ran pinned to that hash. It found:
 
-- 1,391 listed members (8,199,867 verified bytes), matching 1,391 files plus the manifest
+- 1,392 listed members (8,209,623 verified bytes), matching 1,392 files plus the manifest
 - 25 reused repository paths
 - 11 required components
 - a staged inventory of 120 DLL entries across 10 components
@@ -111,6 +111,11 @@ components (3 blockers, 5 obligations):
 - msvc-crt: `crt-terms`
 - qt: `qt-source`
 - unattributed: `opengl32sw-provider`
+
+The later libass archive-source build/relink qualification and retained draft
+source kit are indexed in
+`mdk-0.39.0-e89bc0b/bundled/evidence/LIBASS-SOURCE-QUALIFICATION.json`. They do not close
+public delivery or remaining corresponding-source/provider requirements.
 
 Fifteen advisories are recorded separately from the eight blocking requirements.
 This source check does not establish assembly or installation of the later
