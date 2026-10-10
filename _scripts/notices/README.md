@@ -220,7 +220,9 @@ deletion error fails the run.
 The graph check retains the exact 34 object inputs, all seven x64 assembly
 commands, LTCG/x64 flags and the three pinned static dependencies. Hosted run
 38013124997 built NASM and libass successfully, then exposed one checker mismatch:
-CMake 4.4.3 emits FreeType a second time after HarfBuzz. The pinned HarfBuzz
+the checker counted three unique static dependencies without allowing the second
+FreeType token. Both that hosted command and the original vendor log's x64 link
+command (line 1630) contain `FriBidi, FreeType, HarfBuzz, FreeType`. The pinned HarfBuzz
 `CMakeLists.txt` lines 611–612 explicitly link FreeType, and the vendor log also
 compiles `hb-ft.cc` with `HAVE_FREETYPE=1` and archives it in HarfBuzz. The checker
 admits the historical library multiset or exactly the observed ordered sequence
@@ -280,8 +282,18 @@ for its hash-pinned actual graph fixture. With all four fixture variables set,
 all 81 mocked tests pass, including exact repeated-FreeType acceptance and
 rejection of other repeat counts or orders. These tests do not execute that graph.
 
-A hosted run must verify the real MSVC/Ninja formats, the derived NASM recipe under NMake, NASM generation, assembly,
-static link graph and relink. The hosted Visual Studio is discovered with
+Hosted run [38014071478](https://github.com/rsmith4321/gyroflow-plus/actions/runs/38014071478)
+at source `aab1d5f5cd764a3be46ba7fe812a9acbdf4dac31` passed the actual
+NASM generation/build, 187-step libass build, fifty exported symbols and a
+single-step relink. Root checked all 73 nonempty public log hashes, 24 empty logs,
+twelve source pins and literal build/link commands. The runner checked that all
+181 retained object/static-library hashes survived the relink and recorded the
+seven generated FriBidi output hashes. Those binaries/table bytes are not in the
+text artifact and were not independently rehashed by root. This is an online
+pinned-source build, not an offline reconstruction from a distributed source
+bundle. See [the acceptance and remaining limits](../../docs/WINDOWS-LIBASS-SOURCE-ACCEPTANCE.md).
+
+The hosted Visual Studio is discovered with
 vswhere on each run and recorded with tool paths and hashes; hosted run
 38008920591 reported `C:\Program Files\Microsoft Visual Studio\18\Enterprise`.
 That path does not by itself establish a compiler version or show that the
