@@ -14,6 +14,7 @@ from __future__ import annotations
 import datetime
 import difflib
 import hashlib
+import io
 import json
 import os
 from pathlib import Path
@@ -22,7 +23,9 @@ import shutil
 import struct
 import subprocess
 import sys
+import tarfile
 import time
+import zipfile
 
 SOURCES = (
     ("devpkgs", "wang-bin/devpkgs", "ce43c819981bb7ca028d08d1baa4847f1136f576"),
@@ -41,6 +44,8 @@ SOURCES = (
 REPOSITORY = "rsmith4321/gyroflow-plus"
 BRANCH = "codex/lut-preview-controls"  # already the repository default branch (root API check 2026-10-10)
 WORKFLOW = ".github/workflows/native-libass-source.yml"
+ARCHIVE_WORKFLOW = ".github/workflows/native-libass-archives.yml"
+SOURCE_MODE = "GYROFLOWPLUS_LIBASS_SOURCE_MODE"
 # Per-command and whole-run log caps. Checked by polling, so a log can pass a cap by up to one poll
 # interval of output before the process tree is stopped; the retained file is then cut to the cap.
 MAX_LOG_BYTES = 12 * 1024 * 1024
@@ -187,11 +192,15 @@ def utc() -> str:
 
 def admission_errors(environ, platform: str) -> list:
     """Names of failed admission checks; empty means admitted."""
+    mode = environ.get(SOURCE_MODE, "git")
+    workflow = ARCHIVE_WORKFLOW if mode == "archives" else WORKFLOW
     expected = {"GITHUB_ACTIONS": "true", "RUNNER_ENVIRONMENT": "github-hosted", "RUNNER_OS": "Windows",
                 "GITHUB_REPOSITORY": REPOSITORY, "GITHUB_EVENT_NAME": "workflow_dispatch",
                 "GITHUB_REF": "refs/heads/" + BRANCH, "GITHUB_REF_TYPE": "branch", "GITHUB_REF_NAME": BRANCH,
-                "GITHUB_WORKFLOW_REF": REPOSITORY + "/" + WORKFLOW + "@refs/heads/" + BRANCH}
+                "GITHUB_WORKFLOW_REF": REPOSITORY + "/" + workflow + "@refs/heads/" + BRANCH}
     errors = [key for key, value in expected.items() if environ.get(key) != value]
+    if mode not in ("git", "archives"):
+        errors.append(SOURCE_MODE)
     if platform != "win32":
         errors.append("sys.platform")
     for key in ("GITHUB_RUN_ID", "GITHUB_RUN_ATTEMPT"):
@@ -424,6 +433,93 @@ def check_text_evidence(directory: Path) -> None:
             raise RuntimeError("Non-text evidence file: " + path.name)
 
 
+def inspect_source_archive(data: bytes, row: dict) -> None:
+    """Preflight exact retained bytes before standard tarfile data-filter extraction."""
+    if len(data) != row["bytes"] or hashlib.sha256(data).hexdigest() != row["sha256"]:
+        raise ValueError("Source archive size/hash mismatch: " + row["archive"])
+    reserved = {"CON", "PRN", "AUX", "NUL"} | {prefix+str(i) for prefix in ("COM", "LPT") for i in range(1, 10)}
+    with tarfile.open(fileobj=io.BytesIO(data), mode="r:gz") as archive:
+        members = archive.getmembers()
+        if len(members) != row["archive_members"]:
+            raise ValueError("Source archive member count mismatch.")
+        names, links, total = set(), [], 0
+        for member in members:
+            name = member.name.rstrip("/")
+            parts = name.split("/")
+            if not name or parts[0] != row["root"] or any(
+                    p in ("", ".", "..") or "\\" in p or ":" in p or p.endswith((".", " ")) or
+                    p.upper() == ".GIT" or p.split(".")[0].upper() in reserved for p in parts):
+                raise ValueError("Unsafe source archive path.")
+            if name.casefold() in names:
+                raise ValueError("Repeated/colliding source archive path.")
+            names.add(name.casefold())
+            if member.issym():
+                links.append({"name": member.name, "target": member.linkname})
+            elif not (member.isfile() or member.isdir()):
+                raise ValueError("Unsupported source archive member type.")
+            if member.isfile():
+                total += member.size
+        if links != row["link_members"] or total != row["uncompressed_file_bytes"]:
+            raise ValueError("Source archive links or uncompressed size mismatch.")
+
+
+def extract_source_bundle(bundle: Path, work: Path, manifest: dict) -> list:
+    """Read a hash-pinned ZIP of original archives; never execute source or use Git."""
+    expected = manifest["source_bundle"]
+    if bundle.is_symlink() or not bundle.is_file() or bundle.stat().st_size != expected["bytes"] or digest(bundle) != expected["sha256"]:
+        raise ValueError("Retained source bundle size/hash mismatch.")
+    rows = manifest["archives"]
+    if [(r["location"], r["repository"], r["commit"]) for r in rows] != list(SOURCES):
+        raise ValueError("Retained source archive pins differ from the build pins.")
+    if not hasattr(tarfile, "data_filter"):
+        raise RuntimeError("Source extraction requires tarfile.data_filter.")
+    payloads = []
+    with zipfile.ZipFile(bundle) as source_zip:
+        infos = source_zip.infolist()
+        if [i.filename for i in infos] != [r["archive"] for r in rows] or any(
+                i.compress_type != zipfile.ZIP_STORED or i.file_size != r["bytes"]
+                for i, r in zip(infos, rows)):
+            raise ValueError("Unexpected source ZIP members or compression.")
+        for row in rows:
+            data = source_zip.read(row["archive"])
+            inspect_source_archive(data, row)
+            payloads.append(data)
+    records = []
+    # All twelve payloads pass before any source is written. Parents precede gitlink children.
+    staging_root = work / "archive-staging"
+    staging_root.mkdir(exist_ok=False)
+    for index, (row, data) in enumerate(zip(rows, payloads)):
+        destination = work / row["location"]
+        if destination.is_symlink() or destination.exists() and (not destination.is_dir() or any(destination.iterdir())):
+            raise ValueError("Archive source destination is not empty.")
+        staging = staging_root / str(index)
+        staging.mkdir()
+        with tarfile.open(fileobj=io.BytesIO(data), mode="r:gz") as archive:
+            # Preserve original names so stdlib's Windows link-copy fallback can find its target.
+            archive.extractall(staging, filter="data")
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        if destination.exists():
+            destination.rmdir()  # only the empty gitlink directory admitted above
+        (staging / row["root"]).rename(destination)
+        materialized_links = []
+        for link in row["link_members"]:
+            path = destination / link["name"][len(row["root"])+1:]
+            if path.is_symlink():
+                if os.readlink(path) != link["target"]:
+                    raise ValueError("Extracted source symlink differs.")
+                materialized_links.append({**link, "materialized_as": "symlink"})
+            elif path.is_file() and path.read_bytes() == (path.parent / link["target"]).read_bytes():
+                # tarfile may copy an in-archive link target on Windows without symlink privilege.
+                materialized_links.append({**link, "materialized_as": "target-content copy", "sha256": digest(path)})
+            else:
+                raise ValueError("Extracted source link target missing or changed.")
+        records.append({"path":row["location"], "repository":row["repository"], "commit":row["commit"],
+                        "archive":row["archive"], "sha256":row["sha256"], "links":materialized_links})
+    if any(p.name.casefold() == ".git" for p in work.rglob("*")):
+        raise ValueError("Unexpected Git metadata in retained sources.")
+    return records
+
+
 class Run:
     def __init__(self, workspace: Path, environ=None, popen=None, run_tool=None, clock=time.monotonic,
                  sleep=time.sleep):
@@ -448,6 +544,7 @@ class Run:
         self.deferred_private = []  # (record, path) whose deletion Windows refused with a sharing violation
         self.commands = []
         self.sources = []
+        self.archive_manifest = None
         self.log_total = 0
 
     def save(self, name, value):
@@ -590,6 +687,19 @@ class Run:
                              "-c", "protocol.file.allow=never", "-c", "protocol.ext.allow=never", *args], cwd, 60)
 
     def acquire(self):
+        if self.env.get(SOURCE_MODE, "git") == "archives":
+            self.archive_manifest = json.loads(Path(__file__).with_name("libass-source-archives.json").read_text())
+            bundle = Path(self.env["LIBASS_SOURCE_BUNDLE"])
+            self.sources = extract_source_bundle(bundle, self.work, self.archive_manifest)
+            for row in self.archive_manifest["unicode_data"]:
+                path = self.work / "devpkgs/src/fribidi" / row["path"]
+                if path.is_symlink() or not path.is_file() or path.stat().st_size != row["bytes"] or digest(path) != row["sha256"]:
+                    raise RuntimeError("FriBidi Unicode source input mismatch: " + row["path"])
+            self.save("SOURCES.json", self.sources)
+            self.save("ARCHIVE-ACQUISITION.json", {"mode":"retained archives", "bundle":self.archive_manifest["source_bundle"],
+                      "unicode_inputs":self.archive_manifest["unicode_data"], "git_checkout_used":False,
+                      "network_isolation_enforced":False, "public_release_approved":False})
+            return
         git = shutil.which("git.exe", path=self.env.get("PATH"))
         if not git:
             raise RuntimeError("Missing required tool: git.exe")
@@ -703,9 +813,14 @@ class Run:
                       "-DBUILD_DAV1D=0", "-DBUILD_VALD=0", "-DBUILD_LZ4=0", "-DBUILD_TESTING=0",
                       "-DFETCHCONTENT_FULLY_DISCONNECTED=ON", "-DFETCHCONTENT_UPDATES_DISCONNECTED=ON",
                       "-DCMAKE_ASM_NASM_COMPILER="+str(nasm / "nasm.exe"),
-                      "-DCMAKE_INSTALL_PREFIX="+str(self.work / "unused-install")], seconds=300)
+                      "-DCMAKE_INSTALL_PREFIX="+str(self.work / "unused-install")] +
+                     (["-DCMAKE_DISABLE_FIND_PACKAGE_Git=TRUE"] if self.archive_manifest else []), seconds=300)
         graph = self.command(ninja + ["-t", "commands", "ass"])
         assembly = check_assembly(graph)
+        if self.archive_manifest:
+            if "commit: unknown." not in (assembly["config_sourceversion_hosted"] or ""):
+                raise RuntimeError("Archive build did not use upstream unknown-version fallback.")
+            assembly["config_sourceversion_note"] = "Retained source archives; Git discovery disabled. Upstream unknown-version fallback, not vendor metadata."
         line = link_line(graph)
         first_log = self.command(ninja + ["-j", "2", "-v", "-d", "keeprsp", "ass"], seconds=600)
         if line not in first_log:
@@ -737,6 +852,8 @@ class Run:
         again = parse_dumpbin_exports(self.command([self.tools["dumpbin.exe"], "/exports", dll]))
         compare_exports(first_exports, again)
         fribidi = fribidi_proof(fribidi_before, inventory(gen_tab), graph, first_log)
+        if self.archive_manifest and fribidi != self.archive_manifest["expected_fribidi_outputs"]:
+            raise RuntimeError("Archive build FriBidi outputs differ from the qualified Git-source build.")
         self.save("BUILD-PROOF.json", {
             "assembly_enabled": True, **assembly, "link_graph": inputs, "link_command": line,
             "executed_link_command_matches_plan": True, "exports": expected,

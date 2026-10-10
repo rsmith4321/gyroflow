@@ -302,3 +302,53 @@ libass version metadata. No vendor-identical compiler, metadata or DLL, and no
 complete corresponding-source claim follows. Native source and provider
 requirements remain blocking until their separate evidence and delivery checks
 pass.
+
+### Retained source archives candidate
+
+`native-libass-archives.yml` is a separate manual-only candidate workflow. It
+downloads one retained source-only ZIP, then the same runner uses archive mode
+(`GYROFLOWPLUS_LIBASS_SOURCE_MODE=archives`). The original workflow and default
+Git acquisition remain unchanged. The build job retains read-only repository
+permission. Hosted preflight run 38017447900 confirmed that a read-only token
+cannot see the unpublished source draft. A separate fetch job therefore has
+`contents: write` solely to read that draft: it has no checkout and executes no
+acquired source. It verifies the ZIP size/hash and passes it as a one-day
+artifact to the read-only build job. No personal token is supplied, and the
+workflow contains no release upload, publication or repository write command.
+
+`libass-source-archives.json` pins the ZIP and twelve original archive hashes,
+sizes, paths, member counts, link identities and uncompressed sizes. ZIP entries
+must be exactly the twelve stored archive files. Every archive passes before
+source extraction starts. Extraction uses standard `tarfile` with its `data`
+filter in fresh private staging directories, preserving original archive names
+so Windows' standard link-copy fallback can resolve the known HarfBuzz
+documentation link. Any fallback is checked and recorded. Source instructions
+inside dependency archives are inert input data.
+
+Archive mode rejects collisions, unsafe Windows paths, unexpected member types,
+links, Git metadata and nonempty source destinations. It hashes all five Unicode
+inputs before any compiler command. The same NASM/header, assembly, 34-object
+link, exported-symbol and retained-object relink checks run afterward. All seven
+FriBidi output hashes must match qualified Git-source run 38014071478.
+
+Only archive mode adds CMake's standard
+`CMAKE_DISABLE_FIND_PACKAGE_Git=TRUE`. The two retained `find_package(Git QUIET)`
+sites are libass version metadata and the disabled dav1d project. This uses
+libass's existing unknown-version fallback and prevents an enclosing repository
+from supplying a false source version. No `.git` directory, vendor version or
+generated header is fabricated.
+
+This candidate has not yet run on hosted Windows. The acquisition tests include
+real extraction of all twelve retained archives as data, Unicode/header checks,
+and standard Windows link-copy fallback, with subprocess execution forbidden:
+
+```sh
+V18_SOURCE_BUNDLE=/absolute/path/libass-retained-source-archives-v18.zip \
+  python3 -I _scripts/notices/test_libass_source_archives.py
+```
+
+Without that fixture, the real-archive test explicitly skips. Extraction alone
+does not establish compilation, network isolation or complete corresponding
+source. The build job still has network access; this workflow makes no stronger
+offline-isolation claim. No installed app, public release or recorded source
+obligation is changed by this candidate.
