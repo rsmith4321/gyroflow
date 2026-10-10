@@ -7,6 +7,9 @@ or global PATH changes. Run: python check_windows_ffmpeg.py <FFMPEG_DIR>
 Use --target-arch x64|arm64 in build recipes to reject the wrong target bundle.
 Cross builds validate PE/import-library machines and header ABIs, explicitly
 deferring runtime checks when target DLLs cannot load in host Python.
+--app-coverage also requires every encoder, decoder, muxer, demuxer, filter
+and hardware device type the Windows app can select (src/rendering/mod.rs,
+ffmpeg_hw.rs, ffmpeg_processor.rs), so a slimmer bundle cannot drop one.
 """
 import argparse
 import ctypes
@@ -21,6 +24,30 @@ import sys
 ABIS = {"avfilter": 12, "avcodec": 63, "avformat": 63, "avdevice": 63,
         "avutil": 61, "swscale": 10, "swresample": 7}
 MACHINES = {"x64": 0x8664, "arm64": 0xAA64}
+
+# What the Windows app can select. Hardware encoders are only checked for
+# presence here; they need matching GPUs to open.
+APP_ENCODERS = [
+    "libx264", "libx265", "librav1e", "libaom-av1", "libsvtav1",
+    "prores_ks", "dnxhd", "cfhd", "ffv1", "png", "exr",
+    "h264_nvenc", "hevc_nvenc", "av1_nvenc", "h264_amf", "hevc_amf", "av1_amf",
+    "h264_qsv", "hevc_qsv", "av1_qsv", "h264_mf", "hevc_mf",
+    "h264_vulkan", "hevc_vulkan", "hevc_d3d12va",
+    "aac", "alac", "pcm_s16le", "pcm_s16be", "pcm_s24le", "pcm_s24be",
+]
+APP_DECODERS = [
+    "h264", "hevc", "prores", "av1", "libdav1d", "vp9", "mjpeg", "dnxhd",
+    "cfhd", "ffv1", "png", "exr", "aac", "alac", "mp3float",
+    "pcm_s16le", "pcm_s24le",
+]
+APP_MUXERS = ["mp4", "mov", "matroska", "mxf", "image2"]
+APP_DEMUXERS = ["mov", "matroska", "mxf", "avi", "mpegts", "image2"]
+APP_FILTERS = ["buffer", "buffersink", "format", "scale", "lut3d", "geq",
+               "colorspace", "abuffer", "abuffersink", "aformat", "aresample",
+               "volume"]
+APP_HWDEVICES = ["cuda", "d3d11va", "d3d12va", "dxva2", "qsv", "vulkan"]
+# BtbN does not build aom or oneVPL for Windows ARM64.
+ARM64_ABSENT = {"libaom-av1", "h264_qsv", "hevc_qsv", "av1_qsv", "qsv"}
 
 
 def pe_machine(path):
@@ -57,7 +84,31 @@ def import_machine(path):
     raise RuntimeError(f"Missing COFF import objects: {path}")
 
 
-def check_bundle(root, target_arch=None):
+def app_coverage_missing(filters, codecs, formats, util, arch):
+    def absent(names, lookup):
+        wanted = [name for name in names if not (arch == "arm64" and name in ARM64_ABSENT)]
+        return [name for name in wanted if not lookup(name.encode())]
+
+    for function in (codecs.avcodec_find_encoder_by_name, codecs.avcodec_find_decoder_by_name,
+                     formats.av_find_input_format, filters.avfilter_get_by_name):
+        function.argtypes = [ctypes.c_char_p]
+        function.restype = ctypes.c_void_p
+    formats.av_guess_format.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p]
+    formats.av_guess_format.restype = ctypes.c_void_p
+    util.av_hwdevice_find_type_by_name.argtypes = [ctypes.c_char_p]
+    util.av_hwdevice_find_type_by_name.restype = ctypes.c_int
+    missing = {
+        "encoders": absent(APP_ENCODERS, codecs.avcodec_find_encoder_by_name),
+        "decoders": absent(APP_DECODERS, codecs.avcodec_find_decoder_by_name),
+        "muxers": absent(APP_MUXERS, lambda name: formats.av_guess_format(name, None, None)),
+        "demuxers": absent(APP_DEMUXERS, formats.av_find_input_format),
+        "filters": absent(APP_FILTERS, filters.avfilter_get_by_name),
+        "hwdevices": absent(APP_HWDEVICES, util.av_hwdevice_find_type_by_name),
+    }
+    return {kind: names for kind, names in missing.items() if names}
+
+
+def check_bundle(root, target_arch=None, app_coverage=False):
     root = Path(root).resolve(strict=True)
     binary_dir = root / "bin"
     if not list(binary_dir.glob("avfilter-*.dll")):
@@ -89,7 +140,7 @@ def check_bundle(root, target_arch=None):
         # The existing Windows ARM64 CI job builds on an x64 Windows host.
         # Loading target DLLs into that host Python is impossible, not a filter failure.
         return {"mode": "structural-only", "target_arch": arch,
-                "header_abis": ABIS, "runtime_verified": False,
+                "header_abis": ABIS, "runtime_verified": False, "app_coverage": False,
                 "runtime_status": "Deferred: target DLL architecture differs from host Python"}
     # Pin DLL resolution to this bundle, including its transitive dependencies.
     with os.add_dll_directory(str(binary_dir)):
@@ -115,8 +166,14 @@ def check_bundle(root, target_arch=None):
         missing += [name for name in required_encoders if not codecs.avcodec_find_encoder_by_name(name.encode())]
         if missing:
             raise RuntimeError("Missing required FFmpeg filters/encoders: " + ", ".join(missing))
-        return {"mode": "native-runtime", "target_arch": arch, "runtime_verified": True,
-                "versions": versions, "filters": required_filters, "encoders": required_encoders}
+        result = {"mode": "native-runtime", "target_arch": arch, "runtime_verified": True,
+                  "versions": versions, "filters": required_filters, "encoders": required_encoders}
+        if app_coverage:
+            gaps = app_coverage_missing(filters, codecs, load("avformat"), util, arch)
+            if gaps:
+                raise RuntimeError("Missing FFmpeg components the app can select: " + json.dumps(gaps, sort_keys=True))
+            result["app_coverage"] = True
+        return result
 
 
 if __name__ == "__main__":
@@ -126,8 +183,10 @@ if __name__ == "__main__":
         parser = argparse.ArgumentParser(description=__doc__)
         parser.add_argument("bundle")
         parser.add_argument("--target-arch", choices=MACHINES)
+        parser.add_argument("--app-coverage", action="store_true",
+                            help="also require everything the Windows app can select")
         args = parser.parse_args()
-        print(json.dumps(check_bundle(args.bundle, args.target_arch), sort_keys=True))
+        print(json.dumps(check_bundle(args.bundle, args.target_arch, args.app_coverage), sort_keys=True))
     except (OSError, RuntimeError, ValueError) as error:
         print(str(error), file=sys.stderr)
         sys.exit(1)
