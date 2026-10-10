@@ -724,7 +724,8 @@ Rectangle {
     }
 
     Component.onCompleted: {
-        controller.check_updates();
+        // The App Store edition is updated by the App Store.
+        if (!isStorePackage) controller.check_updates();
 
         QT_TRANSLATE_NOOP("App", "An error occurred: %1");
         QT_TRANSLATE_NOOP("App", "Gyroflow file exported to %1.");
