@@ -338,7 +338,32 @@ libass's existing unknown-version fallback and prevents an enclosing repository
 from supplying a false source version. No `.git` directory, vendor version or
 generated header is fabricated.
 
-This candidate has not yet run on hosted Windows. The acquisition tests include
+Hosted run
+[38017550683](https://github.com/rsmith4321/gyroflow-plus/actions/runs/38017550683)
+at source `4dd7582a606ec39ba7e9385f58b4195085ae6a4b` passed with both jobs:
+
+- The fetch job read the draft and passed the verified ZIP.
+- The build job ran with `contents: read`.
+
+This followed preflight run 38017447900, which failed because a read-only token
+could not see the draft. Root fixed a review finding before acceptance.
+
+Root's data-only inspector checked the 28 text artifact files and passed all
+listed counts:
+
+- 14 commands
+- 13 nonempty log hashes
+- 187 steps
+- seven assembly objects
+- 34 objects
+- 50 exports
+- 181 runner-checked retained hashes
+- seven FriBidi hashes matching run 38014071478
+
+Binary products were not transferred. See
+[the acceptance and limits](../../docs/WINDOWS-LIBASS-SOURCE-ACCEPTANCE.md#retained-archive-source-run).
+
+The acquisition tests include
 real extraction of all twelve retained archives as data, Unicode/header checks,
 and standard Windows link-copy fallback, with subprocess execution forbidden:
 

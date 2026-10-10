@@ -77,11 +77,44 @@ the worker's complete archive-member map matches the independently verified
 source inventory. Remote package/binary byte hashes are worker observations;
 the acceptance host did not execute or transfer those binaries again.
 
-Content integrity passed. Strict provenance checking returned the expected
+Content integrity passed. **Historical (2026-10-09 `6e27b793` assembly):** strict
+provenance checking of that assembly's notice manifest returned the expected
 incomplete result for **ten remaining requirements** across Qt, FFmpeg, MDK,
-Microsoft CRT, D3D compiler and software OpenGL. Complete notice copying is
-distinct from establishing every provider's distribution/source obligations.
-All assembly jobs ended, including preserved failed helper attempts.
+Microsoft CRT, D3D compiler and software OpenGL. That count, and the notice
+commit, manifest and receipt identities above, describe only that private
+assembly and are not updated here. Complete notice copying is distinct from
+establishing every provider's distribution/source obligations. All assembly
+jobs ended, including preserved failed helper attempts.
+
+### Current source notice packet
+
+The current native notice snapshot, `resources/notices/native/windows-x64`, is a
+separate, later packet. Its `MANIFEST.json` is 559,181 bytes, SHA-256
+`a9e0fb7dd2eb08c971b21bc1bcf97ef1788e6bab2d4437df201830bbd71c095e`. It uses schema
+`gyroflow-plus/native-notices-manifest/v2`, has status `CANDIDATE`, targets
+`x86_64-pc-windows-msvc`, and sets `public_release_approved: false`.
+
+The offline verifier ran pinned to that hash. It found:
+
+- 1,391 listed members (8,199,867 verified bytes), matching 1,391 files plus the manifest
+- 25 reused repository paths
+- 11 required components
+- a staged inventory of 120 DLL entries across 10 components
+
+Content integrity passed with 0 problems. The strict check reported
+`RELEASE-PROVENANCE: INCOMPLETE`, with exactly eight blocking gaps across six
+components (3 blockers, 5 obligations):
+
+- d3dcompiler: `d3d-terms`
+- ffmpeg: `ffmpeg-texts`, `ffmpeg-source`
+- mdk: `mdk-ffmpeg9-source`, `mdk-libass-fribidi-source`
+- msvc-crt: `crt-terms`
+- qt: `qt-source`
+- unattributed: `opengl32sw-provider`
+
+Fifteen advisories are recorded separately from the eight blocking requirements.
+This source check does not establish assembly or installation of the later
+packet on Windows; the dated `6e27b793` assembly acceptance above is unchanged.
 
 Private evidence is retained under `_dev/root-windows-427a-acceptance-20261009/`
 and `_dev/root-windows-6e27-assembly-acceptance-20261009/`. Source preparation

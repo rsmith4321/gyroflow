@@ -66,3 +66,40 @@ work without approving a public download.
 Private root acceptance is retained at
 `_dev/root-libass-hosted-ci-20261009/CI-RUN-38014071478-ACCEPTANCE.json`, alongside
 the text artifact and a data-only independent inspector.
+
+## Retained-archive source run
+
+Manual hosted run
+[38017550683](https://github.com/rsmith4321/gyroflow-plus/actions/runs/38017550683)
+completed successfully on October 10, 2026 UTC, using Gyroflow+ source
+`4dd7582a606ec39ba7e9385f58b4195085ae6a4b` and build job `114111143371`. Source
+came from the twelve retained archives, without Git. The installed app was
+unchanged.
+
+| Check | Evidence |
+| --- | --- |
+| Source | All twelve archive pins (repository, commit, SHA-256) verified; one HarfBuzz documentation link materialized as a symlink |
+| Commands | 14 successful; 13 nonempty public log hashes checked by root; private environment capture excluded |
+| NASM | Generation, compile, version and configuration-header checks pass; original recipe unchanged, derived recipe recorded |
+| libass | 187-step build, including all seven x64 assembly objects |
+| Link inputs | 34 objects, three unique static dependencies; literal link command present in plan, build and relink |
+| Exported API | Fifty names per build match pinned `libass.sym`; initial and relink rows identical |
+| Relink | Runner verified all 181 retained object/static-library hashes |
+| FriBidi generation | Seven outputs; runner required their hashes to match run 38014071478 |
+
+Root's data-only inspector checked the 28-file text artifact. Binary products
+and generated table bytes were not transferred, so root did not rehash them.
+The first DLL is
+`d5b7a67b01c374ced6ee73dbcc9e4e22271ed363c384d89fd229ea85d868350a` and the
+relinked DLL is
+`1da759fde69fc9f224174480615fc5595ee7144a3602c4840f7b24ee3e02b1d5`. They differ.
+
+### Limits of this run
+
+- The runner still had network access, so this is not a network-isolation or offline-build claim.
+- The hosted toolchain is recorded in `TOOLCHAIN.json` but is not shown to match the vendor's build.
+- No binary equivalence, vendor-identical DLL or version-metadata claim follows.
+- No complete corresponding source, legal sufficiency, app install, package promotion or public release is established.
+
+The eight recorded Windows requirements, including `mdk-libass-fribidi-source`,
+remain open.
