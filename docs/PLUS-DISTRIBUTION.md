@@ -144,7 +144,7 @@ python _scripts/package_plus.py windows _deployment/_binaries/win64 path/to/new-
   --deploy-receipt _deployment/_binaries/win64-deploy.json `
   --msvc-redist-floor 14.44.35211.0 `
   --licenses path/to/dependency-notices `
-  --native-notices-sha256 41edb624f5aa46aab954d03555b33ba18876d36546df68248b45de1192433530
+  --native-notices-sha256 cfa30e3a5b39c8512382ee061a9f435349cf229782d42f53a4cc81c32e78f014
 ```
 
 `--native-notices-sha256` pins the reviewed native notice tree, which must be

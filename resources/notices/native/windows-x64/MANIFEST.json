@@ -1492,7 +1492,24 @@
     "ffmpeg/toolchain/rust-std-b940084d7eb6/LICENSES/Unicode-3.0.txt",
     "ffmpeg/components/lame-r6835/COPYING",
     "ffmpeg/components/lame-r6835/LICENSE",
-    "ffmpeg/components/opencore-amr-7dba8c322384/LICENSE"
+    "ffmpeg/components/opencore-amr-7dba8c322384/LICENSE",
+    "ffmpeg/components/aom-b4ce2cd097b0/AUTHORS",
+    "ffmpeg/components/aom-b4ce2cd097b0/LICENSE",
+    "ffmpeg/components/aom-b4ce2cd097b0/PATENTS",
+    "ffmpeg/components/libiconv-1df3087ba811/AUTHORS",
+    "ffmpeg/components/libiconv-1df3087ba811/COPYING",
+    "ffmpeg/components/libiconv-1df3087ba811/COPYING.LIB",
+    "ffmpeg/components/pixman-96c04d1b8793/AUTHORS",
+    "ffmpeg/components/pixman-96c04d1b8793/COPYING",
+    "ffmpeg/components/libbluray-a24f4fad4d62/COPYING",
+    "ffmpeg/components/libdvdcss-811ce97a1d4d/AUTHORS",
+    "ffmpeg/components/libdvdcss-811ce97a1d4d/COPYING",
+    "ffmpeg/components/libdvdread-0f30df53125b/AUTHORS",
+    "ffmpeg/components/libdvdread-0f30df53125b/COPYING",
+    "ffmpeg/components/libdvdnav-8147ccd35e5a/AUTHORS",
+    "ffmpeg/components/libdvdnav-8147ccd35e5a/COPYING",
+    "ffmpeg/components/libudfread-b0bc6957e7e0/COPYING",
+    "ffmpeg/components/librist-4f45ef8f7898/COPYING"
    ],
    "provenance_members": [
     "ffmpeg/PROVENANCE.json",
@@ -1505,7 +1522,8 @@
     "ffmpeg/provenance/librsvg-Cargo.lock.txt",
     "ffmpeg/provenance/btbn-9acad4a9-script-pins.txt",
     "ffmpeg/provenance/ffmpeg-archive-bin-sha256.tsv",
-    "ffmpeg/provenance/v5-recovered-components.tsv"
+    "ffmpeg/provenance/v5-recovered-components.tsv",
+    "ffmpeg/provenance/mac-recovered-components-20261010.tsv"
    ],
    "reused_repo_paths": [],
    "release_provenance": {
@@ -1514,8 +1532,8 @@
      {
       "id": "ffmpeg-texts",
       "class": "blocker",
-      "text": "Licence texts for 10 of 116 components compiled into the shipped FFmpeg DLLs are still missing at their pins: aom b4ce2cd097b00921b0327bfb5f07b5f8361ade99 (aomedia.googlesource.com); libiconv 1df3087ba8110c7f3ed3eb5f8869b814dbbe00b0 (git.savannah.gnu.org); pixman 96c04d1b87934dc4b9396197a2dff737698ab310 (gitlab.freedesktop.org); libbluray a24f4fad4d62893de647abc8671397747b2359dd (code.videolan.org); libdvdcss 811ce97a1d4d1c9d936f4b2707f533a9ef768251 (code.videolan.org); libdvdread 0f30df53125b564ef45903714403ce0a1e6c5e9e (code.videolan.org); libdvdnav 8147ccd35e5aae4afdd21171cf7b6b4d8f179d28 (code.videolan.org); libudfread b0bc6957e7e07d5f35391f210596d9eb71cffdd9 (code.videolan.org); librist 4f45ef8f78983892d52ccd52d9f675435b23738f (code.videolan.org); xvidcore SVN r2204 (svn.xvid.org). Their hosts refuse this environment; no materially different official endpoint carries the pins.",
-      "needed_artifact": "The top-level licence/copying files of each listed component at the exact pin, fetched by root (e.g. git fetch <repo> <commit>; git show <commit>:COPYING).",
+      "text": "Licence texts for 1 of 116 components compiled into the shipped FFmpeg DLLs are still missing at their pins: xvidcore SVN r2204 (svn.xvid.org). On 2026-10-10 that SVN server required authentication from the Mac; no credentials were used. No materially different official endpoint carrying the pin is recorded.",
+      "needed_artifact": "The top-level licence/copying files of xvidcore at SVN r2204, fetched from the official repository.",
       "v4_gap": "ffmpeg-2"
      },
      {
@@ -1543,6 +1561,12 @@
       "id": "ffmpeg-texts-recovered",
       "class": "resolved",
       "text": "opencore-amr (7dba8c32, LICENSE) and lame (SVN r6835, COPYING and LICENSE) recovered from SourceForge at the exact pins.",
+      "v4_gap": "ffmpeg-2 (partial)"
+     },
+     {
+      "id": "ffmpeg-texts-recovered-mac",
+      "class": "resolved",
+      "text": "aom, libiconv, pixman, libbluray, libdvdcss, libdvdread, libdvdnav, libudfread, librist recovered on 2026-10-10 from their primary repositories at the exact pinned commits on the Mac (blobless git clone, git cat-file of the pinned tree); files, bytes, SHA-256 and sources in ffmpeg/provenance/mac-recovered-components-20261010.tsv.",
       "v4_gap": "ffmpeg-2 (partial)"
      }
     ]
@@ -3055,8 +3079,8 @@
   },
   {
    "path": "ffmpeg/PROVENANCE.json",
-   "bytes": 4525,
-   "sha256": "0056ec2e5766ff24c84ea317cf6ecdc086dd500e93ced7119f32e6bfa8b8cead",
+   "bytes": 3963,
+   "sha256": "0e85d337a8c6cb4bff6633ab2a96a95d14aeac35fcc8b28db31f202799b2b8b4",
    "component": "ffmpeg",
    "role": "provenance"
   },
@@ -4664,6 +4688,125 @@
    "role": "notice"
   },
   {
+   "path": "ffmpeg/components/aom-b4ce2cd097b0/AUTHORS",
+   "bytes": 13178,
+   "sha256": "c31b80ca48fde06ca03aef2f3dec15413fe0c2661fe6b56e86ccd69dbc6f9a1d",
+   "component": "ffmpeg",
+   "role": "notice"
+  },
+  {
+   "path": "ffmpeg/components/aom-b4ce2cd097b0/LICENSE",
+   "bytes": 1316,
+   "sha256": "4764a286d8b2faeaf42f4418e7d7a28d58fc8fd4d00a3d0a7f44b0a4099de7f2",
+   "component": "ffmpeg",
+   "role": "notice"
+  },
+  {
+   "path": "ffmpeg/components/aom-b4ce2cd097b0/PATENTS",
+   "bytes": 5701,
+   "sha256": "661fb8e504744e95587b556b94a58343448300606a41bea8c7a9b97125696e61",
+   "component": "ffmpeg",
+   "role": "notice"
+  },
+  {
+   "path": "ffmpeg/components/libiconv-1df3087ba811/AUTHORS",
+   "bytes": 31,
+   "sha256": "ed10ef2a01effb12849006d43262ffde5cf72a7d5423bbc8aa66fc6959774c0c",
+   "component": "ffmpeg",
+   "role": "notice"
+  },
+  {
+   "path": "ffmpeg/components/libiconv-1df3087ba811/COPYING",
+   "bytes": 35147,
+   "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+   "component": "ffmpeg",
+   "role": "notice"
+  },
+  {
+   "path": "ffmpeg/components/libiconv-1df3087ba811/COPYING.LIB",
+   "bytes": 26419,
+   "sha256": "20e50fe7aae3e56378ebf0417d9de904f55a0e61e4df315333e632a4d3555d95",
+   "component": "ffmpeg",
+   "role": "notice"
+  },
+  {
+   "path": "ffmpeg/components/pixman-96c04d1b8793/AUTHORS",
+   "bytes": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "component": "ffmpeg",
+   "role": "notice"
+  },
+  {
+   "path": "ffmpeg/components/pixman-96c04d1b8793/COPYING",
+   "bytes": 2087,
+   "sha256": "fac9270f0987b96ff4533fca3548c633e02083cbba4a0172a3b149b2e4019793",
+   "component": "ffmpeg",
+   "role": "notice"
+  },
+  {
+   "path": "ffmpeg/components/libbluray-a24f4fad4d62/COPYING",
+   "bytes": 24478,
+   "sha256": "b3aa400aca6d2ba1f0bd03bd98d03d1fe7489a3bbb26969d72016360af8a5c9d",
+   "component": "ffmpeg",
+   "role": "notice"
+  },
+  {
+   "path": "ffmpeg/components/libdvdcss-811ce97a1d4d/AUTHORS",
+   "bytes": 1708,
+   "sha256": "b2de31ac3382bbadd18eb2f9abea4e209372c62bdf722c96a62043ad074e93b1",
+   "component": "ffmpeg",
+   "role": "notice"
+  },
+  {
+   "path": "ffmpeg/components/libdvdcss-811ce97a1d4d/COPYING",
+   "bytes": 18092,
+   "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643",
+   "component": "ffmpeg",
+   "role": "notice"
+  },
+  {
+   "path": "ffmpeg/components/libdvdread-0f30df53125b/AUTHORS",
+   "bytes": 947,
+   "sha256": "e49066cd889298c75cf2b37167557004c43112ec6be90c487644fc6b3b737fcf",
+   "component": "ffmpeg",
+   "role": "notice"
+  },
+  {
+   "path": "ffmpeg/components/libdvdread-0f30df53125b/COPYING",
+   "bytes": 18097,
+   "sha256": "d6cb0e9e560f51085556949a84af12b79a00f10ab8b66c752537faf7cd665572",
+   "component": "ffmpeg",
+   "role": "notice"
+  },
+  {
+   "path": "ffmpeg/components/libdvdnav-8147ccd35e5a/AUTHORS",
+   "bytes": 455,
+   "sha256": "0d688bcf35faf86f4d9747f677da278189932eead3f1d05cde637d9ea93a7816",
+   "component": "ffmpeg",
+   "role": "notice"
+  },
+  {
+   "path": "ffmpeg/components/libdvdnav-8147ccd35e5a/COPYING",
+   "bytes": 17992,
+   "sha256": "32b1062f7da84967e7019d01ab805935caa7ab7321a7ced0e30ebe75e5df1670",
+   "component": "ffmpeg",
+   "role": "notice"
+  },
+  {
+   "path": "ffmpeg/components/libudfread-b0bc6957e7e0/COPYING",
+   "bytes": 26530,
+   "sha256": "dc626520dcd53a22f727af3ee42c770e56c97a64fe3adb063799d8ab032fe551",
+   "component": "ffmpeg",
+   "role": "notice"
+  },
+  {
+   "path": "ffmpeg/components/librist-4f45ef8f7898/COPYING",
+   "bytes": 1319,
+   "sha256": "b9841591a3452ee30033d8e3586c7b1244a0b2fc1dc6cb04576957c313cb2792",
+   "component": "ffmpeg",
+   "role": "notice"
+  },
+  {
    "path": "ffmpeg/provenance/btbn-9acad4a9-script-pins.txt",
    "bytes": 27017,
    "sha256": "9a39a4ada5800092e4b913b717b42bacc75406e1ef1eb67bba7b2024cc84eded",
@@ -4730,6 +4873,13 @@
    "path": "ffmpeg/provenance/v5-recovered-components.tsv",
    "bytes": 593,
    "sha256": "1877d02e29369fe5f7da6fc18d3133c4e989cfb81c4445ee24068ce38946640f",
+   "component": "ffmpeg",
+   "role": "provenance"
+  },
+  {
+   "path": "ffmpeg/provenance/mac-recovered-components-20261010.tsv",
+   "bytes": 3366,
+   "sha256": "039da12f7e746baf7363427e34c1a25a5b192aabf10290a12a1df4ad272501df",
    "component": "ffmpeg",
    "role": "provenance"
   },
