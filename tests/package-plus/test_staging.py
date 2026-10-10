@@ -121,6 +121,19 @@ class StagingTests(unittest.TestCase):
                     stager.main()
                 self.assertEqual(failure.exception.code,2)
                 self.assertFalse((root/'stage').exists())
+            bundle=root/'qt.tar';bundle.write_bytes(b'synthetic')
+            for command,message in ((base+['--source-bundle',f'qt={bundle}'],'requires --native-notices-sha256'),
+                    (['package_plus.py','mac']+base[2:]+['--native-notices-sha256','0'*64,'--source-bundle',f'qt={bundle}'],
+                     'applies to Windows stages'),
+                    (base+['--native-notices-sha256','0'*64,'--source-bundle',f'qt={root/"absent.tar"}'],'is not a file')):
+                stderr=io.StringIO()
+                with self.subTest(message=message), patch.object(stager,'ROOT',root), patch.object(sys,'argv',command), \
+                     patch.object(stager,'git',side_effect=lambda *args: b'' if args[0]=='status' else commit.encode()), \
+                     contextlib.redirect_stderr(stderr), self.assertRaises(SystemExit) as failure:
+                    stager.main()
+                self.assertEqual(failure.exception.code,2)
+                self.assertIn(message,stderr.getvalue())
+                self.assertFalse((root/'stage').exists())
 
 
 class NativeNoticeBindingTests(unittest.TestCase):
@@ -145,7 +158,13 @@ class NativeNoticeBindingTests(unittest.TestCase):
         self.assertEqual(report['integrity_exit'],0)
         # Recorded release gaps remain; binding never turns them into approval.
         self.assertEqual(report['release_complete_exit'],3)
-        self.assertEqual(report['source_bundles'],dict(qt=None,libass=None,mesa=None,delivery='open'))
+
+    def test_recorded_qt_and_libass_bundle_identities_are_read_from_the_tree(self):
+        expected=stager.expected_source_bundles(self.dependencies/'native/windows-x64')
+        self.assertEqual(expected['qt'],dict(file='Qt-6.7.3-source-bundle.tar',
+            sha256='cb7f4c24d5ca9c5f597631d24fe6ea04e22c81a86449e6e4701b3171e102c523'))
+        self.assertEqual(expected['libass']['sha256'],'154d2e09f724744168554775a140a20a353649f22053b1c91318414e9c9f1b8f')
+        self.assertEqual(stager.expected_source_bundles(None),{})
 
     def test_unmatched_pin_or_missing_tree_is_an_error(self):
         for dependencies,pin in ((self.dependencies,'0'*64),(self.dependencies/'absent',self.pin)):
@@ -164,6 +183,54 @@ class NativeNoticeBindingTests(unittest.TestCase):
             report=stager.bind_native_notices(dependencies,self.pin)
             self.assertNotEqual(report['integrity_exit'],0)
             self.assertTrue(any('integrity' in error for error in report['errors']))
+
+
+class SourceBundleTests(unittest.TestCase):
+    """Synthetic bundles and recorded identities only."""
+    def setUp(self):
+        self.temporary=tempfile.TemporaryDirectory(prefix='plus-source-bundles-')
+        self.root=Path(self.temporary.name)
+        self.bundles={}
+        for name in stager.SOURCE_BUNDLES:
+            path=self.root/'inputs'/f'{name}-source.tar';path.parent.mkdir(exist_ok=True)
+            path.write_bytes(f'synthetic {name} source'.encode());self.bundles[name]=path
+        digest=lambda name: hashlib.sha256(self.bundles[name].read_bytes()).hexdigest()
+        self.tree=self.root/'tree'
+        (self.tree/'qt-6.7.3').mkdir(parents=True)
+        (self.tree/'qt-6.7.3/source-bundle.sha256').write_text(f'{digest("qt")}  qt-source.tar\n')
+        (self.tree/'mdk-0.39.0/bundled/evidence').mkdir(parents=True)
+        (self.tree/'mdk-0.39.0/bundled/evidence/LIBASS-SOURCE-QUALIFICATION.json').write_text(
+            json.dumps(dict(retained_source_kit=dict(file='libass-source.tar',sha256=digest('libass')))))
+
+    def tearDown(self):
+        self.temporary.cleanup()
+
+    def stage(self, bundles):
+        return stager.stage_source_bundles(bundles,self.root/'stage-Source',self.tree)
+
+    def test_all_matching_bundles_are_delivered_beside_the_package(self):
+        report,errors=self.stage(list(self.bundles.items()))
+        self.assertEqual(errors,[])
+        self.assertEqual(report['delivery'],'beside-package')
+        self.assertEqual(report['qt']['sha256'],report['qt']['expected_sha256'])
+        self.assertIsNone(report['ffmpeg']['expected_sha256'])
+        self.assertEqual((self.root/'stage-Source/qt-source.tar').read_bytes(),self.bundles['qt'].read_bytes())
+
+    def test_missing_mismatched_or_repeated_bundles_keep_delivery_open(self):
+        report,errors=self.stage([('qt',self.bundles['qt'])])
+        self.assertEqual((errors,report['delivery'],report['libass']),([],'open',None))
+        self.bundles['libass'].write_bytes(b'edited kit')
+        report,errors=stager.stage_source_bundles(list(self.bundles.items()),self.root/'other-Source',self.tree)
+        self.assertEqual(report['delivery'],'open')
+        self.assertIn('does not match the recorded',errors[0])
+        report,errors=stager.stage_source_bundles([('qt',self.bundles['qt'])]*2,self.root/'third-Source',self.tree)
+        self.assertIn('supplied more than once',errors[0])
+
+    def test_bundle_arguments_are_validated(self):
+        self.assertEqual(stager.source_bundle('qt=a.tar'),('qt',Path('a.tar')))
+        for value in ('mesa=a.tar','qt','qt=','=a.tar'):
+            with self.subTest(value=value), self.assertRaises(stager.argparse.ArgumentTypeError):
+                stager.source_bundle(value)
 
 
 class QtNoticeTests(unittest.TestCase):

@@ -152,8 +152,18 @@ inside the `--licenses` directory. Staging fails unless exactly one
 `MANIFEST.json` there has that hash and its integrity check passes.
 `BUILD.json` and `PACKAGE.json` record the manifest hash and path, the
 integrity result and the `--require-release-complete` result. That result stays
-3 while the recorded release gaps remain. Third-party source bundles are recorded
-as not yet delivered.
+3 while the recorded release gaps remain.
+
+Corresponding source is delivered as bundles beside the package, not as a
+written offer. Add `--source-bundle NAME=PATH` for each of `qt`, `libass`,
+`ffmpeg` and `mdk-ffmpeg9`. Each bundle is copied to the stage's `Source`
+folder. The Qt bundle and libass source kit must match the identities recorded
+in the reviewed notice tree (`qt-6.7.3/source-bundle.sha256` and
+`LIBASS-SOURCE-QUALIFICATION.json`); a mismatch stops staging. The receipts
+record each bundle's hash. Delivery is recorded as `beside-package` only when
+all four are present; otherwise it stays `open`. The FFmpeg and MDK FFmpeg
+bundles have not been assembled yet. Recording a bundle does not approve a
+public release.
 
 The floor above is an example; replace it with the full FileVersion required by
 the newest toolset used to build the app, OCIO, Qt and OpenCV. Run deploy in a

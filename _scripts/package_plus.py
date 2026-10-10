@@ -61,12 +61,10 @@ def bind_native_notices(dependencies, manifest_sha256):
 
     Exactly one MANIFEST.json inside the copied --licenses tree must match the
     pin. Integrity must pass; the release-complete result (3 while recorded
-    gaps remain) is recorded, never treated as approval. Third-party source
-    bundles stay unbound until a delivery route is chosen."""
+    gaps remain) is recorded, never treated as approval."""
     sha=lambda path: hashlib.sha256(path.read_bytes()).hexdigest()
     report=dict(manifest_sha256=manifest_sha256,manifest_path=None,integrity_exit=None,
-        release_complete_exit=None,
-        source_bundles=dict(qt=None,libass=None,mesa=None,delivery='open'),errors=[])
+        release_complete_exit=None,errors=[])
     found=[p for p in sorted(dependencies.rglob('MANIFEST.json')) if p.is_file() and sha(p)==manifest_sha256] \
         if dependencies.is_dir() else []
     if len(found)!=1:
@@ -81,6 +79,54 @@ def bind_native_notices(dependencies, manifest_sha256):
         if report['integrity_exit']!=0:
             report['errors'].append(f'Native notice integrity check exited {report["integrity_exit"]}')
     return report
+
+
+SOURCE_BUNDLES=('qt','libass','ffmpeg','mdk-ffmpeg9')
+
+
+def source_bundle(value):
+    name,sep,path=value.partition('=')
+    if not sep or name not in SOURCE_BUNDLES or not path:
+        raise argparse.ArgumentTypeError(f'Use NAME=PATH with NAME one of {", ".join(SOURCE_BUNDLES)}')
+    return name,Path(path)
+
+
+def expected_source_bundles(tree):
+    """Source-bundle identities the reviewed native notice tree records."""
+    expected={}
+    for line in (tree.glob('qt-*/source-bundle.sha256') if tree else []):
+        for digest,_,file in (row.partition('  ') for row in line.read_text().splitlines() if row.strip()):
+            expected['qt']=dict(file=file,sha256=digest)
+    for record in (tree.glob('mdk-*/bundled/evidence/LIBASS-SOURCE-QUALIFICATION.json') if tree else []):
+        kit=json.loads(record.read_text()).get('retained_source_kit') or {}
+        if kit.get('sha256'): expected['libass']=dict(file=kit.get('file'),sha256=kit['sha256'])
+    return expected
+
+
+def stage_source_bundles(bundles, destination, tree):
+    """Copy corresponding-source bundles beside the stage and check recorded identities.
+
+    Delivery is complete only when every required bundle is present and every
+    recorded identity matches; otherwise it stays open, which is never approval."""
+    expected=expected_source_bundles(tree)
+    report={name:None for name in SOURCE_BUNDLES};errors=[]
+    for name,path in bundles:
+        if report[name] is not None:
+            errors.append(f'Source bundle {name} supplied more than once');continue
+        path=path.resolve(strict=True);destination.mkdir(exist_ok=True)
+        target=destination/path.name
+        if target.exists():
+            errors.append(f'Source bundle file name {path.name} is already used');continue
+        shutil.copy2(path,target)
+        digest=hashlib.sha256(target.read_bytes()).hexdigest()
+        want=expected.get(name,{}).get('sha256')
+        report[name]=dict(file=f'{destination.name}/{path.name}',bytes=target.stat().st_size,sha256=digest,
+                          expected_sha256=want)
+        if want and digest!=want:
+            errors.append(f'Source bundle {name} SHA-256 {digest} does not match the recorded {want}')
+    complete=all(report[name] for name in SOURCE_BUNDLES) and not errors
+    report['delivery']='beside-package' if complete else 'open'
+    return report,errors
 
 
 def copy_ocio_notices(app, notices):
@@ -367,12 +413,19 @@ def main():
     parser.add_argument('--deploy-receipt',type=Path,help='Mac: build_plus.py receipt; Windows: win64-deploy.json written by just deploy')
     parser.add_argument('--msvc-redist-floor',type=msvc_version,help='Windows: required C++ redistributable FileVersion for the newest toolset among staged components, e.g. 14.44.35211.0')
     parser.add_argument('--native-notices-sha256',type=sha256_hex,help='Windows: SHA-256 of the reviewed native notice MANIFEST.json inside --licenses')
+    parser.add_argument('--source-bundle',type=source_bundle,action='append',default=[],metavar='NAME=PATH',
+        help=f'Windows: corresponding-source bundle copied beside the stage; NAME is one of {", ".join(SOURCE_BUNDLES)}')
     args=parser.parse_args()
     runtime=args.runtime.resolve(strict=True);binary=args.binary.resolve(strict=True)
     output=args.output.resolve()
     if output.exists(): parser.error('Output already exists; use a fresh staging directory')
     dirty=bool(git('status','--porcelain').strip())
     if dirty: parser.error('All staging requires committed source, including newly added files')
+    if args.source_bundle and args.platform!='windows': parser.error('--source-bundle applies to Windows stages')
+    if args.source_bundle and not args.native_notices_sha256:
+        parser.error('--source-bundle requires --native-notices-sha256 to identify the recorded bundles')
+    for name,path in args.source_bundle:
+        if not path.is_file(): parser.error(f'Source bundle {name} is not a file: {path}')
     if not args.development_runtime and not args.licenses: parser.error('Supply dependency notices/provenance with --licenses')
     version=tomllib.loads((ROOT/'Cargo.toml').read_text())['package']['version']
     commit=git('rev-parse','HEAD').decode().strip()
@@ -473,6 +526,9 @@ def main():
     native_notices=None
     if args.platform=='windows' and args.native_notices_sha256:
         native_notices=bind_native_notices(notices/'Dependencies',args.native_notices_sha256)
+        tree=(notices/'Dependencies'/native_notices['manifest_path']).parent if native_notices['manifest_path'] else None
+        native_notices['source_bundles'],bundle_errors=stage_source_bundles(args.source_bundle,output/'Source',tree)
+        native_notices['errors']+=bundle_errors
         if not args.development_runtime and native_notices['errors']:
             raise RuntimeError('Native notice binding failed: '+'; '.join(native_notices['errors']))
     ocio_notices=copy_ocio_notices(app,notices)
