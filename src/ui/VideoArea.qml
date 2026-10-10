@@ -750,7 +750,7 @@ Item {
                         } else {
                             controller.load_telemetry(root.loadedFileUrl, true, vid, -1, 0);
                         }
-                        vidInfo.loadFromVideoMetadata(md, vid.videoWidth, vid.videoHeight);
+                        vidInfo.loadFromVideoMetadata(md, vid.videoWidth, vid.videoHeight, vid.duration);
                         window.sync.customSyncTimestamps = [];
 
                         if (root.mergedFiles.length > 1) {
