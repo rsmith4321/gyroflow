@@ -98,9 +98,9 @@ impl UITools {
                     engine.set_property("styleBackground2"      .into(), QString::from("#12171d").into());
                     engine.set_property("styleButtonColor"      .into(), QString::from("#242c35").into());
                     engine.set_property("styleTextColor"        .into(), QString::from("#edf3f6").into());
-                    engine.set_property("styleAccentColor"      .into(), QString::from("#63d9c4").into());
+                    engine.set_property("styleAccentColor"      .into(), QString::from("#65b7ed").into());
                     engine.set_property("styleVideoBorderColor" .into(), QString::from("#303b46").into());
-                    engine.set_property("styleTextColorOnAccent".into(), QString::from("#10211f").into());
+                    engine.set_property("styleTextColorOnAccent".into(), QString::from("#0b1a26").into());
                     engine.set_property("styleHrColor"          .into(), QString::from("#303b46").into());
                     engine.set_property("stylePopupBorder"      .into(), QString::from("#10151a").into());
                     engine.set_property("styleSliderHandle"     .into(), QString::from("#4e6171").into());
@@ -114,7 +114,7 @@ impl UITools {
                     engine.set_property("styleBackground2"      .into(), QString::from("#edf2f4").into());
                     engine.set_property("styleButtonColor"      .into(), QString::from("#ffffff").into());
                     engine.set_property("styleTextColor"        .into(), QString::from("#182730").into());
-                    engine.set_property("styleAccentColor"      .into(), QString::from("#137d70").into());
+                    engine.set_property("styleAccentColor"      .into(), QString::from("#2879ae").into());
                     engine.set_property("styleVideoBorderColor" .into(), QString::from("#cddade").into());
                     engine.set_property("styleTextColorOnAccent".into(), QString::from("#ffffff").into());
                     engine.set_property("styleHrColor"          .into(), QString::from("#dae3e7").into());
