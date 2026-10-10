@@ -1,10 +1,13 @@
 # Private Windows OpenColorIO application acceptance
 
-Checked 2026-10-09 on the connected Windows laptop. The selected application
-build uses the official OpenColorIO processor for export. Native Windows
-preview and settings interaction remain unverified because the supported
-computer-use helper returned `GetCursorPos: Access is denied` before any input
-succeeded. This is a private candidate, not an approved public download.
+Hardware export and private assembly were checked on 2026-10-09 (local time).
+After the supported computer-use connection recovered, native preview and
+settings interaction were checked on the same Windows laptop at 2026-10-10
+03:09–03:18 UTC (the evening of 2026-10-09, UTC−4) using the unchanged selected
+`427a6ca4` application. By design, this build uses the official OpenColorIO
+processor for export and for its generated GPU preview; the interface check
+below does not independently confirm the preview backend. This is a private
+candidate, not an approved public download.
 
 ## Exact identities
 
@@ -47,6 +50,57 @@ graded export. The export metadata records brightness 0.12, contrast 0.18,
 shadows −0.5, highlights 0.5, exposure 0.37, saturation 0.23, warmth 0.41 and
 tint −0.27. This confirms preservation of that export case; it does not prove
 every camera/codec, Windows GPU preview parity or general performance.
+
+## Recovered native Windows interface check
+
+The supported helper previously returned `GetCursorPos: Access is denied`.
+After supported input recovered, the worker tested an owned copy of the accepted
+application, with an owned project and DJI O4 LUT. The executable hash matches
+the identity above. The original private assembly's indexed files matched their
+baseline hashes afterwards (see below).
+
+| Native check | Result |
+| --- | --- |
+| Preview colors off/on | Worker observed a visible color change at the same paused 47-second frame; the LUT and all eight adjustment values stayed selected |
+| Double-click reset | Exposure settled at zero; the other seven values stayed unchanged |
+| Reset adjustments | All eight controls settled at zero; the LUT stayed selected |
+| Clear LUT | The selector returned to its empty state and the Clear button disappeared |
+| Save and reopen | After saving the owned project, resetting and clearing, native reopen restored all eight nonzero values and the selected LUT. Accessibility data shows the LUT restored in the selector, but the Clear button did not appear in the post-reopen snapshots, so active-LUT grading after reopen rests on the worker's visual observation |
+| Exit | After the worker confirmed the close prompt, the application exited normally; no remaining owned window or modal |
+
+The saved grade matches the eight values listed in the export case above.
+Root independently checked the transferred evidence-file hashes, 17 timestamped
+accessibility observations, settled slider/editor and LUT-selector values, and
+the saved-project semantic snapshot. Accessibility data does not record the
+Preview colors checkbox state; the off/on toggle and color change were
+worker-observed. Screenshot pixels were viewed by the worker in the native
+tool history; they were not transferred for independent image comparison. This
+is interface and persistence evidence, not a new numerical GPU parity or export
+performance measurement.
+
+The worker's final hash check compared every indexed file with the historical
+accepted baselines: 1,233 frozen assembly files, 7,455 protected inputs and the
+652-file Easy Eject review/profile subset. All matched. Root verified the exact
+baseline indexes and subset against the transferred summaries; it did not
+rehash the remote files directly. Preservation is established only for those
+indexed files. The keeper was not queried or touched, security settings were
+outside this slice, and no export was repeated.
+
+The terminal receipt is 5,308 bytes, SHA-256
+`da55dd7baed8d262fb079e454419851c46440f0c8b05af59077800eff84d2b60`.
+Private evidence and the independent data-only inspector are retained under
+`_dev/root-windows-native-gui-427a-20261010/`.
+
+### Direct3D compiler observation
+
+The tested process loaded its app-local `D3DCompiler_47.dll`: 4,173,928 bytes,
+version `6.3.9600.16384`, SHA-256
+`e994847e01a6f1e4cbdc5a864616ac262f67ee4f14db194984661a8d927ab7f4`.
+Its loaded path (compared case-insensitively) and hash match the app-local file
+in the tested owned copy. This does not identify which component loaded it or
+prove that omitting it is safe. The existing
+120-DLL inventory and `d3d-terms` requirement remain unchanged; a possible
+future package using the system compiler needs separate candidate proof.
 
 ## Complete private notice assembly
 
@@ -128,7 +182,8 @@ complete corresponding source or approve a binary release.
 
 ## Remaining acceptance
 
-- Native Windows GPU preview, control reset and project save/reopen checks.
+- Windows GPU preview numerical parity with export (interface check only; not
+  measured).
 - Remaining exact provider notices, terms and corresponding-source delivery.
 - Clean-machine and supported Windows version testing and ordinary trust checks.
 - Final release packaging tied to the accepted source and runtime identities.
