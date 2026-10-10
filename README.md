@@ -1,6 +1,6 @@
 ## GyroGrade: Gyroflow stabilization with LUTs and color grading
 
-[GyroGrade website](https://gyroflowplus.com/) · [Download for Mac](https://github.com/rsmith4321/gyrograde/releases/latest)
+[GyroGrade website](https://gyrograde.com/) · [Download for Mac](https://github.com/rsmith4321/gyrograde/releases/latest)
 
 GyroGrade is Ryan Smith's app based on [Gyroflow](https://github.com/gyroflow/gyroflow).
 It was called Gyroflow Plus until version 1.0.1. It is not affiliated with or endorsed by the Gyroflow project.
