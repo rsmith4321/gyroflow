@@ -84,12 +84,18 @@ ERROR_SHARING_VIOLATION = 32  # Windows: another process still holds an open han
 NASM_MAKEFILE = "Mkfiles/msvc.mak"
 NASM_MAKEFILE_SHA256 = "a1404ea2617c0d0b06e3b064e11a9fbce8f3d6d5d77a79a33e03ec896f4e1f39"
 NASM_COMPAT_MAKEFILE = "Mkfiles\\msvc.gyroflowplus-compat.mak"
+NASM_CONFIGURATION_HEADERS = (
+    ("config/unconfig.h", 3807, "e5b7b00426dfdccae75892c5f4aa46903631f0e77b495af2312ad7098473326b"),
+    ("config/msvc.h", 6054, "901386cb1ea45bccf3e4abbf88623ec21f435ed9d0c3950c3f17e9a229e11a51"),
+)
 _WARNTIMES = "asm\\warnings.c.time include\\warnings.h.time doc\\warnings.src.time"
 _RECURSE = "$(MAKE) /f " + NASM_COMPAT_MAKEFILE
 _U1005 = "NMake rejects an empty search string in $(macro:old=new) (U1005 at line 238); the three names are listed"
 _TOUCH = "':' is a POSIX shell no-op with no cmd.exe equivalent; 'type nul >' creates the same empty stamp file"
 _SIDE = "'@:' is a POSIX no-op; 'rem' is cmd's no-op and this makefile already uses it (line 353)"
 NASM_RECIPE_EDITS = (
+    (162, "config\\unconfig.h: config\\config.h.in", "config\\unconfig.h:",
+     "the pinned Git snapshot includes exact unconfig.h but no autoheader template; preserve the checked-in header"),
     (238, "\t$(RM_F) $(WARNFILES) $(WARNFILES:=.time)", "\t$(RM_F) $(WARNFILES) " + _WARNTIMES, _U1005),
     (239, "\t$(MAKE) asm\\warnings.time", "\t" + _RECURSE + " asm\\warnings.time",
      "a recursive NMake has no default makefile in the NASM directory; name the derived file"),
@@ -118,7 +124,7 @@ NASM_RECIPE_CONTEXT = {53: "O               = obj",
 NASM_RECIPE_COUNTS = {"$(WARNFILES:=.time)": 2, "\t: > ": 4, "@: Side effect": 3, "$(MAKE)": 5, "$<": 2,
                       ":.$(O)=": 1, "Mkfiles\\msvc.mak": 2}
 # sha256 of derive_nasm_makefile(pinned msvc.mak); any other result is refused at run time
-NASM_COMPAT_SHA256 = "b4f5711560254f4ed814e868f3c739a93b0033732444f85278a9203558f780c3"
+NASM_COMPAT_SHA256 = "d7c819605cf2e2c24cef5c5b2ee16ac6c9f7088d0b7e45de621168f723bff37b"
 
 
 def derive_nasm_makefile(original: bytes, expected_sha256: str = NASM_MAKEFILE_SHA256) -> tuple:
@@ -148,6 +154,24 @@ def derive_nasm_makefile(original: bytes, expected_sha256: str = NASM_MAKEFILE_S
     if left.count(NASM_COMPAT_MAKEFILE) != 3 or left.count("Mkfiles\\msvc.mak") != 1:  # 3 recursions; mkdep hint
         raise ValueError("NASM makefile recursion does not name the derived file.")
     return derived, changes
+
+
+def nasm_configuration(nasm: Path) -> dict:
+    """Require the pinned Git snapshot's official MSVC headers, never generate substitutes."""
+    template = nasm / "config/config.h.in"
+    if template.exists() or template.is_symlink():
+        raise RuntimeError("Unexpected NASM config/config.h.in in the pinned Git snapshot.")
+    record = {}
+    for name, size, expected in NASM_CONFIGURATION_HEADERS:
+        path = nasm / name
+        if not path.is_file() or path.is_symlink():
+            raise RuntimeError("Missing or nonregular pinned NASM configuration header: " + name)
+        data = path.read_bytes()
+        actual = hashlib.sha256(data).hexdigest()
+        if len(data) != size or actual != expected:
+            raise RuntimeError("Changed pinned NASM configuration header: " + name)
+        record[name] = {"bytes": len(data), "sha256": actual}
+    return record
 
 
 TOOLS = ("git.exe", "cl.exe", "link.exe", "nmake.exe", "cmake.exe", "ninja.exe", "perl.exe", "dumpbin.exe")
@@ -623,6 +647,7 @@ class Run:
         derived, changes = derive_nasm_makefile(original)
         if hashlib.sha256(derived).hexdigest() != NASM_COMPAT_SHA256:
             raise RuntimeError("Derived NASM makefile differs from the reviewed transform.")
+        configuration = nasm_configuration(nasm)
         with derived_path.open("xb") as output:  # fresh only; never reuse or overwrite
             output.write(derived)
         diff = "".join(difflib.unified_diff(original.decode("ascii").splitlines(True),
@@ -632,7 +657,10 @@ class Run:
                   "original_bytes": len(original), "derived": NASM_COMPAT_MAKEFILE,
                   "derived_sha256": hashlib.sha256(derived).hexdigest(), "derived_bytes": len(derived),
                   "changes": changes, "unified_diff": diff,
-                  "note": "Build-recipe grammar/shell adaptation only; no NASM source, version, flag or dependency change."}
+                  "configuration_headers": configuration,
+                  "note": "Build-recipe grammar/shell adaptation plus omission of the absent unconfig.h template "
+                          "prerequisite only; exact official configuration headers preserved. No NASM source, version "
+                          "or flag change; other prerequisites unchanged."}
         self.save("NASM-MAKEFILE.json", record)
         return record
 
@@ -640,6 +668,8 @@ class Run:
         if digest(nasm / NASM_MAKEFILE) != record["original_sha256"] or \
                 digest(nasm / NASM_COMPAT_MAKEFILE.replace("\\", "/")) != record["derived_sha256"]:
             raise RuntimeError("A NASM makefile changed during the NASM build.")
+        if nasm_configuration(nasm) != record["configuration_headers"]:
+            raise RuntimeError("NASM configuration header evidence changed during the build.")
 
     def build(self):
         nasm = self.work / "nasm"

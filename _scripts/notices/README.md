@@ -220,19 +220,32 @@ deletion error fails the run.
 NASM's original `Mkfiles/msvc.mak` uses constructs NMake and cmd do not accept
 (hosted run 38010050723 stopped with U1005 at its line 238). The runner leaves
 that pinned file byte-identical and, only when its SHA-256 matches, writes a
-separate `Mkfiles/msvc.gyroflowplus-compat.mak` beside it. Thirteen lines change:
+separate `Mkfiles/msvc.gyroflowplus-compat.mak` beside it. Fourteen lines change:
 empty-search `$(WARNFILES:=.time)` becomes the three listed names, a nested
 `$(O)` substitution is spelled `.obj`, POSIX `: >` and `@:` become `type nul >`
 and `@rem`, an explicit-rule `$<` names `misc\emacstbl.pl`, and the three
-recursive NMake calls name the derived file. NASM sources, version, flags and
-target dependencies are unchanged. Any other original, context or construct
+recursive NMake calls name the derived file. The pinned Git snapshot lacks
+`config/config.h.in`, which stopped hosted run 38011830481 with U1073 even
+though its generated target `config/unconfig.h` is checked in. The derived
+recipe therefore omits only that absent template prerequisite, retaining the
+target and its recipe. Before writing the derived makefile or starting any build
+command, the runner checks the exact sizes and SHA-256 values of the official
+`config/unconfig.h` and `config/msvc.h`, and refuses an unexpected template or
+symlinked header. It checks the headers again after the NASM build. No template
+or header is fabricated, and no Autotools step is added. NASM sources, version,
+flags and all other target prerequisites are unchanged. Any other original, context or construct
 count is refused, and both `nmake /f` calls use the derived file. The original
-and derived hashes and the exact unified diff are saved in `NASM-MAKEFILE.json`.
+and derived hashes, configuration-header identities and the exact unified diff
+are saved in `NASM-MAKEFILE.json`.
 
 The candidate passed 47 isolated standard-library mocked tests in Claude's v13
 review. The targeted v14 cleanup regression suite reported 58 passing mocked
 tests and one explicit missing-fixture skip. The v15 NASM recipe suite
-reported 70 passing mocked tests and one explicit missing-fixture skip. Root independently checked the
+reported 70 passing mocked tests and one explicit missing-fixture skip. Root's
+v16 correction passed all 78 mocked tests with all source-text fixtures supplied,
+including missing/changed/symlinked header refusal, unexpected template refusal,
+refusal before any command or derived file write, and post-build header checks.
+No upstream generators or compilers ran in these mocked tests. Root independently checked the
 packet/output hashes, twelve source
 archives, twenty-one quoted source ranges and exact patch replay. Those checks
 do not establish that a Windows source build or relink works. Run the reusable
@@ -246,7 +259,10 @@ Set `V13_LIBASS_SYM` to `libass/libass.sym` extracted as data from the pinned
 `wang-bin/libass` source to include its optional fifty-symbol fixture. Without
 that file, the corresponding fixture is explicitly skipped. Set
 `V15_NASM_MAKEFILE` to the pinned NASM `Mkfiles/msvc.mak` to include the recipe
-fixtures; without it, those fixtures are explicitly skipped.
+fixtures; without it, those fixtures are explicitly skipped. Set
+`V16_NASM_CONFIG_DIR` to the pinned source's `config/` directory for the header
+fixtures and successful recipe-preparation fixture; otherwise those checks are
+explicitly skipped. The fixture files are read as data, never executed.
 
 A hosted run must verify the real MSVC/Ninja formats, the derived NASM recipe under NMake, NASM generation, assembly,
 static link graph and relink. The hosted Visual Studio is discovered with

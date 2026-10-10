@@ -5,6 +5,7 @@ Run: python3 -I _scripts/notices/test_rebuild_libass_windows.py
 V13_CANDIDATE_DIR and V13_WORKFLOW_PATH may name isolated reviewed candidate files.
 V13_LIBASS_SYM may name the pinned libass.sym for the optional 50-export fixture.
 V15_NASM_MAKEFILE may name the pinned NASM Mkfiles/msvc.mak for the recipe-adaptation fixture.
+V16_NASM_CONFIG_DIR may name the pinned NASM config/ directory for configuration-header fixtures.
 
 No Windows runner, source build, compiler, assembler, generator, Perl, DLL, network or real
 subprocess is used: subprocess.Popen/run are replaced for the whole module and fail if reached.
@@ -773,11 +774,22 @@ class NasmRecipe(unittest.TestCase):
         data = self.original().replace(old, new, 1)
         return data, hashlib.sha256(data).hexdigest()
 
+    def headers(self, nasm):
+        directory = os.environ.get("V16_NASM_CONFIG_DIR")
+        if not directory:
+            self.skipTest("V16_NASM_CONFIG_DIR not set")
+        for name, size, expected in m.NASM_CONFIGURATION_HEADERS:
+            data = (Path(directory) / Path(name).name).read_bytes()
+            self.assertEqual((len(data), hashlib.sha256(data).hexdigest()), (size, expected))
+            path = nasm / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(data)
+
     def test_exact_derived_file_and_changes(self):
         original = self.original()
         derived, changes = m.derive_nasm_makefile(original)
         self.assertEqual(hashlib.sha256(derived).hexdigest(), m.NASM_COMPAT_SHA256)
-        self.assertEqual([c["line"] for c in changes], [238, 239, 241, 242, 243, 247, 250, 254, 257, 261, 264, 302, 392])
+        self.assertEqual([c["line"] for c in changes], [162, 238, 239, 241, 242, 243, 247, 250, 254, 257, 261, 264, 302, 392])
         old, new = original.decode("ascii").split("\n"), derived.decode("ascii").split("\n")
         self.assertEqual(len(old), len(new))
         differing = [i + 1 for i, (a, b) in enumerate(zip(old, new)) if a != b]
@@ -799,8 +811,11 @@ class NasmRecipe(unittest.TestCase):
         for kept in ("CFLAGS", "LDFLAGS", "PERLREQ", "nasm$(X):", "ALLOBJ", "NASMLIB", "!INCLUDE msvc.dep"):
             self.assertEqual(spelled([l for l in old if kept in l]), [l for l in new if kept in l], kept)
         dependency = lambda lines: [l for l in lines if l and not l.startswith(("\t", "#", " ")) and ":" in l]
-        self.assertEqual([l.replace("$(ALLOBJ_NW:.$(O)=.c)", "$(ALLOBJ_NW:.obj=.c)") for l in dependency(old)],
-                         dependency(new))  # same targets and prerequisites; only line 241 spells O out
+        self.assertEqual([l.replace("$(ALLOBJ_NW:.$(O)=.c)", "$(ALLOBJ_NW:.obj=.c)")
+                          .replace("config\\unconfig.h: config\\config.h.in", "config\\unconfig.h:")
+                          for l in dependency(old)], dependency(new))
+        # Only the absent template prerequisite is omitted; line 241 merely spells O out.
+        self.assertEqual(new[161:164], ["config\\unconfig.h:", old[162], old[163]])
         self.assertIn("O               = obj", new)
         self.assertEqual(new[381], "\t$(RUNPERL) tools\\mkdep.pl -M Mkfiles\\msvc.mak -- $(DEPDIRS)")
 
@@ -821,6 +836,7 @@ class NasmRecipe(unittest.TestCase):
 
     def test_changed_original_is_refused_even_with_matching_hash(self):
         for old, new, message in (
+                (b"config\\unconfig.h: config\\config.h.in", b"config\\unconfig.h: config\\other.h.in", "text at line 162"),
                 (b"\t: > asm\\warnings.time", b"\t: > asm\\warnings.stamp", "text at line 242"),
                 (b"O               = obj", b"O               = o", "context at line 53"),
                 (b"\t$(RUNPERL) $< $@", b"\t$(RUNPERL) $< $< $@", "count"),
@@ -865,6 +881,8 @@ class NasmRecipe(unittest.TestCase):
             run = self.runner(Path(d))
             nasm = run.work / "nasm"
             (nasm / "Mkfiles/msvc.mak").write_bytes(original)
+            self.headers(nasm)
+            headers_before = {name: (nasm / name).read_bytes() for name, _, _ in m.NASM_CONFIGURATION_HEADERS}
             record = run.prepare_nasm_makefile(nasm)
             derived = (nasm / "Mkfiles/msvc.gyroflowplus-compat.mak").read_bytes()
             self.assertEqual((nasm / "Mkfiles/msvc.mak").read_bytes(), original)
@@ -872,7 +890,9 @@ class NasmRecipe(unittest.TestCase):
             self.assertEqual(saved, record)
             self.assertEqual((saved["original_sha256"], saved["original_bytes"]), (m.NASM_MAKEFILE_SHA256, len(original)))
             self.assertEqual((saved["derived_sha256"], saved["derived_bytes"]), (m.NASM_COMPAT_SHA256, len(derived)))
-            self.assertEqual(len(saved["changes"]), 13)
+            self.assertEqual(len(saved["changes"]), 14)
+            self.assertEqual(saved["configuration_headers"], m.nasm_configuration(nasm))
+            self.assertEqual(headers_before, {name: (nasm / name).read_bytes() for name in headers_before})
             diff = saved["unified_diff"]
             self.assertTrue(diff.startswith("--- a/Mkfiles/msvc.mak\n+++ b/Mkfiles/msvc.gyroflowplus-compat.mak\n"))
             body = diff.splitlines()[2:]  # difflib may also show the blank line 240 as removed and re-added
@@ -951,6 +971,94 @@ class NasmRecipe(unittest.TestCase):
         self.assertEqual(m.NASM_COMPAT_MAKEFILE, "Mkfiles\\msvc.gyroflowplus-compat.mak")
         self.assertRegex(m.NASM_COMPAT_SHA256, r"^[0-9a-f]{64}$")
         self.assertEqual(m.NASM_MAKEFILE_SHA256, "a1404ea2617c0d0b06e3b064e11a9fbce8f3d6d5d77a79a33e03ec896f4e1f39")
+
+    def test_exact_configuration_headers(self):
+        with tempfile.TemporaryDirectory() as directory:
+            nasm = Path(directory)
+            self.headers(nasm)
+            self.assertEqual(m.nasm_configuration(nasm),
+                             {name: {"bytes": size, "sha256": sha} for name, size, sha in m.NASM_CONFIGURATION_HEADERS})
+
+    def test_each_missing_or_changed_header_is_refused(self):
+        for name, _, _ in m.NASM_CONFIGURATION_HEADERS:
+            for mutation in ("absent", "same-size change", "truncated"):
+                with self.subTest(name=name, mutation=mutation), tempfile.TemporaryDirectory() as directory:
+                    nasm = Path(directory)
+                    self.headers(nasm)
+                    path = nasm / name
+                    data = path.read_bytes()
+                    if mutation == "absent":
+                        path.unlink()
+                    else:
+                        path.write_bytes(bytes([data[0] ^ 1]) + data[1:] if mutation == "same-size change" else data[:-1])
+                    with self.assertRaisesRegex(RuntimeError, "configuration header"):
+                        m.nasm_configuration(nasm)
+
+    def test_symlink_configuration_header_is_refused(self):
+        with tempfile.TemporaryDirectory() as directory:
+            nasm = Path(directory)
+            self.headers(nasm)
+            path = nasm / "config/unconfig.h"
+            original = nasm / "original.h"
+            path.rename(original)
+            path.symlink_to(original)
+            with self.assertRaisesRegex(RuntimeError, "nonregular"):
+                m.nasm_configuration(nasm)
+
+    def test_unexpected_template_file_directory_or_dangling_link_is_refused(self):
+        for kind in ("file", "directory", "dangling link"):
+            with self.subTest(kind=kind), tempfile.TemporaryDirectory() as directory:
+                nasm = Path(directory)
+                self.headers(nasm)
+                template = nasm / "config/config.h.in"
+                if kind == "file":
+                    template.write_bytes(b"unexpected")
+                elif kind == "directory":
+                    template.mkdir()
+                else:
+                    template.symlink_to(nasm / "absent-template")
+                with self.assertRaisesRegex(RuntimeError, "Unexpected NASM"):
+                    m.nasm_configuration(nasm)
+
+    def test_missing_header_refuses_build_before_copy_or_command(self):
+        original = self.original()
+        with tempfile.TemporaryDirectory() as directory:
+            run = self.runner(Path(directory))
+            nasm = run.work / "nasm"
+            (nasm / "Mkfiles/msvc.mak").write_bytes(original)
+            self.headers(nasm)
+            (nasm / "config/unconfig.h").unlink()
+            with mock.patch.object(run, "command", side_effect=AssertionError("command must not start")) as command:
+                with self.assertRaisesRegex(RuntimeError, "configuration header"):
+                    run.build()
+            command.assert_not_called()
+            self.assertFalse((nasm / "Mkfiles/msvc.gyroflowplus-compat.mak").exists())
+            self.assertFalse((run.evidence / "NASM-MAKEFILE.json").exists())
+
+    def test_post_build_header_changes_are_refused(self):
+        original = self.original()
+        for name, _, _ in m.NASM_CONFIGURATION_HEADERS:
+            with self.subTest(name=name), tempfile.TemporaryDirectory() as directory:
+                run = self.runner(Path(directory))
+                nasm = run.work / "nasm"
+                (nasm / "Mkfiles/msvc.mak").write_bytes(original)
+                self.headers(nasm)
+                record = run.prepare_nasm_makefile(nasm)
+                (nasm / name).write_bytes(b"changed")
+                with self.assertRaisesRegex(RuntimeError, "configuration header"):
+                    run.check_nasm_makefiles(nasm, record)
+
+    def test_post_build_template_appearance_is_refused(self):
+        original = self.original()
+        with tempfile.TemporaryDirectory() as directory:
+            run = self.runner(Path(directory))
+            nasm = run.work / "nasm"
+            (nasm / "Mkfiles/msvc.mak").write_bytes(original)
+            self.headers(nasm)
+            record = run.prepare_nasm_makefile(nasm)
+            (nasm / "config/config.h.in").write_bytes(b"unexpected")
+            with self.assertRaisesRegex(RuntimeError, "Unexpected NASM"):
+                run.check_nasm_makefiles(nasm, record)
 
 
 class Static(unittest.TestCase):
