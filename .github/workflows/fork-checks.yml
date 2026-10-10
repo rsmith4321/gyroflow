@@ -1,5 +1,5 @@
-# Fast standard-library checks for Gyroflow+. release.yml only runs on
-# gyroflow/gyroflow, so without this the fork runs no tests on push.
+# Fast standard-library checks for Gyroflow+. Upstream's release.yml was
+# gated to gyroflow/gyroflow and never ran here, so it was removed.
 name: Fork checks
 
 on:
