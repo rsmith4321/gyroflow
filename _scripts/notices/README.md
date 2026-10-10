@@ -196,3 +196,38 @@ The software OpenGL v10 inventory retains all 668 attribution excerpts and
 original proposed paths map to shorter content-hash paths in the root review
 record. This is a source superset, with parser, copyright-only, no-header and Qt
 compiled-coverage limits retained; the provider blocker remains unchanged.
+
+## Hosted libass source qualification
+
+`native-libass-source.yml` is a manual-only, text-evidence workflow for this fork's
+`codex/lut-preview-controls` branch. It checks the original pinned Windows x64
+libass target with assembly enabled, its three static dependencies, seven
+FriBidi generated outputs, exported symbols and a relink using unchanged objects.
+It does not build or install Gyroflow+, upload binaries, or publish a release.
+
+The Python runner uses twelve exact public Git commits, builds NASM 2.16.01 from
+its official source, limits compilation to two jobs, and records commands, source
+identities and tool hashes. The source work has a fifteen-minute budget and the
+job has a twenty-minute timeout. Log caps are checked by polling; retained logs
+are truncated if a cap is exceeded. The private developer environment capture
+is excluded from artifacts.
+
+The candidate passed 47 isolated standard-library mocked tests in Claude's v13
+review. Root independently checked the packet/output hashes, twelve source
+archives, twenty-one quoted source ranges and exact patch replay. Those checks
+do not establish that a Windows source build or relink works. Run the reusable
+mocked tests from a checkout with:
+
+```sh
+python3 -I _scripts/notices/test_rebuild_libass_windows.py
+```
+
+Set `V13_LIBASS_SYM` to `libass/libass.sym` extracted as data from the pinned
+`wang-bin/libass` source to include its optional fifty-symbol fixture. Without
+that file, the corresponding fixture is explicitly skipped.
+
+A hosted run must verify the real MSVC/Ninja formats, NASM generation, assembly,
+static link graph and relink. Hosted VS2022 and shallow source metadata differ
+from the vendor's VS2026 build; no identical DLL or complete corresponding-source
+claim follows. Native source and provider requirements remain blocking until
+their separate evidence and delivery checks pass.
