@@ -56,13 +56,19 @@
   }
  ],
  "staged_inventory_source": {
-  "frozen_inventory_sha256": "f7f930f43af74e690b43f6c96e3aeae382a403da807ac9a557f2e65085a5f981",
-  "frozen_inventory_members": 756,
-  "staged_dll_count": 120,
-  "facts_sha256": "66299b4283a13a122651010d03b0b60a7b27634707849b5b97c19a654d39970b",
-  "ffmpeg_entries": "The 7 FFmpeg entries are the slim archive members, not the frozen stage's BtbN DLLs; a stage built from the current pin has these bytes."
+  "deploy_archive_sha256": "519aac0da0e7c6913b4dbbf002a283172ac7d1e6bda16fe12ff9c1bcc2abcaad",
+  "deploy_commit": "115eb23cf8f7f70af6284d8bc75afc8ee610bf5a",
+  "staged_dll_count": 74,
+  "note": "GyroGrade 1.0.2 Windows stage: the 115eb23c deploy output plus OpenCL.dll, without d3dcompiler_47.dll and shaderc_shared.dll (the recipe no longer stages either). 69 DLLs keep their earlier reviewed bytes; the four Qt files are new to this recipe. ffmpeg-9.dll, libass.dll, opengl32sw.dll, the OpenCL utility DLLs, six OpenCV modules and the unused Qt plugins of the earlier frozen 120-DLL inventory are not staged.",
+  "previous": {
+   "frozen_inventory_sha256": "f7f930f43af74e690b43f6c96e3aeae382a403da807ac9a557f2e65085a5f981",
+   "frozen_inventory_members": 756,
+   "staged_dll_count": 120,
+   "facts_sha256": "66299b4283a13a122651010d03b0b60a7b27634707849b5b97c19a654d39970b",
+   "ffmpeg_entries": "The 7 FFmpeg entries are the slim archive members, not the frozen stage's BtbN DLLs; a stage built from the current pin has these bytes."
+  }
  },
- "staged_inventory_count": 120,
+ "staged_inventory_count": 74,
  "staged_inventory": [
   {
    "path": "avcodec-63.dll",
@@ -107,44 +113,9 @@
    "mapping_basis": "Microsoft runtime file name; 9 hashes equal the earlier owner CRT identities, vccorlib140.dll first appears in this inventory"
   },
   {
-   "path": "D3Dcompiler_47.dll",
-   "bytes": 4173928,
-   "sha256": "e994847e01a6f1e4cbdc5a864616ac262f67ee4f14db194984661a8d927ab7f4",
-   "component": "d3dcompiler",
-   "mapping_basis": "bytes equal the Qt 6.7.3 provider bin copy (owner facts)"
-  },
-  {
-   "path": "ffmpeg-9.dll",
-   "bytes": 12207104,
-   "sha256": "9b9526af072d898875a24eb9825c7e1b19f1bd82a179ae406e25f1ed13e2b1cd",
-   "component": "mdk",
-   "mapping_basis": "bytes equal the official MDK v0.39.0 x64 archive member"
-  },
-  {
-   "path": "generic/qtuiotouchplugin.dll",
-   "bytes": 102544,
-   "sha256": "0e3b1c129309d68ae636d640d498dc50afa48979bac6c1af06f387fae338f8f6",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
    "path": "iconengines/qsvgicon.dll",
    "bytes": 72336,
    "sha256": "0194bc1679cdbff3eeec85e56d6d97d7b8a1a5ddd0bf026ba90356bae1d4e8ff",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "imageformats/qgif.dll",
-   "bytes": 48784,
-   "sha256": "b1af633a000fd8e2cdac988248ec984ab39b633e678b4700163f2a2761a08323",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "imageformats/qico.dll",
-   "bytes": 47248,
-   "sha256": "81aa6c240523c4ed1fec1a7b49cca595ee70ba5ae635d9310ea089cd7b802e26",
    "component": "qt",
    "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
   },
@@ -161,13 +132,6 @@
    "sha256": "c81f64e8c2ec6525b100fa9c159c435631b5271ea0d9ba213cf7d624fa661b0b",
    "component": "qt",
    "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "libass.dll",
-   "bytes": 1766400,
-   "sha256": "cb7b8f511ebc5c62dad517906a7b9280e9fcf69bd8215cdc59d0fca24c21b749",
-   "component": "mdk",
-   "mapping_basis": "bytes equal the official MDK v0.39.0 x64 archive member"
   },
   {
    "path": "mdk-braw.dll",
@@ -226,32 +190,11 @@
    "mapping_basis": "Microsoft runtime file name; 9 hashes equal the earlier owner CRT identities, vccorlib140.dll first appears in this inventory"
   },
   {
-   "path": "networkinformation/qnetworklistmanager.dll",
-   "bytes": 72336,
-   "sha256": "c0883e2860912da0081266a0281bad1c64a4a69ad56161a83f598c403a6d5e93",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
    "path": "OpenCL.dll",
    "bytes": 57344,
    "sha256": "1fe479702ef9a9bf49881d7f2ebd4bf5e8000fd6a53d85ed528e8acca4f719c7",
    "component": "opencl",
-   "mapping_basis": "exe imports opencl.dll and the installed opencv4 package has feature \"opencl\"; no provider bytes or copyright supplied"
-  },
-  {
-   "path": "OpenCLUtils.dll",
-   "bytes": 25088,
-   "sha256": "bb1293dc4f40c060cf40d8139093df0b1ba98742da75ebef655719b691ec4481",
-   "component": "opencl",
-   "mapping_basis": "exe imports opencl.dll and the installed opencv4 package has feature \"opencl\"; no provider bytes or copyright supplied"
-  },
-  {
-   "path": "OpenCLUtilsCpp.dll",
-   "bytes": 68096,
-   "sha256": "85019b95cae9fc38ac67551f6f73de913a7c46f3abd2bf921c5156e8929441f7",
-   "component": "opencl",
-   "mapping_basis": "exe imports opencl.dll and the installed opencv4 package has feature \"opencl\"; no provider bytes or copyright supplied"
+   "mapping_basis": "vcpkg x64-windows bin/OpenCL.dll copied by the 1.0.2 deploy recipe; bytes equal the earlier accepted stage and the installed provider copy"
   },
   {
    "path": "OpenColorIO_2_4.dll",
@@ -289,44 +232,9 @@
    "mapping_basis": "OpenCV 4.14.0 module file name; vcpkg opencv4 x64-windows provider (owner facts)"
   },
   {
-   "path": "opencv_imgcodecs4.dll",
-   "bytes": 363008,
-   "sha256": "e7d4c7ac466993e42fd06841f5566f989d2d001bbfd20eead04148db3dcfd2e4",
-   "component": "opencv",
-   "mapping_basis": "OpenCV 4.14.0 module file name; vcpkg opencv4 x64-windows provider (owner facts)"
-  },
-  {
    "path": "opencv_imgproc4.dll",
    "bytes": 5611520,
    "sha256": "165a6bfe99ce3c7d78ca63bd5fb6227183d7212aab3c5b3f5c092fbe956d9bf3",
-   "component": "opencv",
-   "mapping_basis": "OpenCV 4.14.0 module file name; vcpkg opencv4 x64-windows provider (owner facts)"
-  },
-  {
-   "path": "opencv_ml4.dll",
-   "bytes": 557056,
-   "sha256": "048943def076d4556a89bed788f452ba4a6095e78243a34809b01fb5d29e9a25",
-   "component": "opencv",
-   "mapping_basis": "OpenCV 4.14.0 module file name; vcpkg opencv4 x64-windows provider (owner facts)"
-  },
-  {
-   "path": "opencv_objdetect4.dll",
-   "bytes": 1231872,
-   "sha256": "92cc2f55d76691ce696966e06e793447e331c4818a8808c3935e0d6b6226f4de",
-   "component": "opencv",
-   "mapping_basis": "OpenCV 4.14.0 module file name; vcpkg opencv4 x64-windows provider (owner facts)"
-  },
-  {
-   "path": "opencv_photo4.dll",
-   "bytes": 648704,
-   "sha256": "83c9da81fd7dbcad82c317a356cbaaefdafaa4b2e5e9385510e2f17c832ca4b4",
-   "component": "opencv",
-   "mapping_basis": "OpenCV 4.14.0 module file name; vcpkg opencv4 x64-windows provider (owner facts)"
-  },
-  {
-   "path": "opencv_stitching4.dll",
-   "bytes": 777728,
-   "sha256": "5c3871bb571ec1653efa3fb7a700c78a0714d870b84fe9546a12be1762800f62",
    "component": "opencv",
    "mapping_basis": "OpenCV 4.14.0 module file name; vcpkg opencv4 x64-windows provider (owner facts)"
   },
@@ -338,289 +246,9 @@
    "mapping_basis": "OpenCV 4.14.0 module file name; vcpkg opencv4 x64-windows provider (owner facts)"
   },
   {
-   "path": "opencv_videoio4.dll",
-   "bytes": 379904,
-   "sha256": "8a4ca1d062695a9ed00a10e0e3ca854c99ce81f482f64ecfbaaccf534fdc4f52",
-   "component": "opencv",
-   "mapping_basis": "OpenCV 4.14.0 module file name; vcpkg opencv4 x64-windows provider (owner facts)"
-  },
-  {
-   "path": "opengl32sw.dll",
-   "bytes": 20639888,
-   "sha256": "b04de4541863bc7d8879040a78889c4849c1b1da2784c4630f734c146c2998ce",
-   "component": "unattributed",
-   "mapping_basis": "no provider evidence in the facts"
-  },
-  {
    "path": "platforms/qwindows.dll",
    "bytes": 912528,
    "sha256": "cefb9a0f8caa3ccb2ab91f0bb1c2fed7abfcc24fab462e33c47dc3b448a0faf5",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qml/Qt/labs/folderlistmodel/qmlfolderlistmodelplugin.dll",
-   "bytes": 30864,
-   "sha256": "f169113f1e6998ce194a64aa5579885385ce9c0244438463c631776e157d2c91",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qml/QtQml/Base/qmlplugin.dll",
-   "bytes": 30864,
-   "sha256": "38fb0b4589aaebbc10f9c0213f800e3893dbfc445ef04b9c5e8365addaf2a49d",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qml/QtQml/Models/modelsplugin.dll",
-   "bytes": 30864,
-   "sha256": "08b5fa077b4ef1fbe69b3edcfa43db48ed09a6dcc9ead984c376e9dc00fe25ad",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qml/QtQml/qmlmetaplugin.dll",
-   "bytes": 31376,
-   "sha256": "bf0c03218d643bb27c718a2f7d9d449aa327042f1e19ea26edaab8615fcb04c8",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qml/QtQml/WorkerScript/workerscriptplugin.dll",
-   "bytes": 30864,
-   "sha256": "8a844958141121c4de7a465500f75bccf2e2dd76b7a6fa7a0c001f7739df053b",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qml/QtQuick/Controls/Basic/impl/qtquickcontrols2basicstyleimplplugin.dll",
-   "bytes": 31376,
-   "sha256": "f587f17f021d0cf39a513aa9185acd3ed0a98ef7809fdb1ef012313d87cc2b81",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qml/QtQuick/Controls/Basic/qtquickcontrols2basicstyleplugin.dll",
-   "bytes": 32400,
-   "sha256": "004a99aacca140ca0d5654e6e6efa6817681f2b7f34f1baa4260b9615fc50407",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qml/QtQuick/Controls/Fusion/impl/qtquickcontrols2fusionstyleimplplugin.dll",
-   "bytes": 31376,
-   "sha256": "d0c388dc77cb8259e1e76256939d66b16f1efef1cfe79e17bcd0ce5f75b8f118",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qml/QtQuick/Controls/Fusion/qtquickcontrols2fusionstyleplugin.dll",
-   "bytes": 32400,
-   "sha256": "2432aee449e00686648718db1f58cacbd64a32617d6ff937e71fe95996dcc864",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qml/QtQuick/Controls/Imagine/impl/qtquickcontrols2imaginestyleimplplugin.dll",
-   "bytes": 31376,
-   "sha256": "5b5e3cad0cfc21385a09b934f27e4adc61b47b0bd0428490f776ecfc1c4f5872",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qml/QtQuick/Controls/Imagine/qtquickcontrols2imaginestyleplugin.dll",
-   "bytes": 32400,
-   "sha256": "6f74bd583236ae16c41da6ef0502ff17722651a19a1ca345b83d05ee5fb94aee",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qml/QtQuick/Controls/impl/qtquickcontrols2implplugin.dll",
-   "bytes": 31376,
-   "sha256": "27cf6f6f980d98d0008eb81a4797ccad78b63bc1a2878c5eceb85bf0373ea4bf",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qml/QtQuick/Controls/Material/impl/qtquickcontrols2materialstyleimplplugin.dll",
-   "bytes": 31376,
-   "sha256": "33c903d008df81bd7e81c5dc3fd2abcd92cd5bdfc904a38a7f84c18422042381",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qml/QtQuick/Controls/Material/qtquickcontrols2materialstyleplugin.dll",
-   "bytes": 32400,
-   "sha256": "88f4e0631e71851856c7e6e632c8ccdc718b2e18bf729b46b4d65c14bfc86ec7",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qml/QtQuick/Controls/qtquickcontrols2plugin.dll",
-   "bytes": 41104,
-   "sha256": "3a0c19eccf16e2a6a987106787b0de7f96caa3ac22d42fd1bfbf2e327d07519c",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qml/QtQuick/Controls/Universal/impl/qtquickcontrols2universalstyleimplplugin.dll",
-   "bytes": 31888,
-   "sha256": "c7e8649d3d51baa4d07fa9a3fd336b1e644604189d96bdc6baf4169a2307742a",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qml/QtQuick/Controls/Universal/qtquickcontrols2universalstyleplugin.dll",
-   "bytes": 32400,
-   "sha256": "8077d970d75e524cb25e14abaf0c03a87514d53b2063288ecc1abc33ca15d311",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qml/QtQuick/Controls/Windows/impl/qtquickcontrols2windowsstyleimplplugin.dll",
-   "bytes": 31376,
-   "sha256": "9a20eae726f9ef198098470cca439d7c9b8cc5464de8f77dafe96447a5019163",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qml/QtQuick/Controls/Windows/qtquickcontrols2windowsstyleplugin.dll",
-   "bytes": 370832,
-   "sha256": "c1fe454716811ccfa84d7c582a1553671397c1238cc78c0f156946f9c325a0f3",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qml/QtQuick/Dialogs/qtquickdialogsplugin.dll",
-   "bytes": 30864,
-   "sha256": "bb719dc781126c487e965fe949c0480a2a93c03ceada8343b41bbf408e173968",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qml/QtQuick/Dialogs/quickimpl/qtquickdialogs2quickimplplugin.dll",
-   "bytes": 31376,
-   "sha256": "1c7b19fd9e4220fdf1668ccef99b0e08015a43adbef4200793d2cc8bcbcf8cb9",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qml/QtQuick/Layouts/qquicklayoutsplugin.dll",
-   "bytes": 30864,
-   "sha256": "f8bb9a28df497e0039a4622273d05604f7c2018bf8c32c2abcc6aad683f14d76",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qml/QtQuick/NativeStyle/qtquickcontrols2nativestyleplugin.dll",
-   "bytes": 745104,
-   "sha256": "2b969fbc5925bc4f08049dbf6215928188d36dcb1e8d2d5300132b8e4cb17840",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qml/QtQuick/qtquick2plugin.dll",
-   "bytes": 30864,
-   "sha256": "b78de5ea2b739fe95f309444b5b6713a4df26fd746c4caec670bc5170d93675a",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qml/QtQuick/Shapes/qmlshapesplugin.dll",
-   "bytes": 30864,
-   "sha256": "e4145c0a8b1038caacc30fc97ee778d9ddce0795d975583f2b4ba930734798bb",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qml/QtQuick/Templates/qtquicktemplates2plugin.dll",
-   "bytes": 31888,
-   "sha256": "1144e7ae8efd2165c70d642e935396356737c6cb9ce14ee29d83ae0c71e8d9b8",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qml/QtQuick/Window/quickwindowplugin.dll",
-   "bytes": 31888,
-   "sha256": "4589ea27b4a546c22264241fb8a8899d3fa1f6f4e361deedb546b8a255df470a",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qmltooling/qmldbg_debugger.dll",
-   "bytes": 212624,
-   "sha256": "2e42d7a025521a036090cceeebdbd150c93a00da77f071a5cebed09bbac3725e",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qmltooling/qmldbg_inspector.dll",
-   "bytes": 99472,
-   "sha256": "7e0ea8991bc5badb9d967b833840da431e639260da238bf82b0fd8ab629ef4dd",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qmltooling/qmldbg_local.dll",
-   "bytes": 40080,
-   "sha256": "3407619216fe92a33617de308f762a84297f237dd9a1e3b7812988783ba80a4d",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qmltooling/qmldbg_messages.dll",
-   "bytes": 36496,
-   "sha256": "721896b821489f360036dc07f937550d94eddba8de16c5d5f641afcb5d48ef10",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qmltooling/qmldbg_native.dll",
-   "bytes": 50832,
-   "sha256": "56e082ee684948fba3e6a4ecf32999411f02dd3cbe2b80dd295931fe2e2e9b17",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qmltooling/qmldbg_nativedebugger.dll",
-   "bytes": 74384,
-   "sha256": "8bc2fa528e5a6bea7528cefe5e4c8be50ba69094a28125ae3b93c0d60806ced0",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qmltooling/qmldbg_preview.dll",
-   "bytes": 195728,
-   "sha256": "4561e3404ba4677db24d38c87500eb722db86a294685bf3ea7ac84dbf65fee39",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qmltooling/qmldbg_profiler.dll",
-   "bytes": 123536,
-   "sha256": "5f7d24c08f73d112d232f29544c5a9ab821856862a2e6dff6125857c4bb6ef1b",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qmltooling/qmldbg_quickprofiler.dll",
-   "bytes": 44688,
-   "sha256": "f975685a484ba6fc1fae9d5c9bfed3e440af84c0a3b50971e633ed75c1b82c1c",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qmltooling/qmldbg_server.dll",
-   "bytes": 102032,
-   "sha256": "9ac78a8aa720c256ce9905988dfd891ba6d75d6137d941d0a0f0f25e79063c92",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "qmltooling/qmldbg_tcp.dll",
-   "bytes": 37008,
-   "sha256": "3332cbb25e8af1362bf955042efe9535d6837583cc86fc0a2921ec0cc44804bb",
    "component": "qt",
    "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
   },
@@ -635,13 +263,6 @@
    "path": "Qt6Gui.dll",
    "bytes": 9062544,
    "sha256": "ced3aef690624b1186660baa85c7d2c3319d46f5c0194eeafe39e2377643e1d4",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "Qt6LabsFolderListModel.dll",
-   "bytes": 108176,
-   "sha256": "90ee93d138cf89b6bcf78e11c5f7ee689d77f895f3b740a7ae1688e66d288f1f",
    "component": "qt",
    "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
   },
@@ -665,6 +286,13 @@
    "sha256": "2030c9df2d4bde094f8f9e78e1ebe52c8eed785cbf4c74214dc6f5110823d6e3",
    "component": "qt",
    "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
+  },
+  {
+   "path": "Qt6QmlCore.dll",
+   "bytes": 136848,
+   "sha256": "5ad58d8fff2645574d30874f102398c56842647789ef545d9095b74c69345ddb",
+   "component": "qt",
+   "mapping_basis": "official Qt 6.7.3 msvc2019_64 file copied by the deploy recipe; first staged by the 1.0.2 recipe"
   },
   {
    "path": "Qt6QmlModels.dll",
@@ -709,34 +337,6 @@
    "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
   },
   {
-   "path": "Qt6QuickControls2Fusion.dll",
-   "bytes": 1000592,
-   "sha256": "8c203207ddc33ce945cf53aaba3d1e33db2689c9b8c0e5851b2865976031877c",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "Qt6QuickControls2FusionStyleImpl.dll",
-   "bytes": 157840,
-   "sha256": "249091837963e8ce127564456d8919a60fce2365b0e280b561db24d0a1b95714",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "Qt6QuickControls2Imagine.dll",
-   "bytes": 2410640,
-   "sha256": "21670dc38a783fe7439eb77dfd1193e87c206fd3602168bb94e55d33a9b5f291",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "Qt6QuickControls2ImagineStyleImpl.dll",
-   "bytes": 49808,
-   "sha256": "ea348eeb74f6c512047157757f8590d230d46ba9e0bf60f8ef2a8575279ae3b8",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
    "path": "Qt6QuickControls2Impl.dll",
    "bytes": 289936,
    "sha256": "49b483f381b730c3de338044e557a7ac9ccdaaad87ccdb5033b426c4d6de89e7",
@@ -754,27 +354,6 @@
    "path": "Qt6QuickControls2MaterialStyleImpl.dll",
    "bytes": 264848,
    "sha256": "ffd1f3f54b6249f3c2294adb07b2bf744ac69552bc4862cdb52e70a53b707ae7",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "Qt6QuickControls2Universal.dll",
-   "bytes": 991888,
-   "sha256": "a097c54d67852f0fab98b1b90fc34724e355cd3cc3ab07e233b33fc5a622a58e",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "Qt6QuickControls2UniversalStyleImpl.dll",
-   "bytes": 108176,
-   "sha256": "aa544a91202c720bf0e3f00db35d538391a09012c5ed19f567b1795f1e2d222e",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "Qt6QuickControls2WindowsStyleImpl.dll",
-   "bytes": 67728,
-   "sha256": "acd8135c0dc47ae0e8ea3ba82aee174205ffeb835e3612676f89d447e68743be",
    "component": "qt",
    "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
   },
@@ -800,16 +379,16 @@
    "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
   },
   {
+   "path": "Qt6QuickEffects.dll",
+   "bytes": 215184,
+   "sha256": "b965be5fcae4464d88c79feb323b3cb1145b75c51a6fb22fcd3172243ee22bbf",
+   "component": "qt",
+   "mapping_basis": "official Qt 6.7.3 msvc2019_64 file copied by the deploy recipe; first staged by the 1.0.2 recipe"
+  },
+  {
    "path": "Qt6QuickLayouts.dll",
    "bytes": 222352,
    "sha256": "f40474a5ffc0cc2e130e413fa74428ef2954b79daae850b33ac5c0f49a067717",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "Qt6QuickShapes.dll",
-   "bytes": 256656,
-   "sha256": "4ebda8de62c6bb993f543564d5e4f2a7ee70d8f64d7f6a7019029c4017f4a30b",
    "component": "qt",
    "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
   },
@@ -835,6 +414,132 @@
    "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
   },
   {
+   "path": "QtCore/qtqmlcoreplugin.dll",
+   "bytes": 30864,
+   "sha256": "bded5db7ec3b72327983ea854bae62f13808cc3065928258aa23deef20f9997e",
+   "component": "qt",
+   "mapping_basis": "official Qt 6.7.3 msvc2019_64 file copied by the deploy recipe; first staged by the 1.0.2 recipe"
+  },
+  {
+   "path": "QtQml/Base/qmlplugin.dll",
+   "bytes": 30864,
+   "sha256": "38fb0b4589aaebbc10f9c0213f800e3893dbfc445ef04b9c5e8365addaf2a49d",
+   "component": "qt",
+   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
+  },
+  {
+   "path": "QtQml/Models/modelsplugin.dll",
+   "bytes": 30864,
+   "sha256": "08b5fa077b4ef1fbe69b3edcfa43db48ed09a6dcc9ead984c376e9dc00fe25ad",
+   "component": "qt",
+   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
+  },
+  {
+   "path": "QtQml/qmlmetaplugin.dll",
+   "bytes": 31376,
+   "sha256": "bf0c03218d643bb27c718a2f7d9d449aa327042f1e19ea26edaab8615fcb04c8",
+   "component": "qt",
+   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
+  },
+  {
+   "path": "QtQml/WorkerScript/workerscriptplugin.dll",
+   "bytes": 30864,
+   "sha256": "8a844958141121c4de7a465500f75bccf2e2dd76b7a6fa7a0c001f7739df053b",
+   "component": "qt",
+   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
+  },
+  {
+   "path": "QtQuick/Controls/Basic/impl/qtquickcontrols2basicstyleimplplugin.dll",
+   "bytes": 31376,
+   "sha256": "f587f17f021d0cf39a513aa9185acd3ed0a98ef7809fdb1ef012313d87cc2b81",
+   "component": "qt",
+   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
+  },
+  {
+   "path": "QtQuick/Controls/Basic/qtquickcontrols2basicstyleplugin.dll",
+   "bytes": 32400,
+   "sha256": "004a99aacca140ca0d5654e6e6efa6817681f2b7f34f1baa4260b9615fc50407",
+   "component": "qt",
+   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
+  },
+  {
+   "path": "QtQuick/Controls/impl/qtquickcontrols2implplugin.dll",
+   "bytes": 31376,
+   "sha256": "27cf6f6f980d98d0008eb81a4797ccad78b63bc1a2878c5eceb85bf0373ea4bf",
+   "component": "qt",
+   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
+  },
+  {
+   "path": "QtQuick/Controls/Material/impl/qtquickcontrols2materialstyleimplplugin.dll",
+   "bytes": 31376,
+   "sha256": "33c903d008df81bd7e81c5dc3fd2abcd92cd5bdfc904a38a7f84c18422042381",
+   "component": "qt",
+   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
+  },
+  {
+   "path": "QtQuick/Controls/Material/qtquickcontrols2materialstyleplugin.dll",
+   "bytes": 32400,
+   "sha256": "88f4e0631e71851856c7e6e632c8ccdc718b2e18bf729b46b4d65c14bfc86ec7",
+   "component": "qt",
+   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
+  },
+  {
+   "path": "QtQuick/Controls/qtquickcontrols2plugin.dll",
+   "bytes": 41104,
+   "sha256": "3a0c19eccf16e2a6a987106787b0de7f96caa3ac22d42fd1bfbf2e327d07519c",
+   "component": "qt",
+   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
+  },
+  {
+   "path": "QtQuick/Dialogs/qtquickdialogsplugin.dll",
+   "bytes": 30864,
+   "sha256": "bb719dc781126c487e965fe949c0480a2a93c03ceada8343b41bbf408e173968",
+   "component": "qt",
+   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
+  },
+  {
+   "path": "QtQuick/Dialogs/quickimpl/qtquickdialogs2quickimplplugin.dll",
+   "bytes": 31376,
+   "sha256": "1c7b19fd9e4220fdf1668ccef99b0e08015a43adbef4200793d2cc8bcbcf8cb9",
+   "component": "qt",
+   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
+  },
+  {
+   "path": "QtQuick/Effects/effectsplugin.dll",
+   "bytes": 30864,
+   "sha256": "7e97adfaba36443d7870c4178e878b0e95c634f0b863332f9f06797274f7ad0d",
+   "component": "qt",
+   "mapping_basis": "official Qt 6.7.3 msvc2019_64 file copied by the deploy recipe; first staged by the 1.0.2 recipe"
+  },
+  {
+   "path": "QtQuick/Layouts/qquicklayoutsplugin.dll",
+   "bytes": 30864,
+   "sha256": "f8bb9a28df497e0039a4622273d05604f7c2018bf8c32c2abcc6aad683f14d76",
+   "component": "qt",
+   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
+  },
+  {
+   "path": "QtQuick/qtquick2plugin.dll",
+   "bytes": 30864,
+   "sha256": "b78de5ea2b739fe95f309444b5b6713a4df26fd746c4caec670bc5170d93675a",
+   "component": "qt",
+   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
+  },
+  {
+   "path": "QtQuick/Templates/qtquicktemplates2plugin.dll",
+   "bytes": 31888,
+   "sha256": "1144e7ae8efd2165c70d642e935396356737c6cb9ce14ee29d83ae0c71e8d9b8",
+   "component": "qt",
+   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
+  },
+  {
+   "path": "QtQuick/Window/quickwindowplugin.dll",
+   "bytes": 31888,
+   "sha256": "4589ea27b4a546c22264241fb8a8899d3fa1f6f4e361deedb546b8a255df470a",
+   "component": "qt",
+   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
+  },
+  {
    "path": "swresample-7.dll",
    "bytes": 178176,
    "sha256": "9cad942c2cda6a408078c9b11e5227e946af0b1fed4f090291974ef5293359e3",
@@ -847,27 +552,6 @@
    "sha256": "2b9b65d30ee17cc3638c9a41d5a820973e67c3c307fbc4d787aae88b9f601b3d",
    "component": "ffmpeg",
    "mapping_basis": "bytes equal the pinned slim archive member (ffmpeg/provenance/ffmpeg-archive-bin-sha256.tsv)"
-  },
-  {
-   "path": "tls/qcertonlybackend.dll",
-   "bytes": 104592,
-   "sha256": "bf4ab30a9c431fafb9bd63d8e13f8a503f8d55d34d0e6d1712cfc81efb704a6a",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "tls/qopensslbackend.dll",
-   "bytes": 320144,
-   "sha256": "d96da25bf8b714d72f3fdd305b5a241cec050f3823630e2d9409ae2e99249e97",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
-  },
-  {
-   "path": "tls/qschannelbackend.dll",
-   "bytes": 263824,
-   "sha256": "3ff8f70456bf7109584237bd897694df12c85fb09785f9c7fd196b600dfa2550",
-   "component": "qt",
-   "mapping_basis": "Qt 6.7.3 module or plugin file name in the accepted stage (owner inventory); no provider byte comparison supplied"
   },
   {
    "path": "vccorlib140.dll",
@@ -1013,7 +697,7 @@
    ],
    "reused_repo_paths": [],
    "release_provenance": {
-    "status": "INCOMPLETE",
+    "status": "COMPLETE",
     "gaps": [
      {
       "id": "qt-provider-licences",
@@ -1026,13 +710,6 @@
       "class": "advisory",
       "text": "The Qt 6.7.3 source archives on download.qt.io were unreachable here; the notice texts come from the official github.com/qt mirror at tag v6.7.3.",
       "v4_gap": "qt-4"
-     },
-     {
-      "id": "qt-source",
-      "class": "obligation",
-      "text": "LGPL-3.0 Qt libraries are shipped as separate DLLs; the corresponding source for the shipped modules (qtbase, qtdeclarative, qtsvg, qtshadertools 6.7.3) must accompany or be offered with the package.",
-      "needed_artifact": "The verified Qt-6.7.3-source-bundle.tar identified in qt-6.7.3/source-artifacts.json and source-bundle.sha256 must accompany the matching public package; provider/build provenance must be checked before closing this obligation.",
-      "v4_gap": "qt-5"
      },
      {
       "id": "qt-qmltooling",
@@ -1052,6 +729,12 @@
       "class": "resolved",
       "text": "platforms/qwindows.dll, imageformats/qsvg, qjpeg, qgif, qico, iconengines/qsvgicon, tls (3), networkinformation, generic and 27 QML plugins are present; libjpeg attribution (qjpeg) is already selected.",
       "v4_gap": "qt-2"
+     },
+     {
+      "id": "qt-source",
+      "text": "Qt-6.7.3-source-bundle.tar (SHA-256 cb7f4c24..., recorded in qt-6.7.3/source-bundle.sha256) is attached to the matching public release, https://github.com/rsmith4321/gyrograde/releases/tag/plus-v1.0.2.",
+      "previous_class": "obligation",
+      "class": "resolved"
      }
     ]
    }
@@ -1295,15 +978,8 @@
    ],
    "reused_repo_paths": [],
    "release_provenance": {
-    "status": "INCOMPLETE",
+    "status": "COMPLETE",
     "gaps": [
-     {
-      "id": "ffmpeg-source",
-      "class": "obligation",
-      "text": "GPL-3.0-or-later build: the corresponding source of FFmpeg 46d8f462, the BtbN 9acad4a9 build scripts, the Gyroflow+ trim script and every statically linked dependency at its pin (27 rows) must accompany or be offered with the package.",
-      "needed_artifact": "A corresponding-source archive set (or written offer) for the pins in ffmpeg/provenance/ffmpeg-components.tsv.",
-      "v4_gap": "ffmpeg-3"
-     },
      {
       "id": "ffmpeg-patents",
       "class": "advisory",
@@ -1333,6 +1009,12 @@
       "id": "ffmpeg-texts-slim",
       "class": "resolved",
       "text": "The slim build compiles in 27 recorded rows, all with notice texts at their pins. xvidcore and the other dropped components are no longer shipped: aribb24, avisynth, brotli, cairo, chromaprint, davs2, fast_float, fftw3, fontconfig, freetype, frei0r, fribidi, game-music-emu, glad, glib, gmp, gnulib, graphengine, gvdb, harfbuzz, highway, kvazaar, lame, lcevcdec, lcms2, libaribcaption, libass, libbluray, libdvdcss, libdvdnav, libdvdread, libffi, libiconv, libjxl, libogg, libplacebo, libpng, librist, librsvg, libsamplerate, libssh, libudfread, libunibreak, libva, libvorbis, libvpx, libwebp, libxml2, libzmq, lilv, lv2, mbedtls, openal-soft, openapv, opencl-headers, opencl-icd-loader, opencore-amr, openh264, openjpeg, openmpt, openssl, opus, pango, pcre2, pixman, rubberband, sdl2, serd, snappy, sord, soxr, sratom, srt, tf-psa-crypto, theora, twolame, uavs3d, vapoursynth, vidstab, vulkan-headers-libplacebo, vvenc, xavs2, xvidcore, xxhash, xz, zimg, zix, zstd, zvbi."
+     },
+     {
+      "id": "ffmpeg-source",
+      "text": "FFmpeg-46d8f462ee-corresponding-source.tar (SHA-256 de44ed4f73f85ff6a387a0e4ce52a32d62f97cef5be1423f84fc9f379053c7ec, all 27 component pins plus the BtbN scripts and trim script) is attached to https://github.com/rsmith4321/gyrograde/releases/tag/plus-v1.0.2.",
+      "previous_class": "obligation",
+      "class": "resolved"
      }
     ]
    }
@@ -1591,23 +1273,17 @@
     "dll_file_version": "14.51.36247.0",
     "staged_dll_count": 10
    },
-   "notice_members": [],
+   "notice_members": [
+    "msvc-crt-14.51.36247.0/MICROSOFT-RUNTIME.txt"
+   ],
    "provenance_members": [
     "msvc-crt-14.51.36247.0/PROVENANCE.json",
     "msvc-crt-14.51.36247.0/provenance/Redist.txt"
    ],
    "reused_repo_paths": [],
-   "notice_not_required_reason": "Microsoft licence terms govern these files; there is no notice text to ship.",
    "release_provenance": {
-    "status": "INCOMPLETE",
+    "status": "COMPLETE",
     "gaps": [
-     {
-      "id": "crt-terms",
-      "class": "obligation",
-      "text": "The installed Redist.txt only points to https://aka.ms/vs/18/redistribution; that list and the Build Tools licence terms were not found on the build machine and are unreachable here (aka.ms, learn.microsoft.com and visualstudio.microsoft.com refuse this environment).",
-      "needed_artifact": "The Visual Studio 2026 (v18) distributable-code list and the Build Tools licence terms that cover the 10 staged runtime DLLs, retained with the release records.",
-      "v4_gap": "msvc-crt-1"
-     },
      {
       "id": "crt-official-bytes",
       "class": "advisory",
@@ -1627,6 +1303,12 @@
       "class": "duplicate",
       "text": "Same artifact as crt-terms.",
       "v4_gap": "msvc-crt-3"
+     },
+     {
+      "id": "crt-terms",
+      "text": "The Visual Studio Community 2026 licence (Distributable Code section) and the VS 2026 Distributable List, which names VC\\redist for Community and Build Tools, were retained with the release records (Visual_Studio_2026-License-Community_ENU.docx 02ac0763..., Diagnostic and Build Tools licence ff03a242...). msvc-crt-14.51.36247.0/MICROSOFT-RUNTIME.txt passes the end-user terms on.",
+      "previous_class": "obligation",
+      "class": "resolved"
      }
     ]
    }
@@ -1753,7 +1435,7 @@
    ],
    "reused_repo_paths": [],
    "release_provenance": {
-    "status": "INCOMPLETE",
+    "status": "COMPLETE",
     "gaps": [
      {
       "id": "mdk-archive-origin",
@@ -1768,22 +1450,10 @@
       "text": "Staged mdk.dll, mdk-braw.dll and mdk-r3d.dll (git e89bc0b) differ from the official v0.39.0 release (git eed59da) and the 2026-10-09 nightly (git 474d079); only mdk.lib matches and it is identical across both."
      },
      {
-      "id": "mdk-ffmpeg9-source",
-      "class": "obligation",
-      "text": "ffmpeg-9.dll is LGPL-2.1-or-later. Its corresponding source must account for FFmpeg 590fb407b09bbf19aac0ea2fbd0ba16f93494601 and the recorded avbuild configuration. The matching VS2026 lite Actions build attempted 35 master patches with no logged failure and five common patches with skipped/failed hunks, including one partially successful common time.c patch. FFMPEG-PATCH-OUTCOMES.json records all 40 patch identities and actual logged outcomes. Retaining patch inputs alone does not establish the resulting source or satisfy corresponding-source delivery; those remain open. The 40 ordered patch-stage transformations are now reconstructed and independently byte-verified against 169 recorded hunk outcomes for 10,714 source files; FFMPEG-PATCH-STAGE.json indexes the retained source-only archive. Later conditional/sed/configuration/generated-file and dependency requirements remain outside that proof.",
-      "needed_artifact": "A corresponding-source route for FFmpeg 590fb407, all 40 avbuild d91e8a95 patch inputs, the recorded partial application outcomes and embedded configuration, with required dependency/build records. Preserve the verified patch-stage archive and review alongside the original source and patch inputs; complete the later source transformations and delivery route before closing this obligation."
-     },
-     {
       "id": "mdk-ffmpeg9-build-revision",
       "class": "advisory",
       "text": "avbuild d91e8a95, nv-codec-headers eddcea9e and the devpkgs dep-av revision (oneVPL 3a3ca48d, zlib da607da7, libva_loader 7d814d7b, pins unchanged 2026-07-12 to 2026-09-29) are inferred from link time and repository history, not from embedded ids. The texts at those pins are exact.",
       "needed_artifact": null
-     },
-     {
-      "id": "mdk-libass-fribidi-source",
-      "class": "obligation",
-      "text": "libass.dll statically links FriBidi (LGPL-2.1-or-later, b93119f5, 1.0.17). Corresponding source and the applicable relinking materials must accompany or be offered with the package. LIBASS-BUILD-INPUTS.json preserves historical source-input collection. Later hosted run 38017550683 qualified the retained 12-archive source build, seven FriBidi generated-output hashes and object/static-library relinking; LIBASS-SOURCE-QUALIFICATION.json records the evidence and reviewed source kit retained on an unpublished draft. Candidate DLL hashes differ and neither replaces or is shown to match the shipped vendor DLL. Public delivery alongside the package and remaining corresponding-source/provider checks remain open.",
-      "needed_artifact": "Deliver the reviewed source kit and applicable relinking materials alongside the matching package through a public corresponding-source route, and complete remaining corresponding-source/provider checks before closing this obligation. Preserve the pinned build recipe, generated-output evidence and original source/license archives; the unpublished draft and hosted qualification alone do not close it."
      },
      {
       "id": "mdk-libass-build-revision",
@@ -1847,6 +1517,18 @@
       "id": "mdk-libass-unicode-data-notice",
       "class": "resolved",
       "text": "FriBidi b93119f5 generates tables from Unicode18.0.0 data. The original UCD ReadMe copyright/terms reference and full official Unicode License V3 are retained. The five exact input identities and seven actual generation commands are recorded in LIBASS-BUILD-INPUTS.json. This supplements the FriBidi LGPL notice and does not close source/relink or distribution requirements."
+     },
+     {
+      "id": "mdk-ffmpeg9-source",
+      "text": "Not shipped from GyroGrade 1.0.2 on: the deploy recipe does not stage it and the tested stage never loaded it, so the gap no longer applies to the package. mdk.dll loads the app's own avcodec-63.dll (covered by ffmpeg-source).",
+      "previous_class": "obligation",
+      "class": "resolved"
+     },
+     {
+      "id": "mdk-libass-fribidi-source",
+      "text": "Not shipped from GyroGrade 1.0.2 on: the deploy recipe does not stage it and the tested stage never loaded it, so the gap no longer applies to the package.",
+      "previous_class": "obligation",
+      "class": "resolved"
      }
     ]
    }
@@ -1869,22 +1551,20 @@
    "reused_repo_paths": [],
    "notice_not_required_reason": "Microsoft licence terms govern this file; there is no notice text to ship.",
    "release_provenance": {
-    "status": "INCOMPLETE",
-    "gaps": [
-     {
-      "id": "d3d-terms",
-      "class": "blocker",
-      "text": "The staged copy (FileVersion 6.3.9600.16384, 4173928 B, byte-identical to the Qt 6.7.3 provider bin copy) has no established distribution terms. The supplied Windows SDK 10.0.26100.0 licence covers that SDK's own, different copy (4741568 B, e407b9ff...), and its REDIST.TXT list (go.microsoft.com/fwlink/?LinkId=524842) is unreachable here.",
-      "needed_artifact": "One of: the terms under which the Qt provider distributes its copy; or the SDK 10.0.26100.0 REDIST.TXT list confirming its Redist\\D3D copy, then ship that copy instead; or a decision not to ship the DLL (Windows 10 and later include a system copy; inferred, not verified here).",
-      "v4_gap": "d3dcompiler-2"
-     }
-    ],
+    "status": "COMPLETE",
+    "gaps": [],
     "resolved": [
      {
       "id": "d3d-source-version",
       "class": "resolved",
       "text": "FileVersion 6.3.9600.16384; bytes equal the Qt 6.7.3 provider bin copy, not the SDK 10.0.26100.0 Redist copy.",
       "v4_gap": "d3dcompiler-1"
+     },
+     {
+      "id": "d3d-terms",
+      "text": "Not shipped from GyroGrade 1.0.2 on: the deploy recipe does not stage it and the tested stage never loaded it, so the gap no longer applies to the package. Qt loads System32\\D3DCompiler_47.dll (observed 10.0.26100.9457).",
+      "previous_class": "blocker",
+      "class": "resolved"
      }
     ]
    }
@@ -2744,16 +2424,16 @@
    ],
    "reused_repo_paths": [],
    "release_provenance": {
-    "status": "INCOMPLETE",
-    "gaps": [
+    "status": "COMPLETE",
+    "gaps": [],
+    "resolved": [
      {
       "id": "opengl32sw-provider",
-      "class": "blocker",
-      "text": "The Qt-distributed DLL and embedded Mesa 11.2.2/LLVM 3.6.2 versions are identified. Main/component notices and a conservative version-matched source superset of 668 attribution excerpts are retained. Another 29 build-input/flagged contexts are provenance. All 697 excerpts and declared source accounting were independently verified, but complete parser coverage, files without headers, actual compiled copyright/license coverage, and Qt patch/build identity remain unestablished. The provider blocker is unchanged.",
-      "needed_artifact": "Applicable copyright/license coverage for the Qt-distributed DLL, resolving remaining source/context uncertainty with provider recipe, patch/options and linked-object evidence. Source superset retention is not binary build proof; no owner waiver or gap downgrade."
+      "text": "Not shipped from GyroGrade 1.0.2 on: the deploy recipe does not stage it and the tested stage never loaded it, so the gap no longer applies to the package.",
+      "previous_class": "blocker",
+      "class": "resolved"
      }
-    ],
-    "resolved": []
+    ]
    }
   }
  },
@@ -2767,8 +2447,8 @@
   },
   {
    "path": "README.md",
-   "bytes": 11684,
-   "sha256": "8e35445688667ea4016fa94569b621ba4369866bc7a8cee5aff9a5696c418e3d",
+   "bytes": 12252,
+   "sha256": "8351f93e206275c89072f084d56e6f195d963436aed32be11e58d41d610ea5b9",
    "component": "packet",
    "role": "packet"
   },
@@ -10995,6 +10675,13 @@
    "sha256": "f06c7de59b5fb016d0340094ad5bff204a74ccbb51bc3136371e801da6b45788",
    "component": "zlib",
    "role": "provenance"
+  },
+  {
+   "path": "msvc-crt-14.51.36247.0/MICROSOFT-RUNTIME.txt",
+   "component": "msvc-crt",
+   "role": "notice",
+   "bytes": 1090,
+   "sha256": "9aff81f62bbfdd53fbf9619b15025a9e3eb097276c8203a62384cc333872f0de"
   }
  ]
 }

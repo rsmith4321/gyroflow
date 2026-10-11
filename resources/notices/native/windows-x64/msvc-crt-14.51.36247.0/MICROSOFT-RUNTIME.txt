@@ -1,0 +1,20 @@
+Microsoft Visual C++ runtime files
+
+These files in the GyroGrade folder belong to Microsoft:
+
+  concrt140.dll, msvcp140.dll, msvcp140_1.dll, msvcp140_2.dll,
+  msvcp140_atomic_wait.dll, msvcp140_codecvt_ids.dll, vccorlib140.dll,
+  vcruntime140.dll, vcruntime140_1.dll, vcruntime140_threads.dll
+
+They are version 14.51.36247.0, copied unmodified from the Visual Studio 2026
+redistributable folder (VC\Redist\MSVC\14.51.36231\x64\Microsoft.VC145.CRT).
+GyroGrade ships them as Distributable Code under the Microsoft Software License
+Terms for Visual Studio Community 2026, which allow the files in VC\redist to be
+distributed with an application. Microsoft's list of distributable files is at
+https://aka.ms/vs/18/redistribution.
+
+These files are not part of GyroGrade and are not covered by its GPL licence.
+Microsoft keeps all rights in them. You may use them only to run GyroGrade. You
+may not modify them, distribute them on their own, or reverse engineer,
+decompile or disassemble them, except where the law allows it despite this
+limit. Microsoft provides them as is, without warranties.

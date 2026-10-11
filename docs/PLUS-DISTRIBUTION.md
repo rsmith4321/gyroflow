@@ -142,28 +142,27 @@ python -m pip install --require-hashes -r _scripts/requirements-package.txt
 python _scripts/package_plus.py windows _deployment/_binaries/win64 path/to/new-stage `
   --binary target/x86_64-pc-windows-msvc/deploy/gyroflow.exe `
   --deploy-receipt _deployment/_binaries/win64-deploy.json `
-  --msvc-redist-floor 14.44.35211.0 `
+  --msvc-redist-floor 14.51.36247.0 `
   --licenses path/to/dependency-notices `
-  --native-notices-sha256 72a5beebbca38b76ae810fee11575bb14b64f1f3dc07813dd65bf3f4cbdb9f7e
+  --native-notices-sha256 04dcf4dda54f98c5663534d49093dc56dd2caa13db2c39422477b40081115074
 ```
 
 `--native-notices-sha256` pins the reviewed native notice tree, which must be
 inside the `--licenses` directory. Staging fails unless exactly one
 `MANIFEST.json` there has that hash and its integrity check passes.
 `BUILD.json` and `PACKAGE.json` record the manifest hash and path, the
-integrity result and the `--require-release-complete` result. That result stays
-3 while the recorded release gaps remain.
+integrity result and the `--require-release-complete` result. For GyroGrade
+1.0.2 that result is 0: no blocking gap remains in the native notice tree.
 
-Corresponding source is delivered as bundles beside the package, not as a
-written offer. Add `--source-bundle NAME=PATH` for each of `qt`, `libass`,
-`ffmpeg` and `mdk-ffmpeg9`. Each bundle is copied to the stage's `Source`
-folder. The Qt bundle and libass source kit must match the identities recorded
-in the reviewed notice tree (`qt-6.7.3/source-bundle.sha256` and
-`LIBASS-SOURCE-QUALIFICATION.json`); a mismatch stops staging. The receipts
-record each bundle's hash. Delivery is recorded as `beside-package` only when
-all four are present; otherwise it stays `open`. The FFmpeg and MDK FFmpeg
-bundles have not been assembled yet. Recording a bundle does not approve a
-public release.
+Corresponding source is published as assets of the matching GitHub release
+rather than as a written offer: GyroGrade's own source at the build commit, the
+Rust crates, `Qt-6.7.3-source-bundle.tar` and
+`FFmpeg-46d8f462ee-corresponding-source.tar`. `--source-bundle NAME=PATH` can
+also copy bundles into the stage's `Source` folder; the Qt bundle and libass
+source kit must then match the identities recorded in the notice tree. The 1.0.2
+stage no longer ships MDK's `ffmpeg-9.dll` or `libass.dll`, so their bundles are
+not needed. The portable ZIP is unsigned, so Windows SmartScreen warns on first
+launch.
 
 The floor above is an example; replace it with the full FileVersion required by
 the newest toolset used to build the app, OCIO, Qt and OpenCV. Run deploy in a

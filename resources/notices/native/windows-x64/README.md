@@ -1,4 +1,4 @@
-# Windows x64 native dependency notices (candidate)
+# Windows x64 native dependency notices
 
 Status: CANDIDATE for `resources/notices/native/windows-x64`. Not a legal review and
 not a release approval (`public_release_approved: false`).
@@ -10,18 +10,28 @@ of original installed provider files. `.gitattributes` keeps those bytes unchang
 
 Later additions retain MDK bundled notices, the FreeType license choice and
 acknowledgment, and the byte-matched OpenCL SDK provider's copyright and metadata.
-The current `427a6ca4` private Windows stage has the same 120 DLL identities as
-the frozen inventory, except that the seven FFmpeg entries now record the slim
-Gyroflow+ FFmpeg archive (`docs/WINDOWS-FFMPEG-SLIM.md`) that the current pin
-builds with. Seven blocking requirements remain; consult the manifest for the
-current component records. A copied notice tree does not close them.
+
+The GyroGrade 1.0.2 stage (deploy recipe at `115eb23c` and later) ships 74 DLLs.
+69 of them keep the bytes recorded in the earlier frozen 120-DLL inventory, with
+the seven FFmpeg entries taken from the slim Gyroflow+ FFmpeg archive
+(`docs/WINDOWS-FFMPEG-SLIM.md`). Four Qt 6.7.3 files are new to the recipe, and
+OpenCL.dll is copied from vcpkg. The recipe no longer stages `D3DCompiler_47.dll`
+(Qt loads the System32 copy), `opengl32sw.dll`, MDK's `ffmpeg-9.dll` and
+`libass.dll` (MDK uses the app's own FFmpeg), or `shaderc_shared.dll`. Their
+notice folders stay here as records.
+
+No blocking gap remains. The Qt and FFmpeg corresponding-source bundles are
+attached to the matching GitHub release, the Microsoft runtime terms are recorded
+in `msvc-crt-14.51.36247.0/MICROSOFT-RUNTIME.txt`, and the gaps for files that
+are no longer shipped are closed. The remaining advisory gaps are listed in the
+manifest.
 
 `MANIFEST.json` lists:
 - every file with its size and SHA-256
-- all 120 staged DLLs from the frozen stage inventory, each assigned to one component
-  with the basis for that assignment
-- every open gap with a class: `blocker`, `obligation` or `advisory`, plus the gaps
-  v5 closed (`resolved` or `duplicate`)
+- all 74 staged DLLs, each assigned to one component with the basis for that
+  assignment
+- every open gap with a class: `blocker`, `obligation` or `advisory`, plus the
+  closed gaps (`resolved` or `duplicate`)
 
 `verify_native_notices.py` (delivered beside this candidate) checks integrity
 separately from these gap classes.
@@ -30,19 +40,19 @@ separately from these gap classes.
 
 | Directory | Component | Notice text here |
 |---|---|---|
-| `qt-6.7.3/` | Qt 6.7.3: 30 DLLs and 49 plugins | Module licences and 46 third-party attributions at tag v6.7.3 |
+| `qt-6.7.3/` | Qt 6.7.3: 23 DLLs and 22 plugins | Module licences and 46 third-party attributions at tag v6.7.3 |
 | `ffmpeg/` | FFmpeg n9.0.2, slim Gyroflow+ build of BtbN's scripts: 7 DLLs | FFmpeg, BtbN, all 27 build components, the 65 Rust crates rav1e links and the toolchain runtimes |
-| `opencv-4.14.0/` | OpenCV 4.14.0: 12 DLLs | The provider's `COPYRIGHT.txt`, identical to the repository copy |
+| `opencv-4.14.0/` | OpenCV 4.14.0: 6 DLLs | The provider's `COPYRIGHT.txt`, identical to the repository copy |
 | `ocio-2.4.2/` | OpenColorIO_2_4.dll | None here. The tracked `resources/color` notices are staged by `package_plus.py` |
 | `rust-windows-x64-ocio/` | Gyroflow's Rust crates | None here. Include the tracked `resources/notices/rust/windows-x64-ocio` in the same `--licenses` input |
-| `msvc-crt-14.51.36247.0/` | Microsoft C/C++ runtime: 10 DLLs | None. The installed `Redist.txt` is kept as provenance |
-| `mdk-0.39.0-e89bc0b/` | MDK 0.39.0 git e89bc0b, plus its bundled `ffmpeg-9.dll` and `libass.dll` | Original SDK `README.md`, bundled dependency notices and FreeType acknowledgment |
-| `d3dcompiler_47/` | D3Dcompiler_47.dll 6.3.9600.16384 | None. Windows SDK 10.0.26100.0 terms are kept as provenance only, because they cover a different copy |
+| `msvc-crt-14.51.36247.0/` | Microsoft C/C++ runtime: 10 DLLs | `MICROSOFT-RUNTIME.txt`, the Microsoft terms that apply. The installed `Redist.txt` is kept as provenance |
+| `mdk-0.39.0-e89bc0b/` | MDK 0.39.0 git e89bc0b: 3 DLLs (its bundled `ffmpeg-9.dll` and `libass.dll` are no longer shipped) | Original SDK `README.md`, bundled dependency notices and FreeType acknowledgment |
+| `d3dcompiler_47/` | D3Dcompiler_47.dll 6.3.9600.16384, no longer shipped | None. Windows SDK 10.0.26100.0 terms are kept as provenance only, because they cover a different copy |
 | `zlib-for-z.dll/` | zlib 1.3.2#2 (z.dll) | The upstream v1.3.2 `LICENSE`, which is byte-identical to the installed `copyright` |
-| `opencl/` | OpenCL SDK 2024.10.24#1 loader and utilities: 3 DLLs | Exact installed provider copyright: Apache-2.0 and the whereami MIT alternative |
-| `unattributed/` | opengl32sw.dll, byte-matched to Qt 6.7.3 and its published Mesa 11.2.2 / LLVM 3.6.2 reference | Verbatim version-matched Mesa/LLVM notices and older Qt-published attributions; additional Gallium/Unicode notices and regex documentation credits; complete binary copyright-holder coverage remains open |
+| `opencl/` | OpenCL SDK 2024.10.24#1 loader: OpenCL.dll | Exact installed provider copyright: Apache-2.0 and the whereami MIT alternative |
+| `unattributed/` | opengl32sw.dll (no longer shipped), byte-matched to Qt 6.7.3 and its published Mesa 11.2.2 / LLVM 3.6.2 reference | Verbatim version-matched Mesa/LLVM notices and older Qt-published attributions; additional Gallium/Unicode notices and regex documentation credits; complete binary copyright-holder coverage remains open |
 
-**shaderc** is omitted. No `shaderc*.dll` is in the accepted stage.
+**shaderc** is omitted. No `shaderc*.dll` is staged.
 
 ## Limits
 

@@ -27,10 +27,10 @@ propsys psapi rpcrt4 secur32 setupapi shcore shell32 shlwapi user32 userenv
 usp10 uxtheme version winhttp wininet winmm winspool.drv wintrust wldap32
 ws2_32 wtsapi32 windowscodecs
 '''.split())
-# Staged deliberately for loaders outside Qt; Qt itself loads D3DCompiler from
-# System32 only (QSystemLibrary default). Any other system name would shadow
-# Windows or be ignored, so staging it is an error.
-STAGED_SYSTEM_EXCEPTIONS = frozenset({'d3dcompiler_47'})
+# A staged copy of a system DLL would shadow Windows or be ignored, so staging
+# one is an error. D3DCompiler_47 is no exception: Qt loads it from System32
+# (QSystemLibrary default) and the app-local copies had no clear terms.
+STAGED_SYSTEM_EXCEPTIONS = frozenset()
 # Documented optional delay loads. Empty: a missing delay load is an error.
 OPTIONAL_DELAY_IMPORTS = frozenset()
 CRT = re.compile(r'(msvcp140(_\w+)?|vcruntime140(_\w+)?|concrt140|vcomp140|vccorlib140|mfc140\w*)\.dll')

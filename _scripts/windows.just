@@ -303,6 +303,9 @@ deploy features="" default_features="true":
     xcopy /Y "$OpenCVDir\opencv_imgpro*.dll"     "$TargetDir\"
     xcopy /Y "$OpenCVDir\opencv_vide*.dll"       "$TargetDir\"
     xcopy /Y "$OpenCVDir\z.dll"                  "$TargetDir\"
+    # gyroflow-core and opencv_core import the Khronos OpenCL ICD loader; GPU drivers
+    # install it in System32, but a clean machine may not have one.
+    xcopy /Y "$OpenCVDir\OpenCL.dll"             "$TargetDir\"
     del "$TargetDir\opencv_*videoio*"
 
     # Copy Gyroflow
@@ -324,15 +327,8 @@ deploy features="" default_features="true":
     mkdir "$TargetDir\camera_presets\" -Force
     echo F | xcopy /Y "$ProjectDir\resources\camera_presets\profiles.cbor.gz"  "$TargetDir\camera_presets\profiles.cbor.gz"
 
-    # Other
-    # Optional: Qt loads D3DCompiler_47 from System32 only; these app-local
-    # copies serve other loaders and are not required by the stage audit.
-    xcopy.exe /Y "$QtDir\bin\d3dcompiler_47.dll"                         "$TargetDir\"
-    if ("{{Arch}}" -eq "aarch64") {
-        xcopy.exe /Y "C:\Program Files (x86)\Windows Kits\10\bin\10.0.22621.0\arm64\d3dcompiler_47.dll" "$TargetDir\"
-    } else {
-        xcopy.exe /Y "C:\Program Files (x86)\Windows Kits\10\bin\10.0.22621.0\x64\d3dcompiler_47.dll" "$TargetDir\"
-    }
+    # D3DCompiler_47.dll is not staged: Windows 10 and later ship it in System32,
+    # which is where Qt loads it from, and the app-local copies had no clear terms.
 
     # Copy one redistributable set from the active VS toolchain, never System32.
     if (-not $Env:VCToolsRedistDir) { throw "Run deploy in a Visual Studio developer environment (VCToolsRedistDir is required)" }
@@ -341,10 +337,10 @@ deploy features="" default_features="true":
     if ($CRTDirectories.Count -ne 1) { throw "Expected exactly one $RedistArch VC redistributable folder" }
     $CRTDirectory = $CRTDirectories[0].FullName
     xcopy /Y "$CRTDirectory\*.dll" "$TargetDir\"
-    # Vulkan shaderc
-    if ("{{Arch}}" -eq "x86_64") {
-        Invoke-WebRequest -URI "https://api.gyroflow.xyz/sdk/shaderc_shared.dll" -OutFile "$TargetDir\shaderc_shared.dll"
-    }
+    # shaderc_shared.dll is not staged: MDK needs it only for its optional Vulkan
+    # renderer, and the upstream download has no recorded provenance or notice.
+    # The stage folder is reused between deploys, so clear copies left by older recipes.
+    Remove-Item -LiteralPath "$TargetDir\d3dcompiler_47.dll", "$TargetDir\shaderc_shared.dll", "$TargetDir\opengl32sw.dll" -ErrorAction SilentlyContinue
 
     7z a $ArchivePath $TargetDir\*
     if ($LASTEXITCODE -ne 0) { throw "7z failed" }

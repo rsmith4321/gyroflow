@@ -4,8 +4,8 @@
 
 The reviewed native snapshot is in
 [`resources/notices/native/windows-x64`](../../resources/notices/native/windows-x64).
-Its manifest describes the frozen `ab680a27` Windows stage: 120 DLL identities,
-verbatim notice texts, provider provenance and explicit remaining gaps. A new
+Its manifest describes the GyroGrade 1.0.2 Windows stage: 74 DLL identities,
+verbatim notice texts, provider provenance and the remaining advisory gaps. A new
 stage must be compared with those identities before reusing the snapshot.
 
 Check content and the 25 reused repository files with the offline standard-library
@@ -14,13 +14,13 @@ verifier:
 ```sh
 python3 -I _scripts/notices/verify_native_notices.py \
   resources/notices/native/windows-x64 --repo-root . \
-  --manifest-sha256 72a5beebbca38b76ae810fee11575bb14b64f1f3dc07813dd65bf3f4cbdb9f7e
+  --manifest-sha256 04dcf4dda54f98c5663534d49093dc56dd2caa13db2c39422477b40081115074
 ```
 
 The Qt GPL-2.0-or-later alias is retained as the full upstream target text,
 rather than the literal Git symbolic-link target name. Content integrity currently passes. Add `--require-release-complete` to check the
-recorded release gaps; it currently returns **3**, because eight blockers or
-obligations remain. A normal integrity exit of zero is not distribution approval.
+recorded release gaps; it currently returns **0**, because no blocker or
+obligation remains. A normal integrity exit of zero is not a legal review.
 The manifest pin prevents an edited gap classification from silently passing.
 
 For a Windows package, combine the reviewed native tree and the matching Rust

@@ -62,9 +62,9 @@ class Rules(unittest.TestCase):
         facts = stage(**{'foo.dll': image(), 'QtQuick/foo.dll': image()})
         self.assertTrue(any('shadows foo.dll' in e for e in errors(facts)))
 
-    def test_staged_system_dll_but_not_d3dcompiler(self):
+    def test_staged_system_dll_including_d3dcompiler(self):
         self.assertTrue(any('system DLL' in e for e in errors(stage(**{'kernel32.dll': image()}))))
-        self.assertEqual(errors(stage(**{'d3dcompiler_47.dll': image()})), [])
+        self.assertTrue(any('system DLL' in e for e in errors(stage(**{'d3dcompiler_47.dll': image()}))))
 
     def test_inbox_multimedia_crypto_and_legacy_crt_imports_are_system_dependencies(self):
         for name in ('avicap32.dll','bcryptprimitives.dll','dsound.dll','imagehlp.dll','msvcrt.dll'):
