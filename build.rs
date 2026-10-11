@@ -265,8 +265,9 @@ fn main() {
             }
             let mut res = winres::WindowsResource::new();
             res.set_icon("resources/app_icon.ico");
-            res.set("FileVersion", "1.0.0.0");
-            res.set("ProductVersion", "1.0.0.0");
+            let version = format!("{}.0", env!("CARGO_PKG_VERSION"));
+            res.set("FileVersion", &version);
+            res.set("ProductVersion", &version);
             res.set("ProductName", "GyroGrade");
             res.set("FileDescription", &format!("GyroGrade v{}, based on Gyroflow", env!("CARGO_PKG_VERSION")));
             res.compile().unwrap();
