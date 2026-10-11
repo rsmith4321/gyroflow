@@ -22,7 +22,7 @@ dependency source-delivery and provider requirements remain open.
 | Surface | Fork identity |
 | --- | --- |
 | Application/UI | GyroGrade wordmark; subtitle “Stabilize · Color correct · Export”; “Based on Gyroflow” credit in the sidebar, documentation and notices |
-| Application version | `1.0.1` (window title “GyroGrade 1.0.1”); upstream core retains its own version |
+| Application version | `1.0.2` (window title “GyroGrade 1.0.2”); upstream core retains its own version |
 | Mac bundle | `com.ryansmith.gyrograde`, `GyroGrade.app` |
 | Windows portable executable | `GyroGrade` directory; executable keeps `Gyroflow.exe` for the embedded MDK key |
 | Settings | `GyroGrade` user-data directory; on first launch it copies `settings.json` and `lens_profiles` from a `Gyroflow Plus` directory beside it, once. `GYROGRADE_DATA_DIR` (or the older `GYROFLOW_PLUS_DATA_DIR`) selects another profile |
