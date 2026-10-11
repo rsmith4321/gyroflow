@@ -157,7 +157,7 @@ profile *param:
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 [no-cd]
-deploy features="":
+deploy features="" default_features="true":
     #!powershell
     $ErrorActionPreference = 'Stop'
     # Native exit codes do not trigger $ErrorActionPreference. This function
@@ -188,11 +188,13 @@ deploy features="":
     if ($LASTEXITCODE -ne 0) { throw "Cannot read the source commit" }
     $Dirty = [bool](git status --porcelain)
     if ($LASTEXITCODE -ne 0) { throw "Cannot read the source status" }
-    if ("{{features}}") {
-        cargo build --profile deploy --target $Target --features "{{features}}"
-    } else {
-        cargo build --profile deploy --target $Target
-    }
+    # default_features="false" omits Cargo defaults (crash-reporting), as the
+    # reviewed Windows notices assume (docs/PLUS-DISTRIBUTION.md).
+    if ("{{default_features}}" -notin @("true", "false")) { throw "default_features must be true or false" }
+    $CargoArgs = @("build", "--locked", "--profile", "deploy", "--target", $Target)
+    if ("{{default_features}}" -eq "false") { $CargoArgs += "--no-default-features" }
+    if ("{{features}}") { $CargoArgs += @("--features", "{{features}}") }
+    cargo @CargoArgs
     if ($LASTEXITCODE -ne 0) { throw "cargo build failed" }
 
     $TargetDir   = resolve-path "{{ProjectDir}}\_deployment\_binaries\win64"
@@ -357,7 +359,7 @@ deploy features="":
                                 path = "resources/camera_presets/profiles.cbor.gz"; bytes = $LensFile.Length;
                                 sha256 = (Get-FileHash -LiteralPath $LensFile.FullName -Algorithm SHA256).Hash.ToLowerInvariant() }
     [ordered]@{ commit = $Commit; dirty = $Dirty; target = $Target;
-                features = "{{features}}"; exe_sha256 = $ExeHash; crt_source = $CRTDirectory;
+                features = "{{features}}"; default_features = ("{{default_features}}" -eq "true"); exe_sha256 = $ExeHash; crt_source = $CRTDirectory;
                 lens_profiles = $LensProfiles } |
         ConvertTo-Json | Set-Content -Encoding ascii $ReceiptPath
 

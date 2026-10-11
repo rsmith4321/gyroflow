@@ -127,10 +127,10 @@ cargo build --locked --profile deploy --target x86_64-pc-windows-msvc `
 ```
 
 This compilation command does not create a prepared runtime or its deploy
-receipt. The existing `just deploy` recipe enables Cargo defaults and does not
-pass through `--no-default-features`; it is not the reproduction path for the
-accepted candidate. Keep its deployment tooling separate until that pass-through
-has been implemented and tested on Windows. Current private validation uses an
+receipt. To build and prepare the runtime in one step with the same features, run
+`just deploy opencv,ocio-runtime false`. The second argument turns off Cargo
+defaults (Breakpad crash reporting), and the receipt records it as
+`default_features: false`. Without it, `just deploy` keeps Cargo defaults. Current private validation uses an
 independently recorded build/stage plan; see the
 [current Windows preflight](OPENCOLORIO-INTEGRATION.md#current-windows-application-preflight).
 
