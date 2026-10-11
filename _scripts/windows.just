@@ -51,17 +51,27 @@ install-deps:
     # ――――――――――――――――――――――――――――――――――――――― FFmpeg ――――――――――――――――――――――――――――――――――――――――
     if (-not (Test-Path -Path "{{FFmpeg}}")) {
         echo "Downloading {{FFmpeg}}"
-        Invoke-WebRequest -Uri "https://downloads.sourceforge.net/project/avbuild/windows-desktop/{{FFmpeg}}.7z" -OutFile "{{FFmpeg}}.7z" -MaximumRedirection 5 -UserAgent "wget/1.21"
-        7z x -y {{FFmpeg}}.7z
-        del {{FFmpeg}}.7z
+        # The draft release is private: this needs the GitHub CLI signed in with access to the repository.
+        if (-not (Get-Command "gh.exe" -ErrorAction SilentlyContinue)) { throw "The GitHub CLI (gh) is required to download the slim FFmpeg bundle." }
+        gh release download "{{WindowsFFmpegRelease}}" --repo "{{WindowsFFmpegRepo}}" --pattern "{{FFmpeg}}.zip" --clobber
+        if ($LASTEXITCODE -ne 0) { throw "Downloading {{FFmpeg}}.zip from {{WindowsFFmpegRepo}} failed." }
+        if ((Get-FileHash -LiteralPath "{{FFmpeg}}.zip" -Algorithm SHA256).Hash.ToLowerInvariant() -ne "{{WindowsFFmpegSHA256}}") {
+            throw "FFmpeg archive SHA-256 mismatch; refusing to extract it."
+        }
+        Expand-Archive -LiteralPath "{{FFmpeg}}.zip" -DestinationPath .
+        Remove-Item -LiteralPath "{{FFmpeg}}.zip"
     }
+    & $Python "{{ProjectDir}}/tests/export-lut/check_windows_ffmpeg.py" "{{FFMPEG_DIR}}" --target-arch "{{FFMPEG_ARCH}}" --app-coverage
+    if ($LASTEXITCODE -ne 0) { throw "FFmpeg bundle does not support the required export filters/codecs." }
     # ――――――――――――――――――――――――――――――――――――――― FFmpeg ――――――――――――――――――――――――――――――――――――――――
 
     # ――――――――――――――――――――――――――――――――――――――― OpenCV ――――――――――――――――――――――――――――――――――――――――
     if (-not (Test-Path -Path "vcpkg/installed/{{VcpkgArch}}/lib/opencv_core4.lib")) {
         echo "Downloading OpenCV"
-        rm -Recurse -Force \vcpkg -ErrorAction SilentlyContinue
-        git clone --depth 1 https://github.com/Microsoft/vcpkg.git
+        if (-not (Test-Path -LiteralPath "vcpkg/.vcpkg-root")) {
+            git clone --depth 1 https://github.com/Microsoft/vcpkg.git vcpkg
+            if ($LASTEXITCODE -ne 0) { throw "vcpkg clone failed" }
+        }
         .\vcpkg\bootstrap-vcpkg.bat -disableMetrics
         #Add-Content .\vcpkg\triplets\arm64-windows.cmake -Value  "`nset(VCPKG_CMAKE_SYSTEM_VERSION 10.0.22621.0)"
         #Add-Content .\vcpkg\triplets\arm64-windows.cmake -Value  "`nset(CMAKE_SYSTEM_VERSION 10.0.22621.0)"
@@ -71,21 +81,40 @@ install-deps:
         .\vcpkg\vcpkg install "flatbuffers:{{VcpkgArch}}" --cmake-args=-DVCPKG_BUILD_TYPE=release
         .\vcpkg\vcpkg install "opencv4[core,calib3d,opencl,thread,intrinsics]:{{VcpkgArch}}" --cmake-args=-DVCPKG_BUILD_TYPE=release
         .\vcpkg\vcpkg install "opencl:{{VcpkgArch}}" --cmake-args=-DVCPKG_BUILD_TYPE=release
-        rm -Recurse -Force .\vcpkg\buildtrees
-        rm -Recurse -Force .\vcpkg\downloads
+        # Keep the local vcpkg checkout and caches for incremental builds/retries.
     }
     # ――――――――――――――――――――――――――――――――――――――― OpenCV ――――――――――――――――――――――――――――――――――――――――
 
     # ――――――――――――――――――――――――――――――――――――――― LLVM ――――――――――――――――――――――――――――――――――――――――
-    if (-not (Test-Path -Path "{{LLVMPath}}\libclang.dll")) {
-        $Arch = "win64"
+    $Clang = "{{LLVMPath}}\clang.exe"
+    $LLVMReady = (Test-Path -LiteralPath "{{LLVMPath}}\libclang.dll") -and (Test-Path -LiteralPath $Clang)
+    if ($LLVMReady) {
+        $ClangVersion = (& $Clang --version) -join " "
+        $LLVMReady = $LASTEXITCODE -eq 0 -and ($ClangVersion -match "clang version (\d+)" -and [int]$Matches[1] -ge 20)
+    }
+    if (-not $LLVMReady) {
+        # LLVM runs on the build host, including x64-to-ARM64 cross builds.
+        $LLVMHost = "x86_64"
+        $LLVMSHA256 = "f229769f11d6a6edc8ada599c0cda964b7dee6ab1a08c6cf9dd7f513e85b107f"
         if ($env:PROCESSOR_ARCHITECTURE -eq "ARM64") {
-            $Arch = "woa64";
+            $LLVMHost = "aarch64"
+            $LLVMSHA256 = "0df3e81e8fe26370dd2b60b9e009d81cd130d3fdc41b257434aa663c5d9f0c13"
         }
-        echo "Downloading LLVM"
-        wget "https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.7/LLVM-19.1.7-$Arch.exe" -O "llvm.exe"
-        7z x -y llvm.exe -ollvm
-        del "llvm.exe"
+        $LLVMPackage = "clang+llvm-20.1.8-$LLVMHost-pc-windows-msvc"
+        $LLVMArchive = "$LLVMPackage.tar.xz"
+        if (-not (Test-Path -LiteralPath $LLVMArchive)) {
+            Invoke-WebRequest -Uri "https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.8/$LLVMArchive" -OutFile $LLVMArchive
+        }
+        if ((Get-FileHash -LiteralPath $LLVMArchive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $LLVMSHA256) {
+            throw "LLVM archive SHA-256 mismatch; refusing to extract it."
+        }
+        New-Item -ItemType Directory -Path "llvm" -Force | Out-Null
+        # Only the compiler, matching libclang and resource headers are needed.
+        # Portable archive extraction avoids running an installer or editing PATH.
+        tar -xf $LLVMArchive -C llvm --strip-components 1 "$LLVMPackage/bin/clang.exe" "$LLVMPackage/bin/libclang.dll" "$LLVMPackage/lib/clang"
+        if ($LASTEXITCODE -ne 0) { throw "LLVM portable archive extraction failed." }
+        & .\llvm\bin\clang.exe --version
+        if ($LASTEXITCODE -ne 0) { throw "LLVM compiler does not execute." }
     }
     # ――――――――――――――――――――――――――――――――――――――― LLVM ――――――――――――――――――――――――――――――――――――――――
 
@@ -128,12 +157,25 @@ profile *param:
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 [no-cd]
-deploy:
+deploy features="" default_features="true":
     #!powershell
     $ErrorActionPreference = 'Stop'
+    # Native exit codes do not trigger $ErrorActionPreference. This function
+    # shadows xcopy so every copy below fails the recipe; optional copies call
+    # xcopy.exe directly.
+    function xcopy { $input | xcopy.exe @args; if ($LASTEXITCODE -ne 0) { throw "xcopy $args failed ($LASTEXITCODE)" } }
 
     $ProjectDir = resolve-path "{{ProjectDir}}"
     cd $ProjectDir
+    # Never mix files from an earlier deploy or bundle into this runtime.
+    if ((Test-Path "$ProjectDir\_deployment\_binaries\win64") -and (Get-ChildItem -Force "$ProjectDir\_deployment\_binaries\win64")) {
+        throw "_deployment\_binaries\win64 is not empty; move or remove it before deploying"
+    }
+    $ReceiptPath = "$ProjectDir\_deployment\_binaries\win64-deploy.json"
+    $ArchivePath = "$ProjectDir\_deployment\_binaries\Gyroflow-{{NameSuffix}}.zip"
+    if ((Test-Path $ReceiptPath) -or (Test-Path $ArchivePath)) {
+        throw "Move the previous deploy receipt and ZIP before deploying; outputs must be fresh"
+    }
     mkdir "$ProjectDir\_deployment\_binaries\win64" -Force
 
     if ("{{Arch}}" -eq "aarch64") {
@@ -142,7 +184,18 @@ deploy:
         $Target = "x86_64-pc-windows-msvc"
     }
 
-    cargo build --profile deploy --target $Target
+    $Commit = git rev-parse HEAD
+    if ($LASTEXITCODE -ne 0) { throw "Cannot read the source commit" }
+    $Dirty = [bool](git status --porcelain)
+    if ($LASTEXITCODE -ne 0) { throw "Cannot read the source status" }
+    # default_features="false" omits Cargo defaults (crash-reporting), as the
+    # reviewed Windows notices assume (docs/PLUS-DISTRIBUTION.md).
+    if ("{{default_features}}" -notin @("true", "false")) { throw "default_features must be true or false" }
+    $CargoArgs = @("build", "--locked", "--profile", "deploy", "--target", $Target)
+    if ("{{default_features}}" -eq "false") { $CargoArgs += "--no-default-features" }
+    if ("{{features}}") { $CargoArgs += @("--features", "{{features}}") }
+    cargo @CargoArgs
+    if ($LASTEXITCODE -ne 0) { throw "cargo build failed" }
 
     $TargetDir   = resolve-path "{{ProjectDir}}\_deployment\_binaries\win64"
     $QtDir       = resolve-path "{{QtPath}}\.."
@@ -191,7 +244,8 @@ deploy:
     xcopy /Y "$QtDir\qml\QtCore\qmldir"                                                              "$TargetDir\QtCore\"
     xcopy /Y "$QtDir\qml\QtCore\qtqmlcoreplugin.dll"                                                 "$TargetDir\QtCore\"
     xcopy /Y "$QtDir\qml\QtQml\qmldir"                                                               "$TargetDir\QtQml\"
-    xcopy /Y "$QtDir\qml\QtQml\qmlplugin.dll"                                                        "$TargetDir\QtQml\"
+    # Qt 6.7 ships qmlplugin.dll only under QtQml\Base; older Qt also had it here.
+    if (Test-Path "$QtDir\qml\QtQml\qmlplugin.dll") { xcopy /Y "$QtDir\qml\QtQml\qmlplugin.dll" "$TargetDir\QtQml\" }
     xcopy /Y "$QtDir\qml\QtQml\qmlmetaplugin.dll"                                                    "$TargetDir\QtQml\"
     xcopy /Y "$QtDir\qml\QtQml\Base\qmldir"                                                          "$TargetDir\QtQml\Base\"
     xcopy /Y "$QtDir\qml\QtQml\Base\qmlplugin.dll"                                                   "$TargetDir\QtQml\Base\"
@@ -249,6 +303,9 @@ deploy:
     xcopy /Y "$OpenCVDir\opencv_imgpro*.dll"     "$TargetDir\"
     xcopy /Y "$OpenCVDir\opencv_vide*.dll"       "$TargetDir\"
     xcopy /Y "$OpenCVDir\z.dll"                  "$TargetDir\"
+    # gyroflow-core and opencv_core import the Khronos OpenCL ICD loader; GPU drivers
+    # install it in System32, but a clean machine may not have one.
+    xcopy /Y "$OpenCVDir\OpenCL.dll"             "$TargetDir\"
     del "$TargetDir\opencv_*videoio*"
 
     # Copy Gyroflow
@@ -257,32 +314,51 @@ deploy:
     xcopy /Y "$CargoTarget\mdk-r3d.dll"                                  "$TargetDir\"
     echo F | xcopy /Y "$CargoTarget\gyroflow.exe"                        "$TargetDir\Gyroflow.exe"
     xcopy /Y "$ProjectDir\_deployment\windows\Gyroflow_with_console.bat" "$TargetDir\"
+    if (("{{features}}" -split "[ ,]") -contains "ocio-runtime") {
+        # Shared official OCIO prefix and the Qt module used by generated preview shaders.
+        xcopy /Y "$Env:OCIO_ROOT\bin\OpenColorIO_2_4.dll"                "$TargetDir\"
+        xcopy /Y "$QtDir\bin\Qt6ShaderTools.dll"                           "$TargetDir\"
+    }
+    $ExeHash = (Get-FileHash -LiteralPath "$CargoTarget\gyroflow.exe" -Algorithm SHA256).Hash.ToLowerInvariant()
+    if ((Get-FileHash -LiteralPath "$TargetDir\Gyroflow.exe" -Algorithm SHA256).Hash.ToLowerInvariant() -ne $ExeHash) {
+        throw "Staged Gyroflow.exe differs from the cargo output"
+    }
     # xcopy /Y /E "$ProjectDir\resources\camera_presets\*"                 "$TargetDir\camera_presets\"
     mkdir "$TargetDir\camera_presets\" -Force
     echo F | xcopy /Y "$ProjectDir\resources\camera_presets\profiles.cbor.gz"  "$TargetDir\camera_presets\profiles.cbor.gz"
 
-    # Other
-    xcopy /Y "$QtDir\bin\d3dcompiler_47.dll"                             "$TargetDir\"
-    if ("{{Arch}}" -eq "aarch64") {
-        xcopy /Y "C:\Program Files (x86)\Windows Kits\10\bin\10.0.22621.0\arm64\d3dcompiler_47.dll" "$TargetDir\"
-    } else {
-        xcopy /Y "C:\Program Files (x86)\Windows Kits\10\bin\10.0.22621.0\x64\d3dcompiler_47.dll" "$TargetDir\"
-    }
+    # D3DCompiler_47.dll is not staged: Windows 10 and later ship it in System32,
+    # which is where Qt loads it from, and the app-local copies had no clear terms.
 
-    # VC Redist
-    if ("{{Arch}}" -eq "x86_64") {
-        xcopy /Y "C:\Windows\System32\vcruntime140.dll"     "$TargetDir\"
-        xcopy /Y "C:\Windows\System32\vcruntime140_1.dll"   "$TargetDir\"
-        xcopy /Y "C:\Windows\System32\msvcp140.dll"         "$TargetDir\"
-        xcopy /Y "C:\Windows\System32\msvcp140_1.dll"       "$TargetDir\"
-        xcopy /Y "C:\Windows\System32\msvcp140_2.dll"       "$TargetDir\"
-    }
-    # Vulkan shaderc
-    if ("{{Arch}}" -eq "x86_64") {
-        Invoke-WebRequest -URI "https://api.gyroflow.xyz/sdk/shaderc_shared.dll" -OutFile "$TargetDir\shaderc_shared.dll"
-    }
+    # Copy one redistributable set from the active VS toolchain, never System32.
+    if (-not $Env:VCToolsRedistDir) { throw "Run deploy in a Visual Studio developer environment (VCToolsRedistDir is required)" }
+    $RedistArch = if ("{{Arch}}" -eq "aarch64") { "arm64" } else { "x64" }
+    $CRTDirectories = @(Get-ChildItem -Directory (Join-Path (Join-Path $Env:VCToolsRedistDir $RedistArch) "Microsoft.VC14*.CRT"))
+    if ($CRTDirectories.Count -ne 1) { throw "Expected exactly one $RedistArch VC redistributable folder" }
+    $CRTDirectory = $CRTDirectories[0].FullName
+    xcopy /Y "$CRTDirectory\*.dll" "$TargetDir\"
+    # shaderc_shared.dll is not staged: MDK needs it only for its optional Vulkan
+    # renderer, and the upstream download has no recorded provenance or notice.
+    # The stage folder is reused between deploys, so clear copies left by older recipes.
+    Remove-Item -LiteralPath "$TargetDir\d3dcompiler_47.dll", "$TargetDir\shaderc_shared.dll", "$TargetDir\opengl32sw.dll" -ErrorAction SilentlyContinue
 
-    7z a $ProjectDir\_deployment\_binaries\Gyroflow-{{NameSuffix}}.zip $TargetDir\*
+    7z a $ArchivePath $TargetDir\*
+    if ($LASTEXITCODE -ne 0) { throw "7z failed" }
+    # Write only after every required copy and the archive succeeded.
+    $EndStatus = git status --porcelain
+    if ($LASTEXITCODE -ne 0) { throw "Cannot read final source status" }
+    $EndCommit = git rev-parse HEAD
+    if ($LASTEXITCODE -ne 0) { throw "Cannot read final source commit" }
+    $Dirty = $Dirty -or [bool]$EndStatus -or ($EndCommit -ne $Commit)
+    # The lens database is untracked build input (src/core/build.rs; GYROFLOW_LENS_PROFILES).
+    $LensFile = Get-Item -LiteralPath "$TargetDir\camera_presets\profiles.cbor.gz"
+    $LensProfiles = [ordered]@{ mode = $(if ($Env:GYROFLOW_LENS_PROFILES) { $Env:GYROFLOW_LENS_PROFILES } else { "latest" });
+                                path = "resources/camera_presets/profiles.cbor.gz"; bytes = $LensFile.Length;
+                                sha256 = (Get-FileHash -LiteralPath $LensFile.FullName -Algorithm SHA256).Hash.ToLowerInvariant() }
+    [ordered]@{ commit = $Commit; dirty = $Dirty; target = $Target;
+                features = "{{features}}"; default_features = ("{{default_features}}" -eq "true"); exe_sha256 = $ExeHash; crt_source = $CRTDirectory;
+                lens_profiles = $LensProfiles } |
+        ConvertTo-Json | Set-Content -Encoding ascii $ReceiptPath
 
 [no-cd]
 bundle:
