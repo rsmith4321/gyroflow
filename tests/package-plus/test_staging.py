@@ -156,8 +156,8 @@ class NativeNoticeBindingTests(unittest.TestCase):
         self.assertEqual(report['errors'],[])
         self.assertEqual(report['manifest_path'],'native/windows-x64/MANIFEST.json')
         self.assertEqual(report['integrity_exit'],0)
-        # Recorded release gaps remain; binding never turns them into approval.
-        self.assertEqual(report['release_complete_exit'],3)
+        # The 1.0.2 tree has no blocking gap; binding records that, it never approves.
+        self.assertEqual(report['release_complete_exit'],0)
 
     def test_recorded_qt_and_libass_bundle_identities_are_read_from_the_tree(self):
         expected=stager.expected_source_bundles(self.dependencies/'native/windows-x64')
